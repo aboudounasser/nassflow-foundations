@@ -106,7 +106,7 @@ function DashboardCeo() {
       </div>
 
       {/* 4. AI Workforce */}
-      <div className="col-span-12 xl:col-span-7">
+      <div className="col-span-12 2xl:col-span-6">
         <WidgetShell
           title="AI Workforce"
           description="Agents IA en opération"
@@ -122,7 +122,7 @@ function DashboardCeo() {
       </div>
 
       {/* 5. Decision Center */}
-      <div className="col-span-12 xl:col-span-5">
+      <div className="col-span-12 2xl:col-span-6">
         <WidgetShell
           title="Decision Center"
           description="Décisions en attente d'arbitrage"
@@ -138,7 +138,7 @@ function DashboardCeo() {
       </div>
 
       {/* 6. Mission Center */}
-      <div className="col-span-12 xl:col-span-7">
+      <div className="col-span-12 2xl:col-span-6">
         <WidgetShell
           title="Mission Center"
           description="Missions actives et progression"
@@ -154,7 +154,7 @@ function DashboardCeo() {
       </div>
 
       {/* 7. Live Activity */}
-      <div className="col-span-12 xl:col-span-5">
+      <div className="col-span-12 2xl:col-span-6">
         <WidgetShell
           title="Live Activity"
           description="Flux d'activité en temps réel"
@@ -171,7 +171,7 @@ function DashboardCeo() {
       </div>
 
       {/* 8. Notifications */}
-      <div className="col-span-12 lg:col-span-6 xl:col-span-4">
+      <div className="col-span-12 2xl:col-span-6">
         <WidgetShell
           title="Notifications"
           description="Alertes prioritaires"
@@ -187,7 +187,7 @@ function DashboardCeo() {
       </div>
 
       {/* 9. Agenda */}
-      <div className="col-span-12 lg:col-span-6 xl:col-span-4">
+      <div className="col-span-12 2xl:col-span-6">
         <WidgetShell
           title="Agenda"
           description="Prochaines échéances"
@@ -203,7 +203,7 @@ function DashboardCeo() {
       </div>
 
       {/* 10. Opportunity Radar */}
-      <div className="col-span-12 xl:col-span-4">
+      <div className="col-span-12 2xl:col-span-6">
         <WidgetShell
           title="Opportunity Radar"
           description="Opportunités détectées par l'IA"
@@ -219,7 +219,7 @@ function DashboardCeo() {
       </div>
 
       {/* 11. AI Insights */}
-      <div className="col-span-12 xl:col-span-6">
+      <div className="col-span-12 2xl:col-span-6">
         <WidgetShell
           title="AI Insights"
           description="Analyses génératives explicables"
@@ -235,7 +235,7 @@ function DashboardCeo() {
       </div>
 
       {/* 12. Forecast */}
-      <div className="col-span-12 xl:col-span-6">
+      <div className="col-span-12 2xl:col-span-6">
         <WidgetShell
           title="Forecast"
           description={forecastMock.metric}
