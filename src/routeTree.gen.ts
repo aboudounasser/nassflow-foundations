@@ -10,33 +10,193 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AiAgentsRouteImport } from './routes/ai-agents'
+import { Route as BillingRouteImport } from './routes/billing'
+import { Route as CrmRouteImport } from './routes/crm'
+import { Route as EnterpriseBrainRouteImport } from './routes/enterprise-brain'
+import { Route as HelpCenterRouteImport } from './routes/help-center'
+import { Route as InsightsRouteImport } from './routes/insights'
+import { Route as IntegrationsHubRouteImport } from './routes/integrations-hub'
+import { Route as MissionsRouteImport } from './routes/missions'
+import { Route as OrganizationRouteImport } from './routes/organization'
+import { Route as SecurityCenterRouteImport } from './routes/security-center'
+import { Route as SystemSettingsRouteImport } from './routes/system-settings'
+import { Route as WorkflowEngineRouteImport } from './routes/workflow-engine'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AiAgentsRoute = AiAgentsRouteImport.update({
+  id: '/ai-agents',
+  path: '/ai-agents',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BillingRoute = BillingRouteImport.update({
+  id: '/billing',
+  path: '/billing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CrmRoute = CrmRouteImport.update({
+  id: '/crm',
+  path: '/crm',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EnterpriseBrainRoute = EnterpriseBrainRouteImport.update({
+  id: '/enterprise-brain',
+  path: '/enterprise-brain',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HelpCenterRoute = HelpCenterRouteImport.update({
+  id: '/help-center',
+  path: '/help-center',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InsightsRoute = InsightsRouteImport.update({
+  id: '/insights',
+  path: '/insights',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IntegrationsHubRoute = IntegrationsHubRouteImport.update({
+  id: '/integrations-hub',
+  path: '/integrations-hub',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MissionsRoute = MissionsRouteImport.update({
+  id: '/missions',
+  path: '/missions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrganizationRoute = OrganizationRouteImport.update({
+  id: '/organization',
+  path: '/organization',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SecurityCenterRoute = SecurityCenterRouteImport.update({
+  id: '/security-center',
+  path: '/security-center',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SystemSettingsRoute = SystemSettingsRouteImport.update({
+  id: '/system-settings',
+  path: '/system-settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WorkflowEngineRoute = WorkflowEngineRouteImport.update({
+  id: '/workflow-engine',
+  path: '/workflow-engine',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/ai-agents': typeof AiAgentsRoute
+  '/billing': typeof BillingRoute
+  '/crm': typeof CrmRoute
+  '/enterprise-brain': typeof EnterpriseBrainRoute
+  '/help-center': typeof HelpCenterRoute
+  '/insights': typeof InsightsRoute
+  '/integrations-hub': typeof IntegrationsHubRoute
+  '/missions': typeof MissionsRoute
+  '/organization': typeof OrganizationRoute
+  '/security-center': typeof SecurityCenterRoute
+  '/system-settings': typeof SystemSettingsRoute
+  '/workflow-engine': typeof WorkflowEngineRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/ai-agents': typeof AiAgentsRoute
+  '/billing': typeof BillingRoute
+  '/crm': typeof CrmRoute
+  '/enterprise-brain': typeof EnterpriseBrainRoute
+  '/help-center': typeof HelpCenterRoute
+  '/insights': typeof InsightsRoute
+  '/integrations-hub': typeof IntegrationsHubRoute
+  '/missions': typeof MissionsRoute
+  '/organization': typeof OrganizationRoute
+  '/security-center': typeof SecurityCenterRoute
+  '/system-settings': typeof SystemSettingsRoute
+  '/workflow-engine': typeof WorkflowEngineRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/ai-agents': typeof AiAgentsRoute
+  '/billing': typeof BillingRoute
+  '/crm': typeof CrmRoute
+  '/enterprise-brain': typeof EnterpriseBrainRoute
+  '/help-center': typeof HelpCenterRoute
+  '/insights': typeof InsightsRoute
+  '/integrations-hub': typeof IntegrationsHubRoute
+  '/missions': typeof MissionsRoute
+  '/organization': typeof OrganizationRoute
+  '/security-center': typeof SecurityCenterRoute
+  '/system-settings': typeof SystemSettingsRoute
+  '/workflow-engine': typeof WorkflowEngineRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/ai-agents'
+    | '/billing'
+    | '/crm'
+    | '/enterprise-brain'
+    | '/help-center'
+    | '/insights'
+    | '/integrations-hub'
+    | '/missions'
+    | '/organization'
+    | '/security-center'
+    | '/system-settings'
+    | '/workflow-engine'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/ai-agents'
+    | '/billing'
+    | '/crm'
+    | '/enterprise-brain'
+    | '/help-center'
+    | '/insights'
+    | '/integrations-hub'
+    | '/missions'
+    | '/organization'
+    | '/security-center'
+    | '/system-settings'
+    | '/workflow-engine'
+  id:
+    | '__root__'
+    | '/'
+    | '/ai-agents'
+    | '/billing'
+    | '/crm'
+    | '/enterprise-brain'
+    | '/help-center'
+    | '/insights'
+    | '/integrations-hub'
+    | '/missions'
+    | '/organization'
+    | '/security-center'
+    | '/system-settings'
+    | '/workflow-engine'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AiAgentsRoute: typeof AiAgentsRoute
+  BillingRoute: typeof BillingRoute
+  CrmRoute: typeof CrmRoute
+  EnterpriseBrainRoute: typeof EnterpriseBrainRoute
+  HelpCenterRoute: typeof HelpCenterRoute
+  InsightsRoute: typeof InsightsRoute
+  IntegrationsHubRoute: typeof IntegrationsHubRoute
+  MissionsRoute: typeof MissionsRoute
+  OrganizationRoute: typeof OrganizationRoute
+  SecurityCenterRoute: typeof SecurityCenterRoute
+  SystemSettingsRoute: typeof SystemSettingsRoute
+  WorkflowEngineRoute: typeof WorkflowEngineRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +208,107 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ai-agents': {
+      id: '/ai-agents'
+      path: '/ai-agents'
+      fullPath: '/ai-agents'
+      preLoaderRoute: typeof AiAgentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/billing': {
+      id: '/billing'
+      path: '/billing'
+      fullPath: '/billing'
+      preLoaderRoute: typeof BillingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/crm': {
+      id: '/crm'
+      path: '/crm'
+      fullPath: '/crm'
+      preLoaderRoute: typeof CrmRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/enterprise-brain': {
+      id: '/enterprise-brain'
+      path: '/enterprise-brain'
+      fullPath: '/enterprise-brain'
+      preLoaderRoute: typeof EnterpriseBrainRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/help-center': {
+      id: '/help-center'
+      path: '/help-center'
+      fullPath: '/help-center'
+      preLoaderRoute: typeof HelpCenterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/insights': {
+      id: '/insights'
+      path: '/insights'
+      fullPath: '/insights'
+      preLoaderRoute: typeof InsightsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/integrations-hub': {
+      id: '/integrations-hub'
+      path: '/integrations-hub'
+      fullPath: '/integrations-hub'
+      preLoaderRoute: typeof IntegrationsHubRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/missions': {
+      id: '/missions'
+      path: '/missions'
+      fullPath: '/missions'
+      preLoaderRoute: typeof MissionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/organization': {
+      id: '/organization'
+      path: '/organization'
+      fullPath: '/organization'
+      preLoaderRoute: typeof OrganizationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/security-center': {
+      id: '/security-center'
+      path: '/security-center'
+      fullPath: '/security-center'
+      preLoaderRoute: typeof SecurityCenterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/system-settings': {
+      id: '/system-settings'
+      path: '/system-settings'
+      fullPath: '/system-settings'
+      preLoaderRoute: typeof SystemSettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/workflow-engine': {
+      id: '/workflow-engine'
+      path: '/workflow-engine'
+      fullPath: '/workflow-engine'
+      preLoaderRoute: typeof WorkflowEngineRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AiAgentsRoute: AiAgentsRoute,
+  BillingRoute: BillingRoute,
+  CrmRoute: CrmRoute,
+  EnterpriseBrainRoute: EnterpriseBrainRoute,
+  HelpCenterRoute: HelpCenterRoute,
+  InsightsRoute: InsightsRoute,
+  IntegrationsHubRoute: IntegrationsHubRoute,
+  MissionsRoute: MissionsRoute,
+  OrganizationRoute: OrganizationRoute,
+  SecurityCenterRoute: SecurityCenterRoute,
+  SystemSettingsRoute: SystemSettingsRoute,
+  WorkflowEngineRoute: WorkflowEngineRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
