@@ -39,8 +39,8 @@ export function WidgetMenu({ label }: { label: string }) {
 }
 
 export interface WidgetProps {
-  state?: WidgetState;
-  onRetry?: () => void;
+  state?: WidgetState | undefined;
+  onRetry?: (() => void) | undefined;
 }
 
 /**
@@ -65,17 +65,17 @@ export function WidgetShell({
   children,
 }: WidgetProps & {
   title: string;
-  description?: string;
-  icon?: LucideIcon;
+  description?: string | undefined;
+  icon?: LucideIcon | undefined;
   headerAction?: ReactNode;
-  showMenu?: boolean;
+  showMenu?: boolean | undefined;
   emptyIcon: LucideIcon;
   emptyTitle: string;
-  emptyDescription?: string;
+  emptyDescription?: string | undefined;
   emptyAction?: ReactNode;
   skeleton?: ReactNode;
-  className?: string;
-  contentClassName?: string;
+  className?: string | undefined;
+  contentClassName?: string | undefined;
   children: ReactNode;
 }) {
   return (
