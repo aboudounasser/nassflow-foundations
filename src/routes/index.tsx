@@ -81,7 +81,7 @@ function DashboardCeo() {
       </div>
 
       {/* 2. KPIs stratégiques */}
-      <div className="col-span-12 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="col-span-12 @container grid grid-cols-1 gap-4 @lg:grid-cols-2 @4xl:grid-cols-4">
         {kpisMock.map((kpi) => (
           <KpiCard key={kpi.id} kpi={kpi} />
         ))}
@@ -95,7 +95,7 @@ function DashboardCeo() {
           icon={HeartPulse}
           emptyIcon={HeartPulse}
           emptyTitle="Aucun domaine surveillé"
-          contentClassName="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3"
+          contentClassName="grid grid-cols-1 gap-4 @xl:grid-cols-2 @4xl:grid-cols-3"
         >
           {healthMock.map((category) => (
             <HealthCategoryCard key={category.id} category={category} />
@@ -111,7 +111,7 @@ function DashboardCeo() {
           icon={Bot}
           emptyIcon={Bot}
           emptyTitle="Aucun agent déployé"
-          contentClassName="grid grid-cols-1 gap-4 md:grid-cols-2"
+          contentClassName="grid grid-cols-1 gap-4 @2xl:grid-cols-2"
         >
           {agentsMock.map((agent) => (
             <AgentSummaryCard key={agent.id} agent={agent} />

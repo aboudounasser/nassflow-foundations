@@ -86,8 +86,8 @@ export function EnterprisePulseCard({
         </div>
       }
     >
-      <div className="flex flex-col gap-6 lg:flex-row">
-        <div className="flex items-center gap-4 lg:w-[320px] lg:shrink-0">
+      <div className="flex flex-col gap-6 @3xl:flex-row">
+        <div className="flex items-center gap-4 @3xl:w-[320px] @3xl:shrink-0">
           <ScoreRing score={data.enterpriseScore} />
           <div className="min-w-0">
             <p className="text-[14px] leading-5 text-foreground/90">{data.summary}</p>
@@ -97,9 +97,9 @@ export function EnterprisePulseCard({
           </div>
         </div>
 
-        <Separator orientation="vertical" className="hidden h-auto lg:block" />
+        <Separator orientation="vertical" className="hidden h-auto @3xl:block" />
 
-        <div className="grid min-w-0 flex-1 gap-6 sm:grid-cols-3">
+        <div className="grid min-w-0 flex-1 gap-6 @xl:grid-cols-3">
           <PulseList label="Priorités" items={data.priorities} icon={ArrowRight} tone="text-primary" />
           <PulseList label="Risques" items={data.risks} icon={TriangleAlert} tone="text-warning" />
           <PulseList

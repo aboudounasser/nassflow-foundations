@@ -94,7 +94,7 @@ export function WidgetShell({
         </div>
       </CardHeader>
 
-      <CardContent className={cn("flex-1", contentClassName)}>
+      <CardContent className={cn("@container flex-1", contentClassName)}>
         {state === "loading" ? (
           (skeleton ?? (
             <div className="space-y-3">
