@@ -94,7 +94,7 @@ export function WidgetShell({
         </div>
       </CardHeader>
 
-      <CardContent className={cn("@container flex-1", contentClassName)}>
+      <CardContent className={"@container flex-1"}>
         {state === "loading" ? (
           (skeleton ?? (
             <div className="space-y-3">
@@ -131,7 +131,7 @@ export function WidgetShell({
             className="py-10"
           />
         ) : (
-          children
+          <div className={contentClassName}>{children}</div>
         )}
         {state === "empty" && emptyAction ? (
           <div className="flex justify-center pb-2">{emptyAction}</div>
