@@ -14,7 +14,8 @@ import type { Forecast, WidgetState } from "@/lib/dashboard/types";
 const compact = (v: number) =>
   `${(v / 1000).toLocaleString("fr-FR", { maximumFractionDigits: 0 })} k€`;
 
-const axisFormat = (v: number) => `${(v / 1_000_000).toLocaleString("fr-FR", { maximumFractionDigits: 1 })} M`;
+const axisFormat = (v: number) =>
+  `${(v / 1_000_000).toLocaleString("fr-FR", { maximumFractionDigits: 1 })} M`;
 
 export function ForecastCard({
   forecast,
