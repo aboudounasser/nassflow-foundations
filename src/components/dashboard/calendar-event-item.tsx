@@ -20,7 +20,12 @@ export function CalendarEventItem({
   state?: WidgetState;
   onRetry?: () => void;
 }) {
-  const fallback = ItemState({ state, skeletonHeight: "h-14", onRetry, emptyTitle: "Aucun événement à venir" });
+  const fallback = ItemState({
+    state,
+    skeletonHeight: "h-14",
+    onRetry,
+    emptyTitle: "Aucun événement à venir",
+  });
   if (fallback) return <>{fallback}</>;
 
   const category = CATEGORY[event.category];
@@ -32,7 +37,9 @@ export function CalendarEventItem({
         {date.toLocaleDateString("fr-FR", { day: "2-digit", month: "short" })}
       </span>
       <span className="min-w-0">
-        <span className="block truncate text-[14px] font-medium text-foreground">{event.title}</span>
+        <span className="block truncate text-[14px] font-medium text-foreground">
+          {event.title}
+        </span>
         <span className="block text-[12px] text-muted-foreground">
           {date.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
         </span>

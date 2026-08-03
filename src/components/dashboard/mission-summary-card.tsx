@@ -8,7 +8,10 @@ import { ItemState } from "./item-state";
 import { PRIORITY_BADGE } from "./decision-item-card";
 import type { Mission, WidgetState } from "@/lib/dashboard/types";
 
-const STATUS: Record<Mission["status"], { label: string; variant: "neutral" | "primary" | "warning" | "success" }> = {
+const STATUS: Record<
+  Mission["status"],
+  { label: string; variant: "neutral" | "primary" | "warning" | "success" }
+> = {
   todo: { label: "À faire", variant: "neutral" },
   running: { label: "En cours", variant: "primary" },
   blocked: { label: "Bloquée", variant: "warning" },
@@ -24,7 +27,12 @@ export function MissionSummaryCard({
   state?: WidgetState;
   onRetry?: () => void;
 }) {
-  const fallback = ItemState({ state, skeletonHeight: "h-28", onRetry, emptyTitle: "Aucune mission active" });
+  const fallback = ItemState({
+    state,
+    skeletonHeight: "h-28",
+    onRetry,
+    emptyTitle: "Aucune mission active",
+  });
   if (fallback) return <>{fallback}</>;
 
   const priority = PRIORITY_BADGE[mission.priority];

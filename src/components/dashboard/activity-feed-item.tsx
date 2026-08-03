@@ -14,7 +14,12 @@ export function ActivityFeedItem({
   state?: WidgetState;
   onRetry?: () => void;
 }) {
-  const fallback = ItemState({ state, skeletonHeight: "h-10", onRetry, emptyTitle: "Aucune activité récente" });
+  const fallback = ItemState({
+    state,
+    skeletonHeight: "h-10",
+    onRetry,
+    emptyTitle: "Aucune activité récente",
+  });
   if (fallback) return <>{fallback}</>;
 
   const Icon = ACTOR_ICON[event.actorType];

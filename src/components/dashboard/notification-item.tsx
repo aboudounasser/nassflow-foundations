@@ -21,7 +21,12 @@ export function NotificationItem({
   state?: WidgetState;
   onRetry?: () => void;
 }) {
-  const fallback = ItemState({ state, skeletonHeight: "h-16", onRetry, emptyTitle: "Aucune notification" });
+  const fallback = ItemState({
+    state,
+    skeletonHeight: "h-16",
+    onRetry,
+    emptyTitle: "Aucune notification",
+  });
   if (fallback) return <>{fallback}</>;
 
   const { icon: Icon, tone } = TYPE[notification.type];

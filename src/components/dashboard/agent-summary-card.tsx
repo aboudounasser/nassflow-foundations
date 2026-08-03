@@ -7,7 +7,10 @@ import { Progress } from "@/components/ui/progress";
 import { ItemState } from "./item-state";
 import type { Agent, WidgetState } from "@/lib/dashboard/types";
 
-const STATUS: Record<Agent["status"], { label: string; variant: "success" | "warning" | "destructive" }> = {
+const STATUS: Record<
+  Agent["status"],
+  { label: string; variant: "success" | "warning" | "destructive" }
+> = {
   active: { label: "Actif", variant: "success" },
   paused: { label: "En pause", variant: "warning" },
   error: { label: "Erreur", variant: "destructive" },

@@ -22,7 +22,12 @@ export function OpportunityCard({
   state?: WidgetState;
   onRetry?: () => void;
 }) {
-  const fallback = ItemState({ state, skeletonHeight: "h-28", onRetry, emptyTitle: "Aucune opportunité détectée" });
+  const fallback = ItemState({
+    state,
+    skeletonHeight: "h-28",
+    onRetry,
+    emptyTitle: "Aucune opportunité détectée",
+  });
   if (fallback) return <>{fallback}</>;
 
   const priority = PRIORITY_BADGE[opportunity.priority];
@@ -40,8 +45,8 @@ export function OpportunityCard({
       <p className="mt-2 text-[14px] text-muted-foreground">{opportunity.description}</p>
       <div className="mt-3 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
         <span className="min-w-0 truncate text-[12px] text-muted-foreground">
-          <span className="text-success">{opportunity.estimatedImpact}</span> · {EFFORT[opportunity.effort]} ·
-          confiance {opportunity.confidenceScore}%
+          <span className="text-success">{opportunity.estimatedImpact}</span> ·{" "}
+          {EFFORT[opportunity.effort]} · confiance {opportunity.confidenceScore}%
         </span>
         <Button
           variant="ghost"

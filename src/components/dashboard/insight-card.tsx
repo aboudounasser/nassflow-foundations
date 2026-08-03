@@ -15,7 +15,12 @@ export function InsightCard({
   state?: WidgetState;
   onRetry?: () => void;
 }) {
-  const fallback = ItemState({ state, skeletonHeight: "h-32", onRetry, emptyTitle: "Aucun insight généré" });
+  const fallback = ItemState({
+    state,
+    skeletonHeight: "h-32",
+    onRetry,
+    emptyTitle: "Aucun insight généré",
+  });
   if (fallback) return <>{fallback}</>;
 
   return (

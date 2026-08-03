@@ -100,7 +100,12 @@ export function EnterprisePulseCard({
         <Separator orientation="vertical" className="hidden h-auto @3xl:block" />
 
         <div className="grid min-w-0 flex-1 gap-6 @xl:grid-cols-3">
-          <PulseList label="Priorités" items={data.priorities} icon={ArrowRight} tone="text-primary" />
+          <PulseList
+            label="Priorités"
+            items={data.priorities}
+            icon={ArrowRight}
+            tone="text-primary"
+          />
           <PulseList label="Risques" items={data.risks} icon={TriangleAlert} tone="text-warning" />
           <PulseList
             label="Opportunités"

@@ -2,11 +2,7 @@ import { Minus, TrendingDown, TrendingUp } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { ItemState } from "./item-state";
 import type { HealthCategory, WidgetState } from "@/lib/dashboard/types";
 
@@ -26,7 +22,12 @@ export function HealthCategoryCard({
   state?: WidgetState;
   onRetry?: () => void;
 }) {
-  const fallback = ItemState({ state, skeletonHeight: "h-16", onRetry, emptyTitle: "Domaine indisponible" });
+  const fallback = ItemState({
+    state,
+    skeletonHeight: "h-16",
+    onRetry,
+    emptyTitle: "Domaine indisponible",
+  });
   if (fallback) return <>{fallback}</>;
 
   const TrendIcon =
@@ -37,7 +38,9 @@ export function HealthCategoryCard({
       <TooltipTrigger asChild>
         <div className="rounded-lg border border-border bg-surface p-4 transition-colors duration-150 hover:bg-accent">
           <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
-            <span className="truncate text-[14px] font-medium text-foreground">{category.name}</span>
+            <span className="truncate text-[14px] font-medium text-foreground">
+              {category.name}
+            </span>
             <Badge variant={category.status} className="shrink-0">
               <TrendIcon />
               {STATUS_LABEL[category.status]}

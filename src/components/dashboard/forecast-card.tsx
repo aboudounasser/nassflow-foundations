@@ -1,4 +1,12 @@
-import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 
 import { ItemState } from "./item-state";
 import type { Forecast, WidgetState } from "@/lib/dashboard/types";
@@ -15,7 +23,12 @@ export function ForecastCard({
   state?: WidgetState;
   onRetry?: () => void;
 }) {
-  const fallback = ItemState({ state, skeletonHeight: "h-48", onRetry, emptyTitle: "Aucune prévision" });
+  const fallback = ItemState({
+    state,
+    skeletonHeight: "h-48",
+    onRetry,
+    emptyTitle: "Aucune prévision",
+  });
   if (fallback) return <>{fallback}</>;
 
   return (

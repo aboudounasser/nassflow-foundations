@@ -83,9 +83,9 @@ function DashboardCeo() {
       {/* 2. KPIs stratégiques */}
       <div className="col-span-12 @container">
         <div className="grid grid-cols-1 gap-4 @sm:grid-cols-2 @3xl:grid-cols-4">
-        {kpisMock.map((kpi) => (
-          <KpiCard key={kpi.id} kpi={kpi} />
-        ))}
+          {kpisMock.map((kpi) => (
+            <KpiCard key={kpi.id} kpi={kpi} />
+          ))}
         </div>
       </div>
 

@@ -19,7 +19,12 @@ export function WidgetMenu({ label }: { label: string }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="size-9 shrink-0" aria-label={`Options — ${label}`}>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="size-9 shrink-0"
+          aria-label={`Options — ${label}`}
+        >
           <MoreHorizontal />
         </Button>
       </DropdownMenuTrigger>
@@ -83,7 +88,9 @@ export function WidgetShell({
       <CardHeader className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 pb-4">
         <div className="min-w-0">
           <CardTitle className="flex min-w-0 items-center gap-2">
-            {Icon ? <Icon className="size-5 shrink-0 text-muted-foreground" aria-hidden="true" /> : null}
+            {Icon ? (
+              <Icon className="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
+            ) : null}
             <span className="truncate">{title}</span>
           </CardTitle>
           {description ? <CardDescription className="mt-1">{description}</CardDescription> : null}
@@ -108,9 +115,7 @@ export function WidgetShell({
             <span className="flex size-12 items-center justify-center rounded-xl border border-destructive/30 bg-destructive/10">
               <TriangleAlert className="size-5 text-destructive" aria-hidden="true" />
             </span>
-            <p className="text-[14px] text-muted-foreground">
-              Impossible de charger « {title} ».
-            </p>
+            <p className="text-[14px] text-muted-foreground">Impossible de charger « {title} ».</p>
             <Button
               variant="secondary"
               size="sm"

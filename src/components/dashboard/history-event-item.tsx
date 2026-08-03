@@ -20,7 +20,12 @@ export function HistoryEventItem({
   state?: WidgetState;
   onRetry?: () => void;
 }) {
-  const fallback = ItemState({ state, skeletonHeight: "h-12", onRetry, emptyTitle: "Aucun historique" });
+  const fallback = ItemState({
+    state,
+    skeletonHeight: "h-12",
+    onRetry,
+    emptyTitle: "Aucun historique",
+  });
   if (fallback) return <>{fallback}</>;
 
   const Icon = TYPE_ICON[event.type];

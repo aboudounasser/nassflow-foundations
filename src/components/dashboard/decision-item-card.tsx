@@ -6,7 +6,10 @@ import { Button } from "@/components/ui/button";
 import { ItemState } from "./item-state";
 import type { Decision, Priority, WidgetState } from "@/lib/dashboard/types";
 
-export const PRIORITY_BADGE: Record<Priority, { label: string; variant: "neutral" | "info" | "warning" | "destructive" }> = {
+export const PRIORITY_BADGE: Record<
+  Priority,
+  { label: string; variant: "neutral" | "info" | "warning" | "destructive" }
+> = {
   low: { label: "Basse", variant: "neutral" },
   medium: { label: "Moyenne", variant: "info" },
   high: { label: "Haute", variant: "warning" },
@@ -22,7 +25,12 @@ export function DecisionItemCard({
   state?: WidgetState;
   onRetry?: () => void;
 }) {
-  const fallback = ItemState({ state, skeletonHeight: "h-40", onRetry, emptyTitle: "Aucune décision en attente" });
+  const fallback = ItemState({
+    state,
+    skeletonHeight: "h-40",
+    onRetry,
+    emptyTitle: "Aucune décision en attente",
+  });
   if (fallback) return <>{fallback}</>;
 
   const priority = PRIORITY_BADGE[decision.priority];
@@ -30,7 +38,9 @@ export function DecisionItemCard({
   return (
     <div className="rounded-lg border border-border bg-surface p-4">
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
-        <p className="min-w-0 text-[14px] font-medium leading-5 text-foreground">{decision.title}</p>
+        <p className="min-w-0 text-[14px] font-medium leading-5 text-foreground">
+          {decision.title}
+        </p>
         <Badge variant={priority.variant} className="shrink-0">
           {priority.label}
         </Badge>
@@ -62,7 +72,11 @@ export function DecisionItemCard({
           <Check />
           Valider
         </Button>
-        <Button variant="secondary" size="sm" onClick={() => toast(`Modification : ${decision.title}`)}>
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={() => toast(`Modification : ${decision.title}`)}
+        >
           <Pencil />
           Modifier
         </Button>

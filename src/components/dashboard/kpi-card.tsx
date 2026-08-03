@@ -22,7 +22,12 @@ export function KpiCard({
   state?: WidgetState;
   onRetry?: () => void;
 }) {
-  const fallback = ItemState({ state, skeletonHeight: "h-[104px]", onRetry, emptyTitle: "KPI indisponible" });
+  const fallback = ItemState({
+    state,
+    skeletonHeight: "h-[104px]",
+    onRetry,
+    emptyTitle: "KPI indisponible",
+  });
   if (fallback) return <>{fallback}</>;
 
   const TrendIcon = kpi.trend === "up" ? TrendingUp : kpi.trend === "down" ? TrendingDown : Minus;
