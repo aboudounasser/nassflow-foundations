@@ -112,7 +112,7 @@ export const opportunitiesMock: Opportunity[] = [
 ];
 
 export const insightsMock: Insight[] = [
-  { id: "i-1", title: "La marge PME se dégrade", description: "", summary: "La marge du segment PME a reculé de 2,4 points en 30 jours, principalement sur les remises accordées.", explanation: "Corrélation forte entre remises > 10% et baisse de marge sur 34 contrats.", confidenceScore: 84, recommendation: "Plafonner les remises PME à 10% jusqu'à fin de trimestre.", generatedAt: "2026-08-03T08:00:00.000Z" } as unknown as Insight,
+  { id: "i-1", title: "La marge PME se dégrade", summary: "La marge du segment PME a reculé de 2,4 points en 30 jours, principalement sur les remises accordées.", explanation: "Corrélation forte entre remises > 10% et baisse de marge sur 34 contrats.", confidenceScore: 84, recommendation: "Plafonner les remises PME à 10% jusqu'à fin de trimestre.", generatedAt: "2026-08-03T08:00:00.000Z" },
   { id: "i-2", title: "Le support est le goulot d'étranglement", summary: "Le temps de réponse support impacte le NPS et la rétention des comptes < 5k€.", explanation: "Les comptes ayant attendu > 6h ont 2,3x plus de risque de churn.", confidenceScore: 79, recommendation: "Activer le Support Agent en tri automatique niveau 1.", generatedAt: "2026-08-03T08:00:00.000Z" },
   { id: "i-3", title: "Fenêtre favorable sur l'upsell", summary: "L'usage produit dépasse les quotas sur 8 comptes clés, moment idéal pour un upsell.", explanation: "Usage moyen à 91% du quota sur les 60 derniers jours.", confidenceScore: 88, recommendation: "Lancer une mission d'upsell ciblée cette semaine.", generatedAt: "2026-08-03T08:00:00.000Z" },
 ];
