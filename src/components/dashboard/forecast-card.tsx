@@ -70,7 +70,7 @@ export function ForecastCard({
               tickFormatter={compact}
               tickLine={false}
               axisLine={false}
-              width={48}
+              width={64}
               fontSize={12}
             />
             <Tooltip
