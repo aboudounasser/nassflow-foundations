@@ -18,12 +18,12 @@ export function ItemState({
   emptyDescription,
   onRetry,
 }: {
-  state?: WidgetState;
-  skeletonHeight?: string;
-  emptyIcon?: LucideIcon;
-  emptyTitle?: string;
-  emptyDescription?: string;
-  onRetry?: () => void;
+  state?: WidgetState | undefined;
+  skeletonHeight?: string | undefined;
+  emptyIcon?: LucideIcon | undefined;
+  emptyTitle?: string | undefined;
+  emptyDescription?: string | undefined;
+  onRetry?: (() => void) | undefined;
 }): ReactNode {
   if (state === "loading") return <Skeleton className={`w-full rounded-lg ${skeletonHeight}`} />;
   if (state === "empty")

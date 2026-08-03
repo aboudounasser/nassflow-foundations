@@ -10,8 +10,8 @@ export function EmptyState({
 }: {
   icon: LucideIcon;
   title: string;
-  description?: string;
-  className?: string;
+  description?: string | undefined;
+  className?: string | undefined;
 }) {
   return (
     <div
