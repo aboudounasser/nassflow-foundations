@@ -2,18 +2,20 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { ModulePage } from "@/components/layout/page-header";
 
+const DESCRIPTION = "Module AI Workforce de NASSFLOW OS. Bientôt disponible.";
+
 export const Route = createFileRoute("/agents")({
   head: () => ({
     meta: [
-      { title: "AI Agents — NASSFLOW OS" },
-      { name: "description", content: "Module AI Agents de NASSFLOW OS. Bientôt disponible." },
-      { property: "og:title", content: "AI Agents — NASSFLOW OS" },
-      { property: "og:description", content: "Module AI Agents de NASSFLOW OS. Bientôt disponible." },
+      { title: "AI Workforce — NASSFLOW OS" },
+      { name: "description", content: DESCRIPTION },
+      { property: "og:title", content: "AI Workforce — NASSFLOW OS" },
+      { property: "og:description", content: DESCRIPTION },
     ],
   }),
   component: Page,
 });
 
 function Page() {
-  return <ModulePage title="AI Agents" description="Coming soon." />;
+  return <ModulePage title="AI Workforce" description="Coming soon." />;
 }
