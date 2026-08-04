@@ -10,7 +10,7 @@ import { WidgetShell } from "@/components/dashboard/widget-shell";
 import { useContextPanel, useContextPanelContent } from "@/components/layout/context-panel";
 import { ModulePage } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
-import { agentsDetailMock } from "@/lib/agents/mocks";
+import { agentsDetailMock, missionsOfAgent } from "@/lib/agents/mocks";
 import type { AgentDetail, AgentView } from "@/lib/agents/types";
 import { missionsDetailMock } from "@/lib/missions/mocks";
 
@@ -35,10 +35,6 @@ const DEFAULT_FILTERS: AgentFilters = {
   status: "all",
   sort: "name",
 };
-
-export function missionsOfAgent(agentId: string) {
-  return missionsDetailMock.filter((m) => m.agents.some((a) => a.id === agentId));
-}
 
 function Page() {
   const [filters, setFilters] = useState<AgentFilters>(DEFAULT_FILTERS);
