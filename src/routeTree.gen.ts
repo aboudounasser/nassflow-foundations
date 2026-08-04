@@ -17,11 +17,11 @@ import { Route as EnterpriseBrainRouteImport } from './routes/enterprise-brain'
 import { Route as HelpCenterRouteImport } from './routes/help-center'
 import { Route as InsightsRouteImport } from './routes/insights'
 import { Route as IntegrationsHubRouteImport } from './routes/integrations-hub'
-import { Route as MissionsRouteImport } from './routes/missions'
 import { Route as OrganizationRouteImport } from './routes/organization'
 import { Route as SecurityCenterRouteImport } from './routes/security-center'
 import { Route as SystemSettingsRouteImport } from './routes/system-settings'
 import { Route as WorkflowEngineRouteImport } from './routes/workflow-engine'
+import { Route as MissionsIndexRouteImport } from './routes/missions.index'
 import { Route as MissionsMissionIdRouteImport } from './routes/missions.$missionId'
 
 const IndexRoute = IndexRouteImport.update({
@@ -64,11 +64,6 @@ const IntegrationsHubRoute = IntegrationsHubRouteImport.update({
   path: '/integrations-hub',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MissionsRoute = MissionsRouteImport.update({
-  id: '/missions',
-  path: '/missions',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const OrganizationRoute = OrganizationRouteImport.update({
   id: '/organization',
   path: '/organization',
@@ -89,10 +84,15 @@ const WorkflowEngineRoute = WorkflowEngineRouteImport.update({
   path: '/workflow-engine',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MissionsIndexRoute = MissionsIndexRouteImport.update({
+  id: '/missions/',
+  path: '/missions/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MissionsMissionIdRoute = MissionsMissionIdRouteImport.update({
-  id: '/$missionId',
-  path: '/$missionId',
-  getParentRoute: () => MissionsRoute,
+  id: '/missions/$missionId',
+  path: '/missions/$missionId',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -104,12 +104,12 @@ export interface FileRoutesByFullPath {
   '/help-center': typeof HelpCenterRoute
   '/insights': typeof InsightsRoute
   '/integrations-hub': typeof IntegrationsHubRoute
-  '/missions': typeof MissionsRouteWithChildren
   '/organization': typeof OrganizationRoute
   '/security-center': typeof SecurityCenterRoute
   '/system-settings': typeof SystemSettingsRoute
   '/workflow-engine': typeof WorkflowEngineRoute
   '/missions/$missionId': typeof MissionsMissionIdRoute
+  '/missions/': typeof MissionsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -120,12 +120,12 @@ export interface FileRoutesByTo {
   '/help-center': typeof HelpCenterRoute
   '/insights': typeof InsightsRoute
   '/integrations-hub': typeof IntegrationsHubRoute
-  '/missions': typeof MissionsRouteWithChildren
   '/organization': typeof OrganizationRoute
   '/security-center': typeof SecurityCenterRoute
   '/system-settings': typeof SystemSettingsRoute
   '/workflow-engine': typeof WorkflowEngineRoute
   '/missions/$missionId': typeof MissionsMissionIdRoute
+  '/missions': typeof MissionsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -137,12 +137,12 @@ export interface FileRoutesById {
   '/help-center': typeof HelpCenterRoute
   '/insights': typeof InsightsRoute
   '/integrations-hub': typeof IntegrationsHubRoute
-  '/missions': typeof MissionsRouteWithChildren
   '/organization': typeof OrganizationRoute
   '/security-center': typeof SecurityCenterRoute
   '/system-settings': typeof SystemSettingsRoute
   '/workflow-engine': typeof WorkflowEngineRoute
   '/missions/$missionId': typeof MissionsMissionIdRoute
+  '/missions/': typeof MissionsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -155,12 +155,12 @@ export interface FileRouteTypes {
     | '/help-center'
     | '/insights'
     | '/integrations-hub'
-    | '/missions'
     | '/organization'
     | '/security-center'
     | '/system-settings'
     | '/workflow-engine'
     | '/missions/$missionId'
+    | '/missions/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -171,12 +171,12 @@ export interface FileRouteTypes {
     | '/help-center'
     | '/insights'
     | '/integrations-hub'
-    | '/missions'
     | '/organization'
     | '/security-center'
     | '/system-settings'
     | '/workflow-engine'
     | '/missions/$missionId'
+    | '/missions'
   id:
     | '__root__'
     | '/'
@@ -187,12 +187,12 @@ export interface FileRouteTypes {
     | '/help-center'
     | '/insights'
     | '/integrations-hub'
-    | '/missions'
     | '/organization'
     | '/security-center'
     | '/system-settings'
     | '/workflow-engine'
     | '/missions/$missionId'
+    | '/missions/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -204,11 +204,12 @@ export interface RootRouteChildren {
   HelpCenterRoute: typeof HelpCenterRoute
   InsightsRoute: typeof InsightsRoute
   IntegrationsHubRoute: typeof IntegrationsHubRoute
-  MissionsRoute: typeof MissionsRouteWithChildren
   OrganizationRoute: typeof OrganizationRoute
   SecurityCenterRoute: typeof SecurityCenterRoute
   SystemSettingsRoute: typeof SystemSettingsRoute
   WorkflowEngineRoute: typeof WorkflowEngineRoute
+  MissionsMissionIdRoute: typeof MissionsMissionIdRoute
+  MissionsIndexRoute: typeof MissionsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -269,13 +270,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IntegrationsHubRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/missions': {
-      id: '/missions'
-      path: '/missions'
-      fullPath: '/missions'
-      preLoaderRoute: typeof MissionsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/organization': {
       id: '/organization'
       path: '/organization'
@@ -304,27 +298,22 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkflowEngineRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/missions/': {
+      id: '/missions/'
+      path: '/missions'
+      fullPath: '/missions/'
+      preLoaderRoute: typeof MissionsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/missions/$missionId': {
       id: '/missions/$missionId'
-      path: '/$missionId'
+      path: '/missions/$missionId'
       fullPath: '/missions/$missionId'
       preLoaderRoute: typeof MissionsMissionIdRouteImport
-      parentRoute: typeof MissionsRoute
+      parentRoute: typeof rootRouteImport
     }
   }
 }
-
-interface MissionsRouteChildren {
-  MissionsMissionIdRoute: typeof MissionsMissionIdRoute
-}
-
-const MissionsRouteChildren: MissionsRouteChildren = {
-  MissionsMissionIdRoute: MissionsMissionIdRoute,
-}
-
-const MissionsRouteWithChildren = MissionsRoute._addFileChildren(
-  MissionsRouteChildren,
-)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -335,11 +324,12 @@ const rootRouteChildren: RootRouteChildren = {
   HelpCenterRoute: HelpCenterRoute,
   InsightsRoute: InsightsRoute,
   IntegrationsHubRoute: IntegrationsHubRoute,
-  MissionsRoute: MissionsRouteWithChildren,
   OrganizationRoute: OrganizationRoute,
   SecurityCenterRoute: SecurityCenterRoute,
   SystemSettingsRoute: SystemSettingsRoute,
   WorkflowEngineRoute: WorkflowEngineRoute,
+  MissionsMissionIdRoute: MissionsMissionIdRoute,
+  MissionsIndexRoute: MissionsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

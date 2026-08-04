@@ -23,7 +23,7 @@ import type { MissionDetail, MissionView } from "@/lib/missions/types";
 const DESCRIPTION =
   "Pilotez les missions confiées aux agents IA : liste, kanban, calendrier et fiche détaillée.";
 
-export const Route = createFileRoute("/missions")({
+export const Route = createFileRoute("/missions/")({
   head: () => ({
     meta: [
       { title: "Missions — NASSFLOW OS" },
