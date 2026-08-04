@@ -27,12 +27,31 @@ export interface MissionStep {
   title: string;
   status: MissionStepStatus;
   agentId: string;
+  /**
+   * Ids des steps devant être terminés avant celui-ci.
+   * Absent = exécution séquentielle après le step précédent.
+   * Plusieurs steps partageant le même `dependsOn` = branche parallèle.
+   */
+  dependsOn?: string[];
 }
+
+export type MissionEventType =
+  | "step"
+  | "decision"
+  | "tool_call"
+  | "handoff"
+  | "validation"
+  | "error";
 
 export interface MissionHistoryEntry {
   timestamp: string;
   event: string;
   actor: string;
+  /** Champs optionnels — enrichissent la Timeline plein écran sans casser le mini-historique. */
+  type?: MissionEventType;
+  tool?: string;
+  agentId?: string;
+  result?: "success" | "failure" | "pending";
 }
 
 /**

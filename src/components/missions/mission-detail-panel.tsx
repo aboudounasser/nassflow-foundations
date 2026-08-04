@@ -1,3 +1,4 @@
+import { useNavigate } from "@tanstack/react-router";
 import {
   Archive,
   Link2,
@@ -37,6 +38,7 @@ export function MissionDetailPanel({
   const status = MISSION_STATUS[mission.status];
   const priority = PRIORITY_BADGE[mission.priority];
   const StatusIcon = status.icon;
+  const navigate = useNavigate();
 
   return (
     <div className="flex h-full flex-col">
@@ -180,7 +182,9 @@ export function MissionDetailPanel({
         <Button
           variant="secondary"
           size="sm"
-          onClick={() => toast(`Ouverture plein écran : ${mission.title}`)}
+          onClick={() =>
+            navigate({ to: "/missions/$missionId", params: { missionId: mission.id } })
+          }
         >
           <Maximize2 />
           Plein écran
