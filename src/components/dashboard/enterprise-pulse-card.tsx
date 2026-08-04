@@ -92,7 +92,7 @@ export function EnterprisePulseCard({
           <div className="min-w-0">
             <p className="text-[14px] leading-5 text-foreground/90">{data.summary}</p>
             <p className="mt-2 text-[12px] text-muted-foreground">
-              Généré le {new Date(data.generatedAt).toLocaleDateString("fr-FR")}
+              Généré le {new Date(data.generatedAt).toLocaleDateString("fr-FR", { timeZone: "Europe/Paris" })}
             </p>
           </div>
         </div>
