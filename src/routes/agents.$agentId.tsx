@@ -108,7 +108,7 @@ function Page() {
 
   if (!agent) {
     return (
-      <section className="col-span-12">
+      <section className="col-span-12 min-w-0">
         <EmptyState
           icon={Bot}
           title="Agent introuvable"
@@ -131,7 +131,7 @@ function Page() {
 
   return (
     <>
-      <section className="col-span-12 space-y-4">
+      <section className="col-span-12 min-w-0 space-y-4">
         <Button variant="ghost" size="sm" asChild>
           <Link to="/agents">
             <ArrowLeft />
@@ -182,7 +182,7 @@ function Page() {
         </div>
       </section>
 
-      <section className="col-span-12">
+      <section className="col-span-12 min-w-0">
         {state === "loading" ? (
           <DetailSkeleton />
         ) : (
