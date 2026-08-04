@@ -21,6 +21,7 @@ import { Route as SecurityCenterRouteImport } from './routes/security-center'
 import { Route as SystemSettingsRouteImport } from './routes/system-settings'
 import { Route as WorkflowEngineRouteImport } from './routes/workflow-engine'
 import { Route as AgentsIndexRouteImport } from './routes/agents.index'
+import { Route as AgentsAgentIdRouteImport } from './routes/agents.$agentId'
 import { Route as MissionsIndexRouteImport } from './routes/missions.index'
 import { Route as MissionsMissionIdRouteImport } from './routes/missions.$missionId'
 
@@ -84,6 +85,11 @@ const AgentsIndexRoute = AgentsIndexRouteImport.update({
   path: '/agents/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AgentsAgentIdRoute = AgentsAgentIdRouteImport.update({
+  id: '/agents/$agentId',
+  path: '/agents/$agentId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MissionsIndexRoute = MissionsIndexRouteImport.update({
   id: '/missions/',
   path: '/missions/',
@@ -107,6 +113,7 @@ export interface FileRoutesByFullPath {
   '/security-center': typeof SecurityCenterRoute
   '/system-settings': typeof SystemSettingsRoute
   '/workflow-engine': typeof WorkflowEngineRoute
+  '/agents/$agentId': typeof AgentsAgentIdRoute
   '/missions/$missionId': typeof MissionsMissionIdRoute
   '/agents/': typeof AgentsIndexRoute
   '/missions/': typeof MissionsIndexRoute
@@ -123,6 +130,7 @@ export interface FileRoutesByTo {
   '/security-center': typeof SecurityCenterRoute
   '/system-settings': typeof SystemSettingsRoute
   '/workflow-engine': typeof WorkflowEngineRoute
+  '/agents/$agentId': typeof AgentsAgentIdRoute
   '/missions/$missionId': typeof MissionsMissionIdRoute
   '/agents': typeof AgentsIndexRoute
   '/missions': typeof MissionsIndexRoute
@@ -140,6 +148,7 @@ export interface FileRoutesById {
   '/security-center': typeof SecurityCenterRoute
   '/system-settings': typeof SystemSettingsRoute
   '/workflow-engine': typeof WorkflowEngineRoute
+  '/agents/$agentId': typeof AgentsAgentIdRoute
   '/missions/$missionId': typeof MissionsMissionIdRoute
   '/agents/': typeof AgentsIndexRoute
   '/missions/': typeof MissionsIndexRoute
@@ -158,6 +167,7 @@ export interface FileRouteTypes {
     | '/security-center'
     | '/system-settings'
     | '/workflow-engine'
+    | '/agents/$agentId'
     | '/missions/$missionId'
     | '/agents/'
     | '/missions/'
@@ -174,6 +184,7 @@ export interface FileRouteTypes {
     | '/security-center'
     | '/system-settings'
     | '/workflow-engine'
+    | '/agents/$agentId'
     | '/missions/$missionId'
     | '/agents'
     | '/missions'
@@ -190,6 +201,7 @@ export interface FileRouteTypes {
     | '/security-center'
     | '/system-settings'
     | '/workflow-engine'
+    | '/agents/$agentId'
     | '/missions/$missionId'
     | '/agents/'
     | '/missions/'
@@ -207,6 +219,7 @@ export interface RootRouteChildren {
   SecurityCenterRoute: typeof SecurityCenterRoute
   SystemSettingsRoute: typeof SystemSettingsRoute
   WorkflowEngineRoute: typeof WorkflowEngineRoute
+  AgentsAgentIdRoute: typeof AgentsAgentIdRoute
   MissionsMissionIdRoute: typeof MissionsMissionIdRoute
   AgentsIndexRoute: typeof AgentsIndexRoute
   MissionsIndexRoute: typeof MissionsIndexRoute
@@ -298,6 +311,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AgentsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/agents/$agentId': {
+      id: '/agents/$agentId'
+      path: '/agents/$agentId'
+      fullPath: '/agents/$agentId'
+      preLoaderRoute: typeof AgentsAgentIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/missions/': {
       id: '/missions/'
       path: '/missions'
@@ -327,6 +347,7 @@ const rootRouteChildren: RootRouteChildren = {
   SecurityCenterRoute: SecurityCenterRoute,
   SystemSettingsRoute: SystemSettingsRoute,
   WorkflowEngineRoute: WorkflowEngineRoute,
+  AgentsAgentIdRoute: AgentsAgentIdRoute,
   MissionsMissionIdRoute: MissionsMissionIdRoute,
   AgentsIndexRoute: AgentsIndexRoute,
   MissionsIndexRoute: MissionsIndexRoute,
@@ -334,3 +355,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
