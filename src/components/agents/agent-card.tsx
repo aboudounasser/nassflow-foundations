@@ -41,13 +41,13 @@ export function AgentCard({
           <p className="truncate text-[14px] font-medium text-foreground">{agent.name}</p>
           <p className="truncate text-[12px] text-muted-foreground">{agent.role}</p>
         </div>
-        <Badge variant={status.variant} className="shrink-0">
-          <StatusIcon aria-hidden="true" />
-          {status.label}
-        </Badge>
       </div>
 
       <div className="flex flex-wrap items-center gap-1">
+        <Badge variant={status.variant}>
+          <StatusIcon aria-hidden="true" />
+          {status.label}
+        </Badge>
         <Badge variant="info">{agent.domain}</Badge>
         <Badge>{agent.version}</Badge>
         {missionCount > 0 ? (
@@ -74,7 +74,7 @@ export function AgentCard({
 
 export function AgentCardSkeletonGrid({ count = 6 }: { count?: number }) {
   return (
-    <div className="grid grid-cols-1 gap-4 @md:grid-cols-2 @4xl:grid-cols-3">
+    <div className="grid grid-cols-1 gap-4 @2xl:grid-cols-2 @5xl:grid-cols-3">
       {Array.from({ length: count }).map((_, i) => (
         <div key={i} className="h-[168px] animate-pulse rounded-lg border border-border bg-card" />
       ))}

@@ -132,7 +132,7 @@ function Page() {
           <div
             className={
               view === "grid"
-                ? "grid grid-cols-1 gap-4 @md:grid-cols-2 @4xl:grid-cols-3"
+                ? "grid grid-cols-1 gap-4 @2xl:grid-cols-2 @5xl:grid-cols-3"
                 : "flex flex-col gap-3"
             }
           >

@@ -17,7 +17,7 @@ function StatCard({ icon: Icon, value, label }: { icon: LucideIcon; value: strin
         <span className="block truncate text-[20px] font-medium tabular-nums text-foreground">
           {value}
         </span>
-        <span className="block truncate text-[12px] uppercase tracking-wide text-muted-foreground">
+        <span className="block text-[11px] uppercase leading-tight tracking-wide text-muted-foreground">
           {label}
         </span>
       </span>
@@ -27,7 +27,7 @@ function StatCard({ icon: Icon, value, label }: { icon: LucideIcon; value: strin
 
 export function AgentsOverviewSkeleton() {
   return (
-    <div className="grid grid-cols-1 gap-4 @md:grid-cols-3 @4xl:grid-cols-5">
+    <div className="grid grid-cols-2 gap-4 @2xl:grid-cols-3 @5xl:grid-cols-5">
       {Array.from({ length: 5 }).map((_, i) => (
         <Skeleton key={i} className="h-[76px] rounded-xl" />
       ))}
@@ -54,7 +54,7 @@ export function AgentsOverview({
 
   return (
     <div className="@container">
-      <div className="grid grid-cols-1 gap-4 @md:grid-cols-3 @4xl:grid-cols-5">
+      <div className="grid grid-cols-2 gap-4 @2xl:grid-cols-3 @5xl:grid-cols-5">
         <StatCard icon={Bot} value={String(agents.length)} label="Collaborateurs IA" />
         <StatCard icon={Activity} value={String(actifs)} label="Agents actifs" />
         <StatCard icon={Target} value={String(missionsEnCours)} label="Missions en cours" />

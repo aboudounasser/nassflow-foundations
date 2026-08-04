@@ -227,7 +227,7 @@ function Page() {
               <p className="text-[14px] leading-6 text-muted-foreground">{agent.description}</p>
 
               <div className="@container">
-                <div className="grid grid-cols-1 gap-4 @md:grid-cols-2 @4xl:grid-cols-4">
+                <div className="grid grid-cols-2 gap-4 @2xl:grid-cols-3 @5xl:grid-cols-4">
                   {agent.kpis.map((kpi) => (
                     <Card key={kpi.label} className="border-border bg-surface p-4">
                       <p className="truncate text-[12px] uppercase tracking-wide text-muted-foreground">
@@ -308,7 +308,7 @@ function Page() {
 
             <TabsContent value="tools">
               <div className="@container">
-                <div className="grid grid-cols-1 gap-4 @md:grid-cols-2 @4xl:grid-cols-3">
+                <div className="grid grid-cols-1 gap-4 @2xl:grid-cols-2 @5xl:grid-cols-3">
                   {agent.tools.map((tool) => {
                     const access = ACCESS_LEVEL[tool.accessLevel];
                     const toolStatus = TOOL_STATUS[tool.status];
