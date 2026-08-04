@@ -1,7 +1,7 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 
 import { SidebarNav } from "@/components/layout/app-sidebar";
-import { ContextPanelContent } from "@/components/layout/context-panel";
+import { ContextPanelContent, ContextPanelProvider } from "@/components/layout/context-panel";
 import { TopBar } from "@/components/layout/top-bar";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
@@ -26,7 +26,13 @@ export function AppShell({ children }: { children: ReactNode }) {
     return () => mq.removeEventListener("change", sync);
   }, []);
 
+  const requestOpen = useCallback(() => {
+    if (typeof window !== "undefined" && window.matchMedia("(min-width: 1280px)").matches) return;
+    setContextOpen(true);
+  }, []);
+
   return (
+    <ContextPanelProvider requestOpen={requestOpen}>
     <div className="flex h-screen flex-col overflow-hidden bg-background">
       <TopBar onOpenMenu={() => setMenuOpen(true)} onOpenContext={() => setContextOpen(true)} />
 
@@ -65,5 +71,6 @@ export function AppShell({ children }: { children: ReactNode }) {
         </SheetContent>
       </Sheet>
     </div>
+    </ContextPanelProvider>
   );
 }
