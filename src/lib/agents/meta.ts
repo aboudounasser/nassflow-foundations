@@ -1,7 +1,26 @@
-import { Activity, CircleSlash, PauseCircle, TriangleAlert, Wrench } from "lucide-react";
+import {
+  Activity,
+  ArrowRightLeft,
+  Brain,
+  CircleSlash,
+  GitBranch,
+  Network,
+  PauseCircle,
+  ShieldCheck,
+  TriangleAlert,
+  Wrench,
+  Wrench as ToolIcon,
+} from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-import type { AgentAccessLevel, AgentDomain, AgentStatus } from "./types";
+import type {
+  AgentAccessLevel,
+  AgentConfig,
+  AgentDomain,
+  AgentLogType,
+  AgentStatus,
+  MemoryLevel,
+} from "./types";
 
 type BadgeVariant = "neutral" | "primary" | "success" | "warning" | "destructive" | "info";
 
@@ -55,4 +74,88 @@ export function formatAgentActivity(iso: string): string {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return "—";
   return DATE_FMT.format(date);
+}
+
+export const MEMORY_LEVEL: Record<
+  MemoryLevel,
+  { label: string; variant: BadgeVariant; emptyMessage: string }
+> = {
+  working: {
+    label: "Travail",
+    variant: "info",
+    emptyMessage: "Aucune mémoire de travail en cours.",
+  },
+  long_term: {
+    label: "Long terme",
+    variant: "primary",
+    emptyMessage: "Aucun apprentissage long terme enregistré.",
+  },
+  shared: {
+    label: "Partagée",
+    variant: "warning",
+    emptyMessage: "Aucune mémoire partagée avec les autres agents.",
+  },
+  enterprise_brain: {
+    label: "Enterprise Brain",
+    variant: "success",
+    emptyMessage: "Aucune connaissance héritée de l'Enterprise Brain.",
+  },
+};
+
+export const MEMORY_LEVEL_ORDER: MemoryLevel[] = [
+  "working",
+  "long_term",
+  "shared",
+  "enterprise_brain",
+];
+
+export const LOG_TYPE: Record<AgentLogType, { label: string; icon: LucideIcon }> = {
+  tool_call: { label: "Appel d'outil", icon: ToolIcon },
+  decision: { label: "Décision", icon: GitBranch },
+  handoff: { label: "Passage de relais", icon: ArrowRightLeft },
+  validation: { label: "Validation", icon: ShieldCheck },
+  error: { label: "Erreur", icon: TriangleAlert },
+};
+
+export const LOG_TYPE_ORDER: AgentLogType[] = [
+  "tool_call",
+  "decision",
+  "handoff",
+  "validation",
+  "error",
+];
+
+export const LOG_RESULT: Record<
+  "success" | "failure" | "pending",
+  { label: string; variant: BadgeVariant }
+> = {
+  success: { label: "Succès", variant: "success" },
+  failure: { label: "Échec", variant: "destructive" },
+  pending: { label: "En attente", variant: "info" },
+};
+
+export const AUTONOMY_LEVEL: Record<
+  AgentConfig["autonomyLevel"],
+  { label: string; variant: BadgeVariant }
+> = {
+  supervised: { label: "Supervisé", variant: "warning" },
+  semi_autonomous: { label: "Semi-autonome", variant: "info" },
+  autonomous: { label: "Autonome", variant: "success" },
+};
+
+export const VALIDATION_THRESHOLD: Record<
+  AgentConfig["validationThreshold"],
+  { label: string; variant: BadgeVariant }
+> = {
+  none: { label: "Aucune validation requise", variant: "neutral" },
+  critical_only: { label: "Actions critiques uniquement", variant: "warning" },
+  all_actions: { label: "Toutes les actions", variant: "destructive" },
+};
+
+export const MEMORY_ICON: LucideIcon = Brain;
+export const COLLAB_ICON: LucideIcon = Network;
+
+export function formatDuration(ms: number | null): string {
+  if (ms === null) return "—";
+  return ms < 1000 ? `${ms} ms` : `${(ms / 1000).toFixed(1).replace(".", ",")} s`;
 }
