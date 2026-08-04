@@ -51,9 +51,19 @@ export function MissionSummaryCard({
         selected ? "border-primary bg-primary/5" : "border-border",
       )}
     >
-      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+      <div
+        className={cn(
+          "gap-2",
+          compact ? "flex flex-col" : "grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3",
+        )}
+      >
         <p className="min-w-0 truncate text-[14px] font-medium text-foreground">{mission.title}</p>
-        <div className="flex shrink-0 flex-wrap justify-end gap-1">
+        <div
+          className={cn(
+            "flex flex-wrap gap-1",
+            compact ? "justify-start" : "shrink-0 justify-end",
+          )}
+        >
           <Badge variant={priority.variant}>{priority.label}</Badge>
           <Badge variant={status.variant}>
             <StatusIcon aria-hidden="true" />
