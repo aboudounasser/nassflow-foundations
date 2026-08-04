@@ -20,6 +20,7 @@ import { Route as OrganizationRouteImport } from './routes/organization'
 import { Route as SecurityCenterRouteImport } from './routes/security-center'
 import { Route as SystemSettingsRouteImport } from './routes/system-settings'
 import { Route as WorkflowEngineRouteImport } from './routes/workflow-engine'
+import { Route as AgentsIndexRouteImport } from './routes/agents.index'
 import { Route as MissionsIndexRouteImport } from './routes/missions.index'
 import { Route as MissionsMissionIdRouteImport } from './routes/missions.$missionId'
 
@@ -78,6 +79,11 @@ const WorkflowEngineRoute = WorkflowEngineRouteImport.update({
   path: '/workflow-engine',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AgentsIndexRoute = AgentsIndexRouteImport.update({
+  id: '/agents/',
+  path: '/agents/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MissionsIndexRoute = MissionsIndexRouteImport.update({
   id: '/missions/',
   path: '/missions/',
@@ -102,6 +108,7 @@ export interface FileRoutesByFullPath {
   '/system-settings': typeof SystemSettingsRoute
   '/workflow-engine': typeof WorkflowEngineRoute
   '/missions/$missionId': typeof MissionsMissionIdRoute
+  '/agents/': typeof AgentsIndexRoute
   '/missions/': typeof MissionsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -117,6 +124,7 @@ export interface FileRoutesByTo {
   '/system-settings': typeof SystemSettingsRoute
   '/workflow-engine': typeof WorkflowEngineRoute
   '/missions/$missionId': typeof MissionsMissionIdRoute
+  '/agents': typeof AgentsIndexRoute
   '/missions': typeof MissionsIndexRoute
 }
 export interface FileRoutesById {
@@ -133,6 +141,7 @@ export interface FileRoutesById {
   '/system-settings': typeof SystemSettingsRoute
   '/workflow-engine': typeof WorkflowEngineRoute
   '/missions/$missionId': typeof MissionsMissionIdRoute
+  '/agents/': typeof AgentsIndexRoute
   '/missions/': typeof MissionsIndexRoute
 }
 export interface FileRouteTypes {
@@ -150,6 +159,7 @@ export interface FileRouteTypes {
     | '/system-settings'
     | '/workflow-engine'
     | '/missions/$missionId'
+    | '/agents/'
     | '/missions/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -165,6 +175,7 @@ export interface FileRouteTypes {
     | '/system-settings'
     | '/workflow-engine'
     | '/missions/$missionId'
+    | '/agents'
     | '/missions'
   id:
     | '__root__'
@@ -180,6 +191,7 @@ export interface FileRouteTypes {
     | '/system-settings'
     | '/workflow-engine'
     | '/missions/$missionId'
+    | '/agents/'
     | '/missions/'
   fileRoutesById: FileRoutesById
 }
@@ -196,6 +208,7 @@ export interface RootRouteChildren {
   SystemSettingsRoute: typeof SystemSettingsRoute
   WorkflowEngineRoute: typeof WorkflowEngineRoute
   MissionsMissionIdRoute: typeof MissionsMissionIdRoute
+  AgentsIndexRoute: typeof AgentsIndexRoute
   MissionsIndexRoute: typeof MissionsIndexRoute
 }
 
@@ -278,6 +291,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkflowEngineRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/agents/': {
+      id: '/agents/'
+      path: '/agents'
+      fullPath: '/agents/'
+      preLoaderRoute: typeof AgentsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/missions/': {
       id: '/missions/'
       path: '/missions'
@@ -308,6 +328,7 @@ const rootRouteChildren: RootRouteChildren = {
   SystemSettingsRoute: SystemSettingsRoute,
   WorkflowEngineRoute: WorkflowEngineRoute,
   MissionsMissionIdRoute: MissionsMissionIdRoute,
+  AgentsIndexRoute: AgentsIndexRoute,
   MissionsIndexRoute: MissionsIndexRoute,
 }
 export const routeTree = rootRouteImport
