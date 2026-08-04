@@ -95,7 +95,7 @@ function Page() {
     <>
       <ModulePage title="AI Workforce" description={DESCRIPTION} />
 
-      <section className="col-span-12">
+      <section className="col-span-12 min-w-0">
         {state === "loading" ? (
           <AgentsOverviewSkeleton />
         ) : (
@@ -103,7 +103,7 @@ function Page() {
         )}
       </section>
 
-      <section className="col-span-12">
+      <section className="col-span-12 min-w-0">
         <AgentToolbar
           filters={filters}
           onChange={setFilters}
@@ -114,7 +114,7 @@ function Page() {
         />
       </section>
 
-      <section className="col-span-12">
+      <section className="col-span-12 min-w-0">
         <WidgetShell
           title={view === "grid" ? "Vue Grille" : "Vue Liste"}
           icon={Bot}
