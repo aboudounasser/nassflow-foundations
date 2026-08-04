@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { ModulePage } from "@/components/layout/page-header";
 
-export const Route = createFileRoute("/ai-agents")({
+export const Route = createFileRoute("/agents")({
   head: () => ({
     meta: [
       { title: "AI Agents — NASSFLOW OS" },
