@@ -382,6 +382,18 @@ function Page() {
                 </div>
               )}
             </TabsContent>
+
+            <TabsContent value="memory">
+              <AgentMemoryTab memory={agent.memory} />
+            </TabsContent>
+
+            <TabsContent value="logs">
+              <AgentLogsTab logs={agent.logs} />
+            </TabsContent>
+
+            <TabsContent value="config">
+              <AgentConfigTab config={agent.config} tools={agent.tools} />
+            </TabsContent>
           </Tabs>
         )}
       </section>
