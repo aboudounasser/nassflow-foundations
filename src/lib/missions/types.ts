@@ -19,6 +19,7 @@ export interface MissionAgent {
   name: string;
   avatar: string;
   role: string;
+  tools?: string[];
 }
 
 export interface MissionStep {
@@ -56,3 +57,37 @@ export interface MissionDetail extends Omit<Mission, "status" | "agents"> {
 
 export type MissionSortKey = "dueDate" | "priority" | "progress";
 export type MissionView = "list" | "kanban" | "calendar";
+
+/* ---------- Mission Builder (assistant de création) ---------- */
+
+export type TriggerType = "manual" | "scheduled" | "event";
+
+export interface MissionStepDraft {
+  id: string;
+  title: string;
+  agentId: string | null;
+  requiresValidation: boolean;
+}
+
+export interface MissionBlueprint {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  defaultAgentIds: string[];
+  defaultSteps: { title: string; agentId: string }[];
+}
+
+export interface MissionDraft {
+  title: string;
+  objective: string;
+  priority: Priority;
+  tags: string[];
+  dueDate: string | null;
+  agentIds: string[];
+  steps: MissionStepDraft[];
+  triggerType: TriggerType;
+  scheduledFor: string | null;
+  eventDescription: string;
+  validationThreshold: "none" | "critical_only" | "all_steps";
+}
