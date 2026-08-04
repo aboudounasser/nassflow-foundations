@@ -121,13 +121,13 @@ export function MissionKanbanView({ missions, selectedId, onSelect }: ViewProps)
 
   return (
     <div className="space-y-4">
-      <div className="-mx-1 flex snap-x gap-4 overflow-x-auto px-1 pb-2 xl:grid xl:grid-cols-5 xl:overflow-visible">
+      <div className="@container/kanban -mx-1 flex snap-x gap-4 overflow-x-auto px-1 pb-2">
         {KANBAN_COLUMNS.map((column) => {
           const items = missions.filter((m) => column.statuses.includes(m.status));
           return (
             <section
               key={column.id}
-              className="w-[280px] shrink-0 snap-start space-y-3 rounded-xl border border-border bg-surface p-3 xl:w-auto"
+              className="w-[260px] shrink-0 snap-start space-y-3 rounded-xl border border-border bg-surface p-3"
             >
               <header className="flex items-center justify-between gap-2">
                 <h3 className="truncate text-[14px] font-medium text-foreground">{column.label}</h3>
@@ -146,7 +146,7 @@ export function MissionKanbanView({ missions, selectedId, onSelect }: ViewProps)
           </Button>
         </CollapsibleTrigger>
         <CollapsibleContent className="pt-3">
-          <div className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid grid-cols-1 gap-2 @2xl:grid-cols-2">
             {archived.length === 0 ? (
               <p className="text-[12px] text-muted-foreground">Aucune mission archivée.</p>
             ) : (
