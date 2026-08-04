@@ -1,7 +1,11 @@
-import type { AgentDetail } from "./types";
+import { missionsDetailMock } from "@/lib/missions/mocks";
+
+import type { AgentConfig, AgentDetail, AgentLogEntry, AgentMemoryEntry } from "./types";
+
+type AgentBase = Omit<AgentDetail, "memory" | "logs" | "config">;
 
 /** MOCKS STATIQUES — ids alignés sur missionAgents (src/lib/missions/mocks.ts). */
-export const agentsDetailMock: AgentDetail[] = [
+const agentsBase: AgentBase[] = [
   {
     id: "a-ceo",
     name: "CEO Agent",
