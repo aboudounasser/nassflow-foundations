@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 import { WidgetShell } from "@/components/dashboard/widget-shell";
 import { useContextPanel, useContextPanelContent } from "@/components/layout/context-panel";
 import { ModulePage } from "@/components/layout/page-header";
-import { CreateMissionDialog } from "@/components/missions/create-mission-dialog";
+import { MissionBuilderDialog } from "@/components/missions/mission-builder-dialog";
 import { MissionDetailPanel } from "@/components/missions/mission-detail-panel";
 import { MissionToolbar, type MissionFilters } from "@/components/missions/mission-toolbar";
 import {
@@ -146,7 +146,7 @@ function Page() {
         </WidgetShell>
       </section>
 
-      <CreateMissionDialog
+      <MissionBuilderDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         agents={missionAgents}

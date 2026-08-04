@@ -1,18 +1,116 @@
-import type { MissionAgent, MissionDetail } from "./types";
+import type { MissionAgent, MissionBlueprint, MissionDetail } from "./types";
 
 /** MOCKS STATIQUES — remplaçables par une API sans toucher aux composants. */
 
 const AG: Record<string, MissionAgent> = {
-  ceo: { id: "a-ceo", name: "CEO Agent", avatar: "CE", role: "Pilotage stratégique" },
-  sales: { id: "a-sales", name: "Sales Agent", avatar: "SA", role: "Développement commercial" },
-  marketing: { id: "a-marketing", name: "Marketing Agent", avatar: "MA", role: "Acquisition" },
-  finance: { id: "a-finance", name: "Finance Agent", avatar: "FI", role: "Analyse financière" },
-  hr: { id: "a-hr", name: "HR Agent", avatar: "HR", role: "Ressources humaines" },
-  support: { id: "a-support", name: "Support Agent", avatar: "SU", role: "Relation client" },
-  ops: { id: "a-ops", name: "Operations Agent", avatar: "OP", role: "Opérations" },
+  ceo: {
+    id: "a-ceo",
+    name: "CEO Agent",
+    avatar: "CE",
+    role: "Pilotage stratégique",
+    tools: ["Notion", "Slack", "Google Agenda"],
+  },
+  sales: {
+    id: "a-sales",
+    name: "Sales Agent",
+    avatar: "SA",
+    role: "Développement commercial",
+    tools: ["Gmail", "HubSpot", "LinkedIn"],
+  },
+  marketing: {
+    id: "a-marketing",
+    name: "Marketing Agent",
+    avatar: "MA",
+    role: "Acquisition",
+    tools: ["Mailchimp", "Meta Ads", "Canva"],
+  },
+  finance: {
+    id: "a-finance",
+    name: "Finance Agent",
+    avatar: "FI",
+    role: "Analyse financière",
+    tools: ["Stripe", "Qonto", "Google Sheets"],
+  },
+  hr: {
+    id: "a-hr",
+    name: "HR Agent",
+    avatar: "HR",
+    role: "Ressources humaines",
+    tools: ["Personio", "Gmail", "DocuSign"],
+  },
+  support: {
+    id: "a-support",
+    name: "Support Agent",
+    avatar: "SU",
+    role: "Relation client",
+    tools: ["Zendesk", "Intercom", "Slack"],
+  },
+  ops: {
+    id: "a-ops",
+    name: "Operations Agent",
+    avatar: "OP",
+    role: "Opérations",
+    tools: ["Jira", "Google Drive", "Zapier"],
+  },
 };
 
 export const missionAgents: MissionAgent[] = Object.values(AG);
+
+/** Modèles de mission proposés à l'étape 1 du Mission Builder. */
+export const missionBlueprints: MissionBlueprint[] = [
+  {
+    id: "bp-relance",
+    title: "Relancer les prospects inactifs",
+    category: "Commercial",
+    description:
+      "Réactiver le pipeline en identifiant les prospects sans interaction récente et en déclenchant une relance personnalisée.",
+    defaultAgentIds: ["a-sales"],
+    defaultSteps: [
+      { title: "Identifier les prospects inactifs", agentId: "a-sales" },
+      { title: "Qualifier le potentiel", agentId: "a-sales" },
+      { title: "Envoyer une relance personnalisée", agentId: "a-sales" },
+    ],
+  },
+  {
+    id: "bp-finance",
+    title: "Préparer le rapport financier mensuel",
+    category: "Finance",
+    description:
+      "Consolider les données du mois, analyser les écarts par rapport au budget et produire un rapport exécutif.",
+    defaultAgentIds: ["a-finance"],
+    defaultSteps: [
+      { title: "Collecter les données", agentId: "a-finance" },
+      { title: "Analyser les écarts", agentId: "a-finance" },
+      { title: "Générer le rapport", agentId: "a-finance" },
+    ],
+  },
+  {
+    id: "bp-campagne",
+    title: "Lancer une campagne marketing",
+    category: "Marketing",
+    description:
+      "Cadrer le budget, produire les contenus et piloter la diffusion multicanale d'une campagne d'acquisition.",
+    defaultAgentIds: ["a-marketing", "a-finance"],
+    defaultSteps: [
+      { title: "Définir le budget", agentId: "a-finance" },
+      { title: "Créer le contenu", agentId: "a-marketing" },
+      { title: "Publier et suivre", agentId: "a-marketing" },
+    ],
+  },
+  {
+    id: "bp-onboarding",
+    title: "Onboarder un nouveau collaborateur",
+    category: "RH",
+    description:
+      "Orchestrer l'arrivée d'un nouvel arrivant : documents, planning d'accueil et matériel.",
+    defaultAgentIds: ["a-hr"],
+    defaultSteps: [
+      { title: "Préparer les documents", agentId: "a-hr" },
+      { title: "Planifier l'accueil", agentId: "a-hr" },
+      { title: "Assigner le matériel", agentId: "a-hr" },
+    ],
+  },
+];
 
 export const missionsDetailMock: MissionDetail[] = [
   {
