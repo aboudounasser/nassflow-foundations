@@ -66,6 +66,14 @@ export const Route = createFileRoute("/")({
 });
 
 function DashboardCeo() {
+  const total = agentsMock.length;
+  const actifs = agentsMock.filter((a) => a.status === "active").length;
+  const enMission = agentsMock.filter(
+    (a) => a.status === "active" && a.progress > 0 && a.progress < 100,
+  ).length;
+  const enAttente = agentsMock.filter((a) => a.status !== "active").length;
+  const workforceSummary = `${total} collaborateurs IA · ${actifs} actifs · ${enMission} en mission · ${enAttente} en attente`;
+
   return (
     <TooltipProvider delayDuration={150}>
       <section className="col-span-12">
@@ -109,7 +117,7 @@ function DashboardCeo() {
       <div className="col-span-12 xl:col-span-6">
         <WidgetShell
           title="AI Workforce"
-          description="Agents IA en opération"
+          description={workforceSummary}
           icon={Bot}
           emptyIcon={Bot}
           emptyTitle="Aucun agent déployé"

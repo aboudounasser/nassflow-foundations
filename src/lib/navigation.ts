@@ -21,7 +21,7 @@ export type NavItem = { label: string; to: string; icon: LucideIcon };
 export const NAV_ITEMS: NavItem[] = [
   { label: "Mission Control", to: "/", icon: LayoutDashboard },
   { label: "Missions", to: "/missions", icon: Target },
-  { label: "AI Agents", to: "/ai-agents", icon: Bot },
+  { label: "AI Workforce", to: "/agents", icon: Bot },
   { label: "CRM", to: "/crm", icon: Users },
   { label: "Enterprise Brain", to: "/enterprise-brain", icon: Brain },
   { label: "Workflow Engine", to: "/workflow-engine", icon: Workflow },

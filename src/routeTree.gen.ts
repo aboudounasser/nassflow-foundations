@@ -10,7 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AiAgentsRouteImport } from './routes/ai-agents'
+import { Route as AgentsRouteImport } from './routes/agents'
 import { Route as BillingRouteImport } from './routes/billing'
 import { Route as CrmRouteImport } from './routes/crm'
 import { Route as EnterpriseBrainRouteImport } from './routes/enterprise-brain'
@@ -29,9 +29,9 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AiAgentsRoute = AiAgentsRouteImport.update({
-  id: '/ai-agents',
-  path: '/ai-agents',
+const AgentsRoute = AgentsRouteImport.update({
+  id: '/agents',
+  path: '/agents',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BillingRoute = BillingRouteImport.update({
@@ -97,7 +97,7 @@ const MissionsMissionIdRoute = MissionsMissionIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/ai-agents': typeof AiAgentsRoute
+  '/agents': typeof AgentsRoute
   '/billing': typeof BillingRoute
   '/crm': typeof CrmRoute
   '/enterprise-brain': typeof EnterpriseBrainRoute
@@ -113,7 +113,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/ai-agents': typeof AiAgentsRoute
+  '/agents': typeof AgentsRoute
   '/billing': typeof BillingRoute
   '/crm': typeof CrmRoute
   '/enterprise-brain': typeof EnterpriseBrainRoute
@@ -130,7 +130,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/ai-agents': typeof AiAgentsRoute
+  '/agents': typeof AgentsRoute
   '/billing': typeof BillingRoute
   '/crm': typeof CrmRoute
   '/enterprise-brain': typeof EnterpriseBrainRoute
@@ -148,7 +148,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/ai-agents'
+    | '/agents'
     | '/billing'
     | '/crm'
     | '/enterprise-brain'
@@ -164,7 +164,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/ai-agents'
+    | '/agents'
     | '/billing'
     | '/crm'
     | '/enterprise-brain'
@@ -180,7 +180,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/ai-agents'
+    | '/agents'
     | '/billing'
     | '/crm'
     | '/enterprise-brain'
@@ -197,7 +197,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AiAgentsRoute: typeof AiAgentsRoute
+  AgentsRoute: typeof AgentsRoute
   BillingRoute: typeof BillingRoute
   CrmRoute: typeof CrmRoute
   EnterpriseBrainRoute: typeof EnterpriseBrainRoute
@@ -221,11 +221,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/ai-agents': {
-      id: '/ai-agents'
-      path: '/ai-agents'
-      fullPath: '/ai-agents'
-      preLoaderRoute: typeof AiAgentsRouteImport
+    '/agents': {
+      id: '/agents'
+      path: '/agents'
+      fullPath: '/agents'
+      preLoaderRoute: typeof AgentsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/billing': {
@@ -317,7 +317,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AiAgentsRoute: AiAgentsRoute,
+  AgentsRoute: AgentsRoute,
   BillingRoute: BillingRoute,
   CrmRoute: CrmRoute,
   EnterpriseBrainRoute: EnterpriseBrainRoute,
