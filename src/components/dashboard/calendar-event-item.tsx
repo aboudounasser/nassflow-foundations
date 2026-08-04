@@ -34,14 +34,22 @@ export function CalendarEventItem({
   return (
     <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-border bg-surface p-3">
       <span className="w-14 shrink-0 text-[12px] tabular-nums text-muted-foreground">
-        {date.toLocaleDateString("fr-FR", { day: "2-digit", month: "short" })}
+        {date.toLocaleDateString("fr-FR", {
+          day: "2-digit",
+          month: "short",
+          timeZone: "Europe/Paris",
+        })}
       </span>
       <span className="min-w-0">
         <span className="block truncate text-[14px] font-medium text-foreground">
           {event.title}
         </span>
         <span className="block text-[12px] text-muted-foreground">
-          {date.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
+          {date.toLocaleTimeString("fr-FR", {
+            hour: "2-digit",
+            minute: "2-digit",
+            timeZone: "Europe/Paris",
+          })}
         </span>
       </span>
       <Badge variant={category.variant} className="shrink-0">
