@@ -120,12 +120,12 @@ function Stepper({ current }: { current: number }) {
       </div>
 
       {/* Desktop : stepper horizontal complet */}
-      <ol className="hidden items-center gap-2 sm:flex">
+      <ol className="hidden w-full items-center gap-2 overflow-hidden sm:flex">
         {STEPS.map((label, index) => {
           const done = index < current;
           const active = index === current;
           return (
-            <li key={label} className="flex flex-1 items-center gap-2">
+            <li key={label} className="flex min-w-0 flex-1 items-center gap-1.5">
               <span
                 className={cn(
                   "flex size-6 shrink-0 items-center justify-center rounded-full border text-[11px] font-medium",
@@ -139,7 +139,7 @@ function Stepper({ current }: { current: number }) {
               </span>
               <span
                 className={cn(
-                  "truncate text-[12px]",
+                  "truncate text-[11px]",
                   active ? "text-foreground" : "text-muted-foreground",
                 )}
               >
