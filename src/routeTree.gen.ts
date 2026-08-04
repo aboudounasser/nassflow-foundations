@@ -10,7 +10,6 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AgentsRouteImport } from './routes/agents'
 import { Route as BillingRouteImport } from './routes/billing'
 import { Route as CrmRouteImport } from './routes/crm'
 import { Route as EnterpriseBrainRouteImport } from './routes/enterprise-brain'
@@ -21,17 +20,14 @@ import { Route as OrganizationRouteImport } from './routes/organization'
 import { Route as SecurityCenterRouteImport } from './routes/security-center'
 import { Route as SystemSettingsRouteImport } from './routes/system-settings'
 import { Route as WorkflowEngineRouteImport } from './routes/workflow-engine'
+import { Route as AgentsIndexRouteImport } from './routes/agents.index'
+import { Route as AgentsAgentIdRouteImport } from './routes/agents.$agentId'
 import { Route as MissionsIndexRouteImport } from './routes/missions.index'
 import { Route as MissionsMissionIdRouteImport } from './routes/missions.$missionId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AgentsRoute = AgentsRouteImport.update({
-  id: '/agents',
-  path: '/agents',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BillingRoute = BillingRouteImport.update({
@@ -84,6 +80,16 @@ const WorkflowEngineRoute = WorkflowEngineRouteImport.update({
   path: '/workflow-engine',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AgentsIndexRoute = AgentsIndexRouteImport.update({
+  id: '/agents/',
+  path: '/agents/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AgentsAgentIdRoute = AgentsAgentIdRouteImport.update({
+  id: '/agents/$agentId',
+  path: '/agents/$agentId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MissionsIndexRoute = MissionsIndexRouteImport.update({
   id: '/missions/',
   path: '/missions/',
@@ -97,7 +103,6 @@ const MissionsMissionIdRoute = MissionsMissionIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/agents': typeof AgentsRoute
   '/billing': typeof BillingRoute
   '/crm': typeof CrmRoute
   '/enterprise-brain': typeof EnterpriseBrainRoute
@@ -108,12 +113,13 @@ export interface FileRoutesByFullPath {
   '/security-center': typeof SecurityCenterRoute
   '/system-settings': typeof SystemSettingsRoute
   '/workflow-engine': typeof WorkflowEngineRoute
+  '/agents/$agentId': typeof AgentsAgentIdRoute
   '/missions/$missionId': typeof MissionsMissionIdRoute
+  '/agents/': typeof AgentsIndexRoute
   '/missions/': typeof MissionsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/agents': typeof AgentsRoute
   '/billing': typeof BillingRoute
   '/crm': typeof CrmRoute
   '/enterprise-brain': typeof EnterpriseBrainRoute
@@ -124,13 +130,14 @@ export interface FileRoutesByTo {
   '/security-center': typeof SecurityCenterRoute
   '/system-settings': typeof SystemSettingsRoute
   '/workflow-engine': typeof WorkflowEngineRoute
+  '/agents/$agentId': typeof AgentsAgentIdRoute
   '/missions/$missionId': typeof MissionsMissionIdRoute
+  '/agents': typeof AgentsIndexRoute
   '/missions': typeof MissionsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/agents': typeof AgentsRoute
   '/billing': typeof BillingRoute
   '/crm': typeof CrmRoute
   '/enterprise-brain': typeof EnterpriseBrainRoute
@@ -141,14 +148,15 @@ export interface FileRoutesById {
   '/security-center': typeof SecurityCenterRoute
   '/system-settings': typeof SystemSettingsRoute
   '/workflow-engine': typeof WorkflowEngineRoute
+  '/agents/$agentId': typeof AgentsAgentIdRoute
   '/missions/$missionId': typeof MissionsMissionIdRoute
+  '/agents/': typeof AgentsIndexRoute
   '/missions/': typeof MissionsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/agents'
     | '/billing'
     | '/crm'
     | '/enterprise-brain'
@@ -159,12 +167,13 @@ export interface FileRouteTypes {
     | '/security-center'
     | '/system-settings'
     | '/workflow-engine'
+    | '/agents/$agentId'
     | '/missions/$missionId'
+    | '/agents/'
     | '/missions/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/agents'
     | '/billing'
     | '/crm'
     | '/enterprise-brain'
@@ -175,12 +184,13 @@ export interface FileRouteTypes {
     | '/security-center'
     | '/system-settings'
     | '/workflow-engine'
+    | '/agents/$agentId'
     | '/missions/$missionId'
+    | '/agents'
     | '/missions'
   id:
     | '__root__'
     | '/'
-    | '/agents'
     | '/billing'
     | '/crm'
     | '/enterprise-brain'
@@ -191,13 +201,14 @@ export interface FileRouteTypes {
     | '/security-center'
     | '/system-settings'
     | '/workflow-engine'
+    | '/agents/$agentId'
     | '/missions/$missionId'
+    | '/agents/'
     | '/missions/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AgentsRoute: typeof AgentsRoute
   BillingRoute: typeof BillingRoute
   CrmRoute: typeof CrmRoute
   EnterpriseBrainRoute: typeof EnterpriseBrainRoute
@@ -208,7 +219,9 @@ export interface RootRouteChildren {
   SecurityCenterRoute: typeof SecurityCenterRoute
   SystemSettingsRoute: typeof SystemSettingsRoute
   WorkflowEngineRoute: typeof WorkflowEngineRoute
+  AgentsAgentIdRoute: typeof AgentsAgentIdRoute
   MissionsMissionIdRoute: typeof MissionsMissionIdRoute
+  AgentsIndexRoute: typeof AgentsIndexRoute
   MissionsIndexRoute: typeof MissionsIndexRoute
 }
 
@@ -219,13 +232,6 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/agents': {
-      id: '/agents'
-      path: '/agents'
-      fullPath: '/agents'
-      preLoaderRoute: typeof AgentsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/billing': {
@@ -298,6 +304,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkflowEngineRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/agents/': {
+      id: '/agents/'
+      path: '/agents'
+      fullPath: '/agents/'
+      preLoaderRoute: typeof AgentsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/agents/$agentId': {
+      id: '/agents/$agentId'
+      path: '/agents/$agentId'
+      fullPath: '/agents/$agentId'
+      preLoaderRoute: typeof AgentsAgentIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/missions/': {
       id: '/missions/'
       path: '/missions'
@@ -317,7 +337,6 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AgentsRoute: AgentsRoute,
   BillingRoute: BillingRoute,
   CrmRoute: CrmRoute,
   EnterpriseBrainRoute: EnterpriseBrainRoute,
@@ -328,9 +347,21 @@ const rootRouteChildren: RootRouteChildren = {
   SecurityCenterRoute: SecurityCenterRoute,
   SystemSettingsRoute: SystemSettingsRoute,
   WorkflowEngineRoute: WorkflowEngineRoute,
+  AgentsAgentIdRoute: AgentsAgentIdRoute,
   MissionsMissionIdRoute: MissionsMissionIdRoute,
+  AgentsIndexRoute: AgentsIndexRoute,
   MissionsIndexRoute: MissionsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
