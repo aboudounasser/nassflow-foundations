@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 
 import { SidebarNav } from "@/components/layout/app-sidebar";
 import { ContextPanelContent, ContextPanelProvider } from "@/components/layout/context-panel";
