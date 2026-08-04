@@ -1,19 +1,156 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Target } from "lucide-react";
+import { useMemo, useState } from "react";
 
+import { WidgetShell } from "@/components/dashboard/widget-shell";
+import { useContextPanel, useContextPanelContent } from "@/components/layout/context-panel";
 import { ModulePage } from "@/components/layout/page-header";
+import { CreateMissionDialog } from "@/components/missions/create-mission-dialog";
+import { MissionDetailPanel } from "@/components/missions/mission-detail-panel";
+import { MissionToolbar, type MissionFilters } from "@/components/missions/mission-toolbar";
+import {
+  MissionCalendarView,
+  MissionKanbanSkeleton,
+  MissionKanbanView,
+  MissionListSkeleton,
+  MissionListView,
+} from "@/components/missions/mission-views";
+import { Button } from "@/components/ui/button";
+import { missionAgents, missionsDetailMock } from "@/lib/missions/mocks";
+import { PRIORITY_WEIGHT } from "@/lib/missions/meta";
+import type { MissionDetail, MissionView } from "@/lib/missions/types";
+
+const DESCRIPTION =
+  "Pilotez les missions confiées aux agents IA : liste, kanban, calendrier et fiche détaillée.";
 
 export const Route = createFileRoute("/missions")({
   head: () => ({
     meta: [
       { title: "Missions — NASSFLOW OS" },
-      { name: "description", content: "Module Missions de NASSFLOW OS. Bientôt disponible." },
+      { name: "description", content: DESCRIPTION },
       { property: "og:title", content: "Missions — NASSFLOW OS" },
-      { property: "og:description", content: "Module Missions de NASSFLOW OS. Bientôt disponible." },
+      { property: "og:description", content: DESCRIPTION },
     ],
   }),
   component: Page,
 });
 
+const DEFAULT_FILTERS: MissionFilters = {
+  search: "",
+  statuses: [],
+  priority: "all",
+  agentId: "all",
+  sort: "dueDate",
+};
+
 function Page() {
-  return <ModulePage title="Missions" description="Coming soon." />;
+  const [filters, setFilters] = useState<MissionFilters>(DEFAULT_FILTERS);
+  const [view, setView] = useState<MissionView>("list");
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  // État du module : loading / empty / error / success (mock statique).
+  const [state] = useState<"loading" | "error" | "success">("success");
+  const { requestOpen } = useContextPanel();
+
+  const missions = useMemo(() => {
+    const query = filters.search.trim().toLowerCase();
+    const filtered = missionsDetailMock.filter((mission) => {
+      if (
+        query &&
+        !mission.title.toLowerCase().includes(query) &&
+        !mission.tags.some((tag) => tag.toLowerCase().includes(query))
+      )
+        return false;
+      if (filters.statuses.length > 0 && !filters.statuses.includes(mission.status)) return false;
+      if (filters.priority !== "all" && mission.priority !== filters.priority) return false;
+      if (filters.agentId !== "all" && !mission.agents.some((a) => a.id === filters.agentId))
+        return false;
+      return true;
+    });
+
+    return [...filtered].sort((a, b) => {
+      if (filters.sort === "priority")
+        return (PRIORITY_WEIGHT[a.priority] ?? 9) - (PRIORITY_WEIGHT[b.priority] ?? 9);
+      if (filters.sort === "progress") return b.progress - a.progress;
+      return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+    });
+  }, [filters]);
+
+  const selected = missions.find((m) => m.id === selectedId) ?? null;
+
+  useContextPanelContent(
+    () =>
+      selected ? (
+        <MissionDetailPanel mission={selected} allMissions={missionsDetailMock} />
+      ) : null,
+    [selected?.id],
+  );
+
+  const handleSelect = (mission: MissionDetail) => {
+    setSelectedId(mission.id);
+    requestOpen();
+  };
+
+  const widgetState =
+    state === "success" ? (missions.length === 0 ? "empty" : "success") : state;
+
+  return (
+    <>
+      <ModulePage title="Missions" description={DESCRIPTION} />
+
+      <section className="col-span-12">
+        <MissionToolbar
+          filters={filters}
+          onChange={setFilters}
+          view={view}
+          onViewChange={setView}
+          agents={missionAgents}
+          onReset={() => setFilters(DEFAULT_FILTERS)}
+          onCreate={() => setDialogOpen(true)}
+          resultCount={missions.length}
+        />
+      </section>
+
+      <section className="col-span-12">
+        <WidgetShell
+          title={
+            view === "list" ? "Vue Liste" : view === "kanban" ? "Vue Kanban" : "Vue Calendrier"
+          }
+          icon={Target}
+          state={widgetState}
+          showMenu={false}
+          emptyIcon={Target}
+          emptyTitle="Aucune mission ne correspond à ces critères"
+          emptyAction={
+            <Button variant="secondary" size="sm" onClick={() => setFilters(DEFAULT_FILTERS)}>
+              Réinitialiser les filtres
+            </Button>
+          }
+          skeleton={view === "kanban" ? <MissionKanbanSkeleton /> : <MissionListSkeleton />}
+        >
+          {view === "list" ? (
+            <MissionListView missions={missions} selectedId={selectedId} onSelect={handleSelect} />
+          ) : view === "kanban" ? (
+            <MissionKanbanView
+              missions={missions}
+              selectedId={selectedId}
+              onSelect={handleSelect}
+            />
+          ) : (
+            <MissionCalendarView
+              missions={missions}
+              selectedId={selectedId}
+              onSelect={handleSelect}
+            />
+          )}
+        </WidgetShell>
+      </section>
+
+      <CreateMissionDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        agents={missionAgents}
+      />
+    </>
+  );
 }
