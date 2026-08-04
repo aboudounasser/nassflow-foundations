@@ -71,8 +71,11 @@ function DashboardCeo() {
   const enMission = agentsMock.filter(
     (a) => a.status === "active" && a.progress > 0 && a.progress < 100,
   ).length;
-  const enAttente = agentsMock.filter((a) => a.status !== "active").length;
-  const workforceSummary = `${total} collaborateurs IA · ${actifs} actifs · ${enMission} en mission · ${enAttente} en attente`;
+  const enAttente = agentsMock.filter((a) => a.status === "paused").length;
+  const enErreur = agentsMock.filter((a) => a.status === "error").length;
+  const workforceSummary = `${total} collaborateurs IA · ${actifs} actifs · ${enMission} en mission · ${enAttente} en attente${
+    enErreur > 0 ? ` · ${enErreur} en erreur` : ""
+  }`;
 
   return (
     <TooltipProvider delayDuration={150}>
