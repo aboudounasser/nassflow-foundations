@@ -4,6 +4,9 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { AgentSummaryPanel } from "@/components/agents/agent-summary-panel";
+import { AgentConfigTab } from "@/components/agents/agent-config-tab";
+import { AgentLogsTab } from "@/components/agents/agent-logs-tab";
+import { AgentMemoryTab } from "@/components/agents/agent-memory-tab";
 import { EmptyState } from "@/components/common/empty-state";
 import { MissionSummaryCard } from "@/components/dashboard/mission-summary-card";
 import { useContextPanelContent } from "@/components/layout/context-panel";
@@ -22,9 +25,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ACCESS_LEVEL, AGENT_STATUS, TOOL_STATUS, formatAgentActivity } from "@/lib/agents/meta";
-import { agentsDetailMock } from "@/lib/agents/mocks";
+import { agentsDetailMock, missionsOfAgent } from "@/lib/agents/mocks";
 import type { AgentDetail, AgentPermission } from "@/lib/agents/types";
-import { missionsDetailMock } from "@/lib/missions/mocks";
 
 const DESCRIPTION =
   "Fiche complète d'un collaborateur IA : identité, capacités, outils, permissions et missions associées.";
@@ -47,10 +49,13 @@ const TABS = [
   { value: "tools", label: "Outils" },
   { value: "permissions", label: "Permissions" },
   { value: "missions", label: "Missions" },
+  { value: "memory", label: "Mémoire" },
+  { value: "logs", label: "Logs" },
+  { value: "config", label: "Configuration" },
 ] as const;
 
 /** Onglets prévus pour les itérations suivantes (architecture prête). */
-const FUTURE_TABS = ["Mémoire", "Historique", "Logs", "Configuration"] as const;
+const FUTURE_TABS = ["Historique"] as const;
 
 function PermissionFlag({ enabled, label }: { enabled: boolean; label: string }) {
   return (
@@ -96,10 +101,7 @@ function Page() {
   // État du module : loading / error / success (mock statique).
   const [state] = useState<"loading" | "error" | "success">("success");
 
-  const missions = useMemo(
-    () => missionsDetailMock.filter((m) => m.agents.some((a) => a.id === agentId)),
-    [agentId],
-  );
+  const missions = useMemo(() => missionsOfAgent(agentId), [agentId]);
 
   useContextPanelContent(
     () => (agent ? <AgentSummaryPanel agent={agent} missionCount={missions.length} /> : null),
@@ -379,6 +381,18 @@ function Page() {
                   ))}
                 </div>
               )}
+            </TabsContent>
+
+            <TabsContent value="memory">
+              <AgentMemoryTab memory={agent.memory} />
+            </TabsContent>
+
+            <TabsContent value="logs">
+              <AgentLogsTab logs={agent.logs} />
+            </TabsContent>
+
+            <TabsContent value="config">
+              <AgentConfigTab config={agent.config} tools={agent.tools} />
             </TabsContent>
           </Tabs>
         )}
