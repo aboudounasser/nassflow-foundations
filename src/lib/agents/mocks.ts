@@ -511,6 +511,7 @@ const memoryByAgent: Record<string, AgentMemoryEntry[]> = {
     },
     {
       id: "mem-ceo-4",
+      sourceId: "kb-objectifs-2026",
       level: "enterprise_brain",
       title: "Objectifs annuels 2026",
       content: "Croissance ARR +40 %, marge brute ≥ 68 %, NPS ≥ 55.",
@@ -544,6 +545,7 @@ const memoryByAgent: Record<string, AgentMemoryEntry[]> = {
     },
     {
       id: "mem-sales-3",
+      sourceId: "kb-grille-tarifaire",
       level: "enterprise_brain",
       title: "Grille tarifaire officielle",
       content: "Remise maximale autorisée : 12 % sans validation, 20 % avec validation Finance.",
@@ -618,6 +620,7 @@ const memoryByAgent: Record<string, AgentMemoryEntry[]> = {
     },
     {
       id: "mem-fin-4",
+      sourceId: "kb-politique-depenses",
       level: "enterprise_brain",
       title: "Politique de dépenses",
       content: "Toute dépense > 5 000 € requiert une validation humaine explicite.",
@@ -641,6 +644,7 @@ const memoryByAgent: Record<string, AgentMemoryEntry[]> = {
     },
     {
       id: "mem-hr-2",
+      sourceId: "kb-convention-collective",
       level: "enterprise_brain",
       title: "Convention collective applicable",
       content: "Syntec — période d'essai 4 mois renouvelable une fois pour les cadres.",
