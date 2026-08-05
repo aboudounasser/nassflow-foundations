@@ -22,6 +22,7 @@ import { Route as WorkflowEngineRouteImport } from './routes/workflow-engine'
 import { Route as AgentsIndexRouteImport } from './routes/agents.index'
 import { Route as AgentsAgentIdRouteImport } from './routes/agents.$agentId'
 import { Route as EnterpriseBrainIndexRouteImport } from './routes/enterprise-brain.index'
+import { Route as EnterpriseBrainItemIdRouteImport } from './routes/enterprise-brain.$itemId'
 import { Route as MissionsIndexRouteImport } from './routes/missions.index'
 import { Route as MissionsMissionIdRouteImport } from './routes/missions.$missionId'
 
@@ -90,6 +91,11 @@ const EnterpriseBrainIndexRoute = EnterpriseBrainIndexRouteImport.update({
   path: '/enterprise-brain/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EnterpriseBrainItemIdRoute = EnterpriseBrainItemIdRouteImport.update({
+  id: '/enterprise-brain/$itemId',
+  path: '/enterprise-brain/$itemId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MissionsIndexRoute = MissionsIndexRouteImport.update({
   id: '/missions/',
   path: '/missions/',
@@ -113,6 +119,7 @@ export interface FileRoutesByFullPath {
   '/system-settings': typeof SystemSettingsRoute
   '/workflow-engine': typeof WorkflowEngineRoute
   '/agents/$agentId': typeof AgentsAgentIdRoute
+  '/enterprise-brain/$itemId': typeof EnterpriseBrainItemIdRoute
   '/missions/$missionId': typeof MissionsMissionIdRoute
   '/agents/': typeof AgentsIndexRoute
   '/enterprise-brain/': typeof EnterpriseBrainIndexRoute
@@ -130,6 +137,7 @@ export interface FileRoutesByTo {
   '/system-settings': typeof SystemSettingsRoute
   '/workflow-engine': typeof WorkflowEngineRoute
   '/agents/$agentId': typeof AgentsAgentIdRoute
+  '/enterprise-brain/$itemId': typeof EnterpriseBrainItemIdRoute
   '/missions/$missionId': typeof MissionsMissionIdRoute
   '/agents': typeof AgentsIndexRoute
   '/enterprise-brain': typeof EnterpriseBrainIndexRoute
@@ -148,6 +156,7 @@ export interface FileRoutesById {
   '/system-settings': typeof SystemSettingsRoute
   '/workflow-engine': typeof WorkflowEngineRoute
   '/agents/$agentId': typeof AgentsAgentIdRoute
+  '/enterprise-brain/$itemId': typeof EnterpriseBrainItemIdRoute
   '/missions/$missionId': typeof MissionsMissionIdRoute
   '/agents/': typeof AgentsIndexRoute
   '/enterprise-brain/': typeof EnterpriseBrainIndexRoute
@@ -167,6 +176,7 @@ export interface FileRouteTypes {
     | '/system-settings'
     | '/workflow-engine'
     | '/agents/$agentId'
+    | '/enterprise-brain/$itemId'
     | '/missions/$missionId'
     | '/agents/'
     | '/enterprise-brain/'
@@ -184,6 +194,7 @@ export interface FileRouteTypes {
     | '/system-settings'
     | '/workflow-engine'
     | '/agents/$agentId'
+    | '/enterprise-brain/$itemId'
     | '/missions/$missionId'
     | '/agents'
     | '/enterprise-brain'
@@ -201,6 +212,7 @@ export interface FileRouteTypes {
     | '/system-settings'
     | '/workflow-engine'
     | '/agents/$agentId'
+    | '/enterprise-brain/$itemId'
     | '/missions/$missionId'
     | '/agents/'
     | '/enterprise-brain/'
@@ -219,6 +231,7 @@ export interface RootRouteChildren {
   SystemSettingsRoute: typeof SystemSettingsRoute
   WorkflowEngineRoute: typeof WorkflowEngineRoute
   AgentsAgentIdRoute: typeof AgentsAgentIdRoute
+  EnterpriseBrainItemIdRoute: typeof EnterpriseBrainItemIdRoute
   MissionsMissionIdRoute: typeof MissionsMissionIdRoute
   AgentsIndexRoute: typeof AgentsIndexRoute
   EnterpriseBrainIndexRoute: typeof EnterpriseBrainIndexRoute
@@ -318,6 +331,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EnterpriseBrainIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/enterprise-brain/$itemId': {
+      id: '/enterprise-brain/$itemId'
+      path: '/enterprise-brain/$itemId'
+      fullPath: '/enterprise-brain/$itemId'
+      preLoaderRoute: typeof EnterpriseBrainItemIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/missions/': {
       id: '/missions/'
       path: '/missions'
@@ -347,6 +367,7 @@ const rootRouteChildren: RootRouteChildren = {
   SystemSettingsRoute: SystemSettingsRoute,
   WorkflowEngineRoute: WorkflowEngineRoute,
   AgentsAgentIdRoute: AgentsAgentIdRoute,
+  EnterpriseBrainItemIdRoute: EnterpriseBrainItemIdRoute,
   MissionsMissionIdRoute: MissionsMissionIdRoute,
   AgentsIndexRoute: AgentsIndexRoute,
   EnterpriseBrainIndexRoute: EnterpriseBrainIndexRoute,
@@ -355,3 +376,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
