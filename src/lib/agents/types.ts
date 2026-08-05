@@ -49,6 +49,8 @@ export interface AgentMemoryEntry {
   title: string;
   content: string;
   source: string;
+  /** Id du KnowledgeItem correspondant si source = "Enterprise Brain". */
+  sourceId?: string;
   confidenceScore: number | null;
   createdAt: string;
   lastAccessed: string;
