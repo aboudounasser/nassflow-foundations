@@ -11,7 +11,6 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BillingRouteImport } from './routes/billing'
-import { Route as CrmRouteImport } from './routes/crm'
 import { Route as HelpCenterRouteImport } from './routes/help-center'
 import { Route as InsightsRouteImport } from './routes/insights'
 import { Route as IntegrationsHubRouteImport } from './routes/integrations-hub'
@@ -34,11 +33,6 @@ const IndexRoute = IndexRouteImport.update({
 const BillingRoute = BillingRouteImport.update({
   id: '/billing',
   path: '/billing',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CrmRoute = CrmRouteImport.update({
-  id: '/crm',
-  path: '/crm',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HelpCenterRoute = HelpCenterRouteImport.update({
@@ -110,7 +104,6 @@ const MissionsMissionIdRoute = MissionsMissionIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/billing': typeof BillingRoute
-  '/crm': typeof CrmRoute
   '/help-center': typeof HelpCenterRoute
   '/insights': typeof InsightsRoute
   '/integrations-hub': typeof IntegrationsHubRoute
@@ -128,7 +121,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/billing': typeof BillingRoute
-  '/crm': typeof CrmRoute
   '/help-center': typeof HelpCenterRoute
   '/insights': typeof InsightsRoute
   '/integrations-hub': typeof IntegrationsHubRoute
@@ -147,7 +139,6 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/billing': typeof BillingRoute
-  '/crm': typeof CrmRoute
   '/help-center': typeof HelpCenterRoute
   '/insights': typeof InsightsRoute
   '/integrations-hub': typeof IntegrationsHubRoute
@@ -167,7 +158,6 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/billing'
-    | '/crm'
     | '/help-center'
     | '/insights'
     | '/integrations-hub'
@@ -185,7 +175,6 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/billing'
-    | '/crm'
     | '/help-center'
     | '/insights'
     | '/integrations-hub'
@@ -203,7 +192,6 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/billing'
-    | '/crm'
     | '/help-center'
     | '/insights'
     | '/integrations-hub'
@@ -222,7 +210,6 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BillingRoute: typeof BillingRoute
-  CrmRoute: typeof CrmRoute
   HelpCenterRoute: typeof HelpCenterRoute
   InsightsRoute: typeof InsightsRoute
   IntegrationsHubRoute: typeof IntegrationsHubRoute
@@ -252,13 +239,6 @@ declare module '@tanstack/react-router' {
       path: '/billing'
       fullPath: '/billing'
       preLoaderRoute: typeof BillingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/crm': {
-      id: '/crm'
-      path: '/crm'
-      fullPath: '/crm'
-      preLoaderRoute: typeof CrmRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/help-center': {
@@ -358,7 +338,6 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BillingRoute: BillingRoute,
-  CrmRoute: CrmRoute,
   HelpCenterRoute: HelpCenterRoute,
   InsightsRoute: InsightsRoute,
   IntegrationsHubRoute: IntegrationsHubRoute,
