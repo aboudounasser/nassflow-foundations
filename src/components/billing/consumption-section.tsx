@@ -84,7 +84,9 @@ export function ConsumptionSection() {
               />
               <YAxis
                 stroke="var(--color-muted-foreground)"
-                tickFormatter={(v: number) => formatEuro(v, 0)}
+                tickFormatter={(v: number) =>
+                  `${v.toLocaleString("fr-FR", { maximumFractionDigits: 2 })} €`
+                }
                 tickLine={false}
                 axisLine={false}
                 width={64}
