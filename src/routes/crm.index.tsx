@@ -1,4 +1,3 @@
-<<<<<<<
 import { createFileRoute } from "@tanstack/react-router";
 import { KanbanSquare, Users } from "lucide-react";
 import { useMemo, useState } from "react";
