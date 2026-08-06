@@ -13,7 +13,6 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as BillingRouteImport } from './routes/billing'
 import { Route as HelpCenterRouteImport } from './routes/help-center'
 import { Route as InsightsRouteImport } from './routes/insights'
-import { Route as IntegrationsHubRouteImport } from './routes/integrations-hub'
 import { Route as OrganizationRouteImport } from './routes/organization'
 import { Route as SecurityCenterRouteImport } from './routes/security-center'
 import { Route as SystemSettingsRouteImport } from './routes/system-settings'
@@ -46,11 +45,6 @@ const HelpCenterRoute = HelpCenterRouteImport.update({
 const InsightsRoute = InsightsRouteImport.update({
   id: '/insights',
   path: '/insights',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const IntegrationsHubRoute = IntegrationsHubRouteImport.update({
-  id: '/integrations-hub',
-  path: '/integrations-hub',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OrganizationRoute = OrganizationRouteImport.update({
@@ -125,7 +119,6 @@ export interface FileRoutesByFullPath {
   '/billing': typeof BillingRoute
   '/help-center': typeof HelpCenterRoute
   '/insights': typeof InsightsRoute
-  '/integrations-hub': typeof IntegrationsHubRoute
   '/organization': typeof OrganizationRoute
   '/security-center': typeof SecurityCenterRoute
   '/system-settings': typeof SystemSettingsRoute
@@ -145,7 +138,6 @@ export interface FileRoutesByTo {
   '/billing': typeof BillingRoute
   '/help-center': typeof HelpCenterRoute
   '/insights': typeof InsightsRoute
-  '/integrations-hub': typeof IntegrationsHubRoute
   '/organization': typeof OrganizationRoute
   '/security-center': typeof SecurityCenterRoute
   '/system-settings': typeof SystemSettingsRoute
@@ -166,7 +158,6 @@ export interface FileRoutesById {
   '/billing': typeof BillingRoute
   '/help-center': typeof HelpCenterRoute
   '/insights': typeof InsightsRoute
-  '/integrations-hub': typeof IntegrationsHubRoute
   '/organization': typeof OrganizationRoute
   '/security-center': typeof SecurityCenterRoute
   '/system-settings': typeof SystemSettingsRoute
@@ -188,7 +179,6 @@ export interface FileRouteTypes {
     | '/billing'
     | '/help-center'
     | '/insights'
-    | '/integrations-hub'
     | '/organization'
     | '/security-center'
     | '/system-settings'
@@ -208,7 +198,6 @@ export interface FileRouteTypes {
     | '/billing'
     | '/help-center'
     | '/insights'
-    | '/integrations-hub'
     | '/organization'
     | '/security-center'
     | '/system-settings'
@@ -228,7 +217,6 @@ export interface FileRouteTypes {
     | '/billing'
     | '/help-center'
     | '/insights'
-    | '/integrations-hub'
     | '/organization'
     | '/security-center'
     | '/system-settings'
@@ -249,7 +237,6 @@ export interface RootRouteChildren {
   BillingRoute: typeof BillingRoute
   HelpCenterRoute: typeof HelpCenterRoute
   InsightsRoute: typeof InsightsRoute
-  IntegrationsHubRoute: typeof IntegrationsHubRoute
   OrganizationRoute: typeof OrganizationRoute
   SecurityCenterRoute: typeof SecurityCenterRoute
   SystemSettingsRoute: typeof SystemSettingsRoute
@@ -293,13 +280,6 @@ declare module '@tanstack/react-router' {
       path: '/insights'
       fullPath: '/insights'
       preLoaderRoute: typeof InsightsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/integrations-hub': {
-      id: '/integrations-hub'
-      path: '/integrations-hub'
-      fullPath: '/integrations-hub'
-      preLoaderRoute: typeof IntegrationsHubRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/organization': {
@@ -401,7 +381,6 @@ const rootRouteChildren: RootRouteChildren = {
   BillingRoute: BillingRoute,
   HelpCenterRoute: HelpCenterRoute,
   InsightsRoute: InsightsRoute,
-  IntegrationsHubRoute: IntegrationsHubRoute,
   OrganizationRoute: OrganizationRoute,
   SecurityCenterRoute: SecurityCenterRoute,
   SystemSettingsRoute: SystemSettingsRoute,
