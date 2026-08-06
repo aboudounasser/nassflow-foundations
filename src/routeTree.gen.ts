@@ -20,6 +20,7 @@ import { Route as CrmIndexRouteImport } from './routes/crm.index'
 import { Route as CrmContactIdRouteImport } from './routes/crm.$contactId'
 import { Route as EnterpriseBrainIndexRouteImport } from './routes/enterprise-brain.index'
 import { Route as EnterpriseBrainItemIdRouteImport } from './routes/enterprise-brain.$itemId'
+import { Route as HelpCenterIndexRouteImport } from './routes/help-center.index'
 import { Route as IntegrationsHubIndexRouteImport } from './routes/integrations-hub.index'
 import { Route as IntegrationsHubIntegrationIdRouteImport } from './routes/integrations-hub.$integrationId'
 import { Route as MissionsIndexRouteImport } from './routes/missions.index'
@@ -84,6 +85,11 @@ const EnterpriseBrainItemIdRoute = EnterpriseBrainItemIdRouteImport.update({
   path: '/enterprise-brain/$itemId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HelpCenterIndexRoute = HelpCenterIndexRouteImport.update({
+  id: '/help-center/',
+  path: '/help-center/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IntegrationsHubIndexRoute = IntegrationsHubIndexRouteImport.update({
   id: '/integrations-hub/',
   path: '/integrations-hub/',
@@ -143,6 +149,7 @@ export interface FileRoutesByFullPath {
   '/agents/': typeof AgentsIndexRoute
   '/crm/': typeof CrmIndexRoute
   '/enterprise-brain/': typeof EnterpriseBrainIndexRoute
+  '/help-center/': typeof HelpCenterIndexRoute
   '/integrations-hub/': typeof IntegrationsHubIndexRoute
   '/missions/': typeof MissionsIndexRoute
   '/organization/': typeof OrganizationIndexRoute
@@ -164,6 +171,7 @@ export interface FileRoutesByTo {
   '/agents': typeof AgentsIndexRoute
   '/crm': typeof CrmIndexRoute
   '/enterprise-brain': typeof EnterpriseBrainIndexRoute
+  '/help-center': typeof HelpCenterIndexRoute
   '/integrations-hub': typeof IntegrationsHubIndexRoute
   '/missions': typeof MissionsIndexRoute
   '/organization': typeof OrganizationIndexRoute
@@ -186,6 +194,7 @@ export interface FileRoutesById {
   '/agents/': typeof AgentsIndexRoute
   '/crm/': typeof CrmIndexRoute
   '/enterprise-brain/': typeof EnterpriseBrainIndexRoute
+  '/help-center/': typeof HelpCenterIndexRoute
   '/integrations-hub/': typeof IntegrationsHubIndexRoute
   '/missions/': typeof MissionsIndexRoute
   '/organization/': typeof OrganizationIndexRoute
@@ -209,6 +218,7 @@ export interface FileRouteTypes {
     | '/agents/'
     | '/crm/'
     | '/enterprise-brain/'
+    | '/help-center/'
     | '/integrations-hub/'
     | '/missions/'
     | '/organization/'
@@ -230,6 +240,7 @@ export interface FileRouteTypes {
     | '/agents'
     | '/crm'
     | '/enterprise-brain'
+    | '/help-center'
     | '/integrations-hub'
     | '/missions'
     | '/organization'
@@ -251,6 +262,7 @@ export interface FileRouteTypes {
     | '/agents/'
     | '/crm/'
     | '/enterprise-brain/'
+    | '/help-center/'
     | '/integrations-hub/'
     | '/missions/'
     | '/organization/'
@@ -273,6 +285,7 @@ export interface RootRouteChildren {
   AgentsIndexRoute: typeof AgentsIndexRoute
   CrmIndexRoute: typeof CrmIndexRoute
   EnterpriseBrainIndexRoute: typeof EnterpriseBrainIndexRoute
+  HelpCenterIndexRoute: typeof HelpCenterIndexRoute
   IntegrationsHubIndexRoute: typeof IntegrationsHubIndexRoute
   MissionsIndexRoute: typeof MissionsIndexRoute
   OrganizationIndexRoute: typeof OrganizationIndexRoute
@@ -358,6 +371,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EnterpriseBrainItemIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/help-center/': {
+      id: '/help-center/'
+      path: '/help-center'
+      fullPath: '/help-center/'
+      preLoaderRoute: typeof HelpCenterIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/integrations-hub/': {
       id: '/integrations-hub/'
       path: '/integrations-hub'
@@ -433,6 +453,7 @@ const rootRouteChildren: RootRouteChildren = {
   AgentsIndexRoute: AgentsIndexRoute,
   CrmIndexRoute: CrmIndexRoute,
   EnterpriseBrainIndexRoute: EnterpriseBrainIndexRoute,
+  HelpCenterIndexRoute: HelpCenterIndexRoute,
   IntegrationsHubIndexRoute: IntegrationsHubIndexRoute,
   MissionsIndexRoute: MissionsIndexRoute,
   OrganizationIndexRoute: OrganizationIndexRoute,
