@@ -26,6 +26,7 @@ import { Route as IntegrationsHubIntegrationIdRouteImport } from './routes/integ
 import { Route as MissionsIndexRouteImport } from './routes/missions.index'
 import { Route as MissionsMissionIdRouteImport } from './routes/missions.$missionId'
 import { Route as OrganizationIndexRouteImport } from './routes/organization.index'
+import { Route as OrganizationMemberIdRouteImport } from './routes/organization.$memberId'
 import { Route as WorkflowEngineIndexRouteImport } from './routes/workflow-engine.index'
 import { Route as WorkflowEngineWorkflowIdRouteImport } from './routes/workflow-engine.$workflowId'
 
@@ -115,6 +116,11 @@ const OrganizationIndexRoute = OrganizationIndexRouteImport.update({
   path: '/organization/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OrganizationMemberIdRoute = OrganizationMemberIdRouteImport.update({
+  id: '/organization/$memberId',
+  path: '/organization/$memberId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WorkflowEngineIndexRoute = WorkflowEngineIndexRouteImport.update({
   id: '/workflow-engine/',
   path: '/workflow-engine/',
@@ -139,6 +145,7 @@ export interface FileRoutesByFullPath {
   '/enterprise-brain/$itemId': typeof EnterpriseBrainItemIdRoute
   '/integrations-hub/$integrationId': typeof IntegrationsHubIntegrationIdRoute
   '/missions/$missionId': typeof MissionsMissionIdRoute
+  '/organization/$memberId': typeof OrganizationMemberIdRoute
   '/workflow-engine/$workflowId': typeof WorkflowEngineWorkflowIdRoute
   '/agents/': typeof AgentsIndexRoute
   '/crm/': typeof CrmIndexRoute
@@ -160,6 +167,7 @@ export interface FileRoutesByTo {
   '/enterprise-brain/$itemId': typeof EnterpriseBrainItemIdRoute
   '/integrations-hub/$integrationId': typeof IntegrationsHubIntegrationIdRoute
   '/missions/$missionId': typeof MissionsMissionIdRoute
+  '/organization/$memberId': typeof OrganizationMemberIdRoute
   '/workflow-engine/$workflowId': typeof WorkflowEngineWorkflowIdRoute
   '/agents': typeof AgentsIndexRoute
   '/crm': typeof CrmIndexRoute
@@ -182,6 +190,7 @@ export interface FileRoutesById {
   '/enterprise-brain/$itemId': typeof EnterpriseBrainItemIdRoute
   '/integrations-hub/$integrationId': typeof IntegrationsHubIntegrationIdRoute
   '/missions/$missionId': typeof MissionsMissionIdRoute
+  '/organization/$memberId': typeof OrganizationMemberIdRoute
   '/workflow-engine/$workflowId': typeof WorkflowEngineWorkflowIdRoute
   '/agents/': typeof AgentsIndexRoute
   '/crm/': typeof CrmIndexRoute
@@ -205,6 +214,7 @@ export interface FileRouteTypes {
     | '/enterprise-brain/$itemId'
     | '/integrations-hub/$integrationId'
     | '/missions/$missionId'
+    | '/organization/$memberId'
     | '/workflow-engine/$workflowId'
     | '/agents/'
     | '/crm/'
@@ -226,6 +236,7 @@ export interface FileRouteTypes {
     | '/enterprise-brain/$itemId'
     | '/integrations-hub/$integrationId'
     | '/missions/$missionId'
+    | '/organization/$memberId'
     | '/workflow-engine/$workflowId'
     | '/agents'
     | '/crm'
@@ -247,6 +258,7 @@ export interface FileRouteTypes {
     | '/enterprise-brain/$itemId'
     | '/integrations-hub/$integrationId'
     | '/missions/$missionId'
+    | '/organization/$memberId'
     | '/workflow-engine/$workflowId'
     | '/agents/'
     | '/crm/'
@@ -269,6 +281,7 @@ export interface RootRouteChildren {
   EnterpriseBrainItemIdRoute: typeof EnterpriseBrainItemIdRoute
   IntegrationsHubIntegrationIdRoute: typeof IntegrationsHubIntegrationIdRoute
   MissionsMissionIdRoute: typeof MissionsMissionIdRoute
+  OrganizationMemberIdRoute: typeof OrganizationMemberIdRoute
   WorkflowEngineWorkflowIdRoute: typeof WorkflowEngineWorkflowIdRoute
   AgentsIndexRoute: typeof AgentsIndexRoute
   CrmIndexRoute: typeof CrmIndexRoute
@@ -400,6 +413,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrganizationIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/organization/$memberId': {
+      id: '/organization/$memberId'
+      path: '/organization/$memberId'
+      fullPath: '/organization/$memberId'
+      preLoaderRoute: typeof OrganizationMemberIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/workflow-engine/': {
       id: '/workflow-engine/'
       path: '/workflow-engine'
@@ -429,6 +449,7 @@ const rootRouteChildren: RootRouteChildren = {
   EnterpriseBrainItemIdRoute: EnterpriseBrainItemIdRoute,
   IntegrationsHubIntegrationIdRoute: IntegrationsHubIntegrationIdRoute,
   MissionsMissionIdRoute: MissionsMissionIdRoute,
+  OrganizationMemberIdRoute: OrganizationMemberIdRoute,
   WorkflowEngineWorkflowIdRoute: WorkflowEngineWorkflowIdRoute,
   AgentsIndexRoute: AgentsIndexRoute,
   CrmIndexRoute: CrmIndexRoute,
