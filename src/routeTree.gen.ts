@@ -13,7 +13,6 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as BillingRouteImport } from './routes/billing'
 import { Route as HelpCenterRouteImport } from './routes/help-center'
 import { Route as InsightsRouteImport } from './routes/insights'
-import { Route as IntegrationsHubRouteImport } from './routes/integrations-hub'
 import { Route as OrganizationRouteImport } from './routes/organization'
 import { Route as SecurityCenterRouteImport } from './routes/security-center'
 import { Route as SystemSettingsRouteImport } from './routes/system-settings'
@@ -23,6 +22,8 @@ import { Route as CrmIndexRouteImport } from './routes/crm.index'
 import { Route as CrmContactIdRouteImport } from './routes/crm.$contactId'
 import { Route as EnterpriseBrainIndexRouteImport } from './routes/enterprise-brain.index'
 import { Route as EnterpriseBrainItemIdRouteImport } from './routes/enterprise-brain.$itemId'
+import { Route as IntegrationsHubIndexRouteImport } from './routes/integrations-hub.index'
+import { Route as IntegrationsHubIntegrationIdRouteImport } from './routes/integrations-hub.$integrationId'
 import { Route as MissionsIndexRouteImport } from './routes/missions.index'
 import { Route as MissionsMissionIdRouteImport } from './routes/missions.$missionId'
 import { Route as WorkflowEngineIndexRouteImport } from './routes/workflow-engine.index'
@@ -46,11 +47,6 @@ const HelpCenterRoute = HelpCenterRouteImport.update({
 const InsightsRoute = InsightsRouteImport.update({
   id: '/insights',
   path: '/insights',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const IntegrationsHubRoute = IntegrationsHubRouteImport.update({
-  id: '/integrations-hub',
-  path: '/integrations-hub',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OrganizationRoute = OrganizationRouteImport.update({
@@ -98,6 +94,17 @@ const EnterpriseBrainItemIdRoute = EnterpriseBrainItemIdRouteImport.update({
   path: '/enterprise-brain/$itemId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const IntegrationsHubIndexRoute = IntegrationsHubIndexRouteImport.update({
+  id: '/integrations-hub/',
+  path: '/integrations-hub/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IntegrationsHubIntegrationIdRoute =
+  IntegrationsHubIntegrationIdRouteImport.update({
+    id: '/integrations-hub/$integrationId',
+    path: '/integrations-hub/$integrationId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const MissionsIndexRoute = MissionsIndexRouteImport.update({
   id: '/missions/',
   path: '/missions/',
@@ -125,18 +132,19 @@ export interface FileRoutesByFullPath {
   '/billing': typeof BillingRoute
   '/help-center': typeof HelpCenterRoute
   '/insights': typeof InsightsRoute
-  '/integrations-hub': typeof IntegrationsHubRoute
   '/organization': typeof OrganizationRoute
   '/security-center': typeof SecurityCenterRoute
   '/system-settings': typeof SystemSettingsRoute
   '/agents/$agentId': typeof AgentsAgentIdRoute
   '/crm/$contactId': typeof CrmContactIdRoute
   '/enterprise-brain/$itemId': typeof EnterpriseBrainItemIdRoute
+  '/integrations-hub/$integrationId': typeof IntegrationsHubIntegrationIdRoute
   '/missions/$missionId': typeof MissionsMissionIdRoute
   '/workflow-engine/$workflowId': typeof WorkflowEngineWorkflowIdRoute
   '/agents/': typeof AgentsIndexRoute
   '/crm/': typeof CrmIndexRoute
   '/enterprise-brain/': typeof EnterpriseBrainIndexRoute
+  '/integrations-hub/': typeof IntegrationsHubIndexRoute
   '/missions/': typeof MissionsIndexRoute
   '/workflow-engine/': typeof WorkflowEngineIndexRoute
 }
@@ -145,18 +153,19 @@ export interface FileRoutesByTo {
   '/billing': typeof BillingRoute
   '/help-center': typeof HelpCenterRoute
   '/insights': typeof InsightsRoute
-  '/integrations-hub': typeof IntegrationsHubRoute
   '/organization': typeof OrganizationRoute
   '/security-center': typeof SecurityCenterRoute
   '/system-settings': typeof SystemSettingsRoute
   '/agents/$agentId': typeof AgentsAgentIdRoute
   '/crm/$contactId': typeof CrmContactIdRoute
   '/enterprise-brain/$itemId': typeof EnterpriseBrainItemIdRoute
+  '/integrations-hub/$integrationId': typeof IntegrationsHubIntegrationIdRoute
   '/missions/$missionId': typeof MissionsMissionIdRoute
   '/workflow-engine/$workflowId': typeof WorkflowEngineWorkflowIdRoute
   '/agents': typeof AgentsIndexRoute
   '/crm': typeof CrmIndexRoute
   '/enterprise-brain': typeof EnterpriseBrainIndexRoute
+  '/integrations-hub': typeof IntegrationsHubIndexRoute
   '/missions': typeof MissionsIndexRoute
   '/workflow-engine': typeof WorkflowEngineIndexRoute
 }
@@ -166,18 +175,19 @@ export interface FileRoutesById {
   '/billing': typeof BillingRoute
   '/help-center': typeof HelpCenterRoute
   '/insights': typeof InsightsRoute
-  '/integrations-hub': typeof IntegrationsHubRoute
   '/organization': typeof OrganizationRoute
   '/security-center': typeof SecurityCenterRoute
   '/system-settings': typeof SystemSettingsRoute
   '/agents/$agentId': typeof AgentsAgentIdRoute
   '/crm/$contactId': typeof CrmContactIdRoute
   '/enterprise-brain/$itemId': typeof EnterpriseBrainItemIdRoute
+  '/integrations-hub/$integrationId': typeof IntegrationsHubIntegrationIdRoute
   '/missions/$missionId': typeof MissionsMissionIdRoute
   '/workflow-engine/$workflowId': typeof WorkflowEngineWorkflowIdRoute
   '/agents/': typeof AgentsIndexRoute
   '/crm/': typeof CrmIndexRoute
   '/enterprise-brain/': typeof EnterpriseBrainIndexRoute
+  '/integrations-hub/': typeof IntegrationsHubIndexRoute
   '/missions/': typeof MissionsIndexRoute
   '/workflow-engine/': typeof WorkflowEngineIndexRoute
 }
@@ -188,18 +198,19 @@ export interface FileRouteTypes {
     | '/billing'
     | '/help-center'
     | '/insights'
-    | '/integrations-hub'
     | '/organization'
     | '/security-center'
     | '/system-settings'
     | '/agents/$agentId'
     | '/crm/$contactId'
     | '/enterprise-brain/$itemId'
+    | '/integrations-hub/$integrationId'
     | '/missions/$missionId'
     | '/workflow-engine/$workflowId'
     | '/agents/'
     | '/crm/'
     | '/enterprise-brain/'
+    | '/integrations-hub/'
     | '/missions/'
     | '/workflow-engine/'
   fileRoutesByTo: FileRoutesByTo
@@ -208,18 +219,19 @@ export interface FileRouteTypes {
     | '/billing'
     | '/help-center'
     | '/insights'
-    | '/integrations-hub'
     | '/organization'
     | '/security-center'
     | '/system-settings'
     | '/agents/$agentId'
     | '/crm/$contactId'
     | '/enterprise-brain/$itemId'
+    | '/integrations-hub/$integrationId'
     | '/missions/$missionId'
     | '/workflow-engine/$workflowId'
     | '/agents'
     | '/crm'
     | '/enterprise-brain'
+    | '/integrations-hub'
     | '/missions'
     | '/workflow-engine'
   id:
@@ -228,18 +240,19 @@ export interface FileRouteTypes {
     | '/billing'
     | '/help-center'
     | '/insights'
-    | '/integrations-hub'
     | '/organization'
     | '/security-center'
     | '/system-settings'
     | '/agents/$agentId'
     | '/crm/$contactId'
     | '/enterprise-brain/$itemId'
+    | '/integrations-hub/$integrationId'
     | '/missions/$missionId'
     | '/workflow-engine/$workflowId'
     | '/agents/'
     | '/crm/'
     | '/enterprise-brain/'
+    | '/integrations-hub/'
     | '/missions/'
     | '/workflow-engine/'
   fileRoutesById: FileRoutesById
@@ -249,18 +262,19 @@ export interface RootRouteChildren {
   BillingRoute: typeof BillingRoute
   HelpCenterRoute: typeof HelpCenterRoute
   InsightsRoute: typeof InsightsRoute
-  IntegrationsHubRoute: typeof IntegrationsHubRoute
   OrganizationRoute: typeof OrganizationRoute
   SecurityCenterRoute: typeof SecurityCenterRoute
   SystemSettingsRoute: typeof SystemSettingsRoute
   AgentsAgentIdRoute: typeof AgentsAgentIdRoute
   CrmContactIdRoute: typeof CrmContactIdRoute
   EnterpriseBrainItemIdRoute: typeof EnterpriseBrainItemIdRoute
+  IntegrationsHubIntegrationIdRoute: typeof IntegrationsHubIntegrationIdRoute
   MissionsMissionIdRoute: typeof MissionsMissionIdRoute
   WorkflowEngineWorkflowIdRoute: typeof WorkflowEngineWorkflowIdRoute
   AgentsIndexRoute: typeof AgentsIndexRoute
   CrmIndexRoute: typeof CrmIndexRoute
   EnterpriseBrainIndexRoute: typeof EnterpriseBrainIndexRoute
+  IntegrationsHubIndexRoute: typeof IntegrationsHubIndexRoute
   MissionsIndexRoute: typeof MissionsIndexRoute
   WorkflowEngineIndexRoute: typeof WorkflowEngineIndexRoute
 }
@@ -293,13 +307,6 @@ declare module '@tanstack/react-router' {
       path: '/insights'
       fullPath: '/insights'
       preLoaderRoute: typeof InsightsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/integrations-hub': {
-      id: '/integrations-hub'
-      path: '/integrations-hub'
-      fullPath: '/integrations-hub'
-      preLoaderRoute: typeof IntegrationsHubRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/organization': {
@@ -365,6 +372,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EnterpriseBrainItemIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/integrations-hub/': {
+      id: '/integrations-hub/'
+      path: '/integrations-hub'
+      fullPath: '/integrations-hub/'
+      preLoaderRoute: typeof IntegrationsHubIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/integrations-hub/$integrationId': {
+      id: '/integrations-hub/$integrationId'
+      path: '/integrations-hub/$integrationId'
+      fullPath: '/integrations-hub/$integrationId'
+      preLoaderRoute: typeof IntegrationsHubIntegrationIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/missions/': {
       id: '/missions/'
       path: '/missions'
@@ -401,18 +422,19 @@ const rootRouteChildren: RootRouteChildren = {
   BillingRoute: BillingRoute,
   HelpCenterRoute: HelpCenterRoute,
   InsightsRoute: InsightsRoute,
-  IntegrationsHubRoute: IntegrationsHubRoute,
   OrganizationRoute: OrganizationRoute,
   SecurityCenterRoute: SecurityCenterRoute,
   SystemSettingsRoute: SystemSettingsRoute,
   AgentsAgentIdRoute: AgentsAgentIdRoute,
   CrmContactIdRoute: CrmContactIdRoute,
   EnterpriseBrainItemIdRoute: EnterpriseBrainItemIdRoute,
+  IntegrationsHubIntegrationIdRoute: IntegrationsHubIntegrationIdRoute,
   MissionsMissionIdRoute: MissionsMissionIdRoute,
   WorkflowEngineWorkflowIdRoute: WorkflowEngineWorkflowIdRoute,
   AgentsIndexRoute: AgentsIndexRoute,
   CrmIndexRoute: CrmIndexRoute,
   EnterpriseBrainIndexRoute: EnterpriseBrainIndexRoute,
+  IntegrationsHubIndexRoute: IntegrationsHubIndexRoute,
   MissionsIndexRoute: MissionsIndexRoute,
   WorkflowEngineIndexRoute: WorkflowEngineIndexRoute,
 }
