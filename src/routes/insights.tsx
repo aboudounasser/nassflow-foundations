@@ -218,7 +218,7 @@ function Page() {
                 <BarChart data={byStatus} layout="vertical" margin={{ left: 8, right: 16 }}>
                   <CartesianGrid stroke="var(--color-border)" horizontal={false} />
                   <XAxis type="number" allowDecimals={false} {...AXIS} />
-                  <YAxis type="category" dataKey="status" width={96} {...AXIS} />
+                  <YAxis type="category" dataKey="status" width={96} interval={0} {...AXIS} />
                   <Tooltip contentStyle={CHART_TOOLTIP_STYLE} cursor={false} />
                   <Bar dataKey="count" name="Missions" radius={[0, 6, 6, 0]}>
                     {byStatus.map((entry) => (
@@ -321,7 +321,7 @@ function Page() {
                 <BarChart data={byAgent} layout="vertical" margin={{ left: 8, right: 16 }}>
                   <CartesianGrid stroke="var(--color-border)" horizontal={false} />
                   <XAxis type="number" domain={[0, 100]} tickFormatter={percentFormat} {...AXIS} />
-                  <YAxis type="category" dataKey="agentName" width={110} {...AXIS} />
+                  <YAxis type="category" dataKey="agentName" width={110} interval={0} {...AXIS} />
                   <Tooltip
                     contentStyle={CHART_TOOLTIP_STYLE}
                     cursor={false}
