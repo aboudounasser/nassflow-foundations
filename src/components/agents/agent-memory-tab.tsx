@@ -1,5 +1,6 @@
-import { Brain } from "lucide-react";
+import { Brain, ExternalLink } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
 
 import { EmptyState } from "@/components/common/empty-state";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +13,7 @@ import type { AgentMemoryEntry, MemoryLevel } from "@/lib/agents/types";
 export function AgentMemoryTab({ memory }: { memory: AgentMemoryEntry[] }) {
   const [level, setLevel] = useState<MemoryLevel>("working");
   const entries = useMemo(() => memory.filter((m) => m.level === level), [memory, level]);
+  const navigate = useNavigate();
 
   return (
     <div className="space-y-4">
@@ -35,8 +37,35 @@ export function AgentMemoryTab({ memory }: { memory: AgentMemoryEntry[] }) {
         <EmptyState icon={Brain} title={MEMORY_LEVEL[level].emptyMessage} />
       ) : (
         <div className="flex flex-col gap-3">
-          {entries.map((entry) => (
-            <Card key={entry.id} className="space-y-2 border-border bg-surface p-4">
+          {entries.map((entry) => {
+            const linkedId =
+              entry.level === "enterprise_brain" && entry.sourceId ? entry.sourceId : null;
+            return (
+            <Card
+              key={entry.id}
+              className={`space-y-2 border-border bg-surface p-4 ${
+                linkedId
+                  ? "cursor-pointer transition-colors duration-150 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  : ""
+              }`}
+              {...(linkedId
+                ? {
+                    role: "link" as const,
+                    tabIndex: 0,
+                    onClick: () =>
+                      navigate({ to: "/enterprise-brain/$itemId", params: { itemId: linkedId } }),
+                    onKeyDown: (e: React.KeyboardEvent) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        navigate({
+                          to: "/enterprise-brain/$itemId",
+                          params: { itemId: linkedId },
+                        });
+                      }
+                    },
+                  }
+                : {})}
+            >
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <p className="min-w-0 text-[14px] font-medium text-foreground">{entry.title}</p>
                 <div className="flex flex-wrap gap-1">
@@ -45,6 +74,12 @@ export function AgentMemoryTab({ memory }: { memory: AgentMemoryEntry[] }) {
                   </Badge>
                   {entry.confidenceScore !== null ? (
                     <Badge variant="neutral">Confiance {entry.confidenceScore}%</Badge>
+                  ) : null}
+                  {linkedId ? (
+                    <ExternalLink
+                      className="size-4 shrink-0 self-center text-muted-foreground"
+                      aria-hidden="true"
+                    />
                   ) : null}
                 </div>
               </div>
@@ -64,7 +99,8 @@ export function AgentMemoryTab({ memory }: { memory: AgentMemoryEntry[] }) {
                 </div>
               </dl>
             </Card>
-          ))}
+            );
+          })}
         </div>
       )}
 
