@@ -2,7 +2,7 @@ import { Building2, Percent, TrendingUp, UserCheck, Users, Wallet, type LucideIc
 
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ACTIVE_STAGES, formatEuro } from "@/lib/crm/meta";
+import { ACTIVE_STAGES, formatEuroCompact } from "@/lib/crm/meta";
 import type { Contact, Deal } from "@/lib/crm/types";
 
 function StatCard({
@@ -55,7 +55,7 @@ export function CrmOverview({ contacts, deals }: { contacts: Contact[]; deals: D
         <StatCard icon={Users} value={String(contacts.length)} label="Contacts" />
         <StatCard icon={Building2} value={String(prospects)} label="Prospects" />
         <StatCard icon={UserCheck} value={String(clients)} label="Clients" />
-        <StatCard icon={Wallet} value={formatEuro(activeValue)} label="Pipeline actif" />
+        <StatCard icon={Wallet} value={formatEuroCompact(activeValue)} label="Pipeline actif" />
         <StatCard icon={Percent} value={`${conversion}%`} label="Taux de conversion" />
       </div>
     </div>
@@ -71,9 +71,9 @@ export function PipelineOverview({ deals }: { deals: Deal[] }) {
   return (
     <div className="@container">
       <div className="grid grid-cols-2 gap-4 @2xl:grid-cols-4">
-        <StatCard icon={Wallet} value={formatEuro(total)} label="Pipeline actif" />
-        <StatCard icon={TrendingUp} value={formatEuro(Math.round(weighted))} label="Valeur pondérée" />
-        <StatCard icon={UserCheck} value={formatEuro(won)} label="Signé (gagné)" />
+        <StatCard icon={Wallet} value={formatEuroCompact(total)} label="Pipeline actif" />
+        <StatCard icon={TrendingUp} value={formatEuroCompact(Math.round(weighted))} label="Valeur pondérée" />
+        <StatCard icon={UserCheck} value={formatEuroCompact(won)} label="Signé (gagné)" />
         <StatCard icon={Users} value={String(active.length)} label="Deals en cours" />
       </div>
     </div>
