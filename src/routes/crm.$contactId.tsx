@@ -23,7 +23,6 @@ import {
   formatCrmDateTime,
 } from "@/lib/crm/meta";
 import { contactById, crmAgentById, crmMissionById, dealsOfContact } from "@/lib/crm/mocks";
-import { contactsMock } from "@/lib/crm/mocks";
 
 const DESCRIPTION =
   "Fiche complète d'un contact CRM : coordonnées, opportunités, journal d'activités, mission liée et agent IA assigné.";
@@ -273,5 +272,3 @@ function Page() {
     </>
   );
 }
-
-void contactsMock;

@@ -21,6 +21,7 @@ import { Route as WorkflowEngineRouteImport } from './routes/workflow-engine'
 import { Route as AgentsIndexRouteImport } from './routes/agents.index'
 import { Route as AgentsAgentIdRouteImport } from './routes/agents.$agentId'
 import { Route as CrmIndexRouteImport } from './routes/crm.index'
+import { Route as CrmContactIdRouteImport } from './routes/crm.$contactId'
 import { Route as EnterpriseBrainIndexRouteImport } from './routes/enterprise-brain.index'
 import { Route as EnterpriseBrainItemIdRouteImport } from './routes/enterprise-brain.$itemId'
 import { Route as MissionsIndexRouteImport } from './routes/missions.index'
@@ -86,6 +87,11 @@ const CrmIndexRoute = CrmIndexRouteImport.update({
   path: '/crm/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CrmContactIdRoute = CrmContactIdRouteImport.update({
+  id: '/crm/$contactId',
+  path: '/crm/$contactId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EnterpriseBrainIndexRoute = EnterpriseBrainIndexRouteImport.update({
   id: '/enterprise-brain/',
   path: '/enterprise-brain/',
@@ -118,6 +124,7 @@ export interface FileRoutesByFullPath {
   '/system-settings': typeof SystemSettingsRoute
   '/workflow-engine': typeof WorkflowEngineRoute
   '/agents/$agentId': typeof AgentsAgentIdRoute
+  '/crm/$contactId': typeof CrmContactIdRoute
   '/enterprise-brain/$itemId': typeof EnterpriseBrainItemIdRoute
   '/missions/$missionId': typeof MissionsMissionIdRoute
   '/agents/': typeof AgentsIndexRoute
@@ -136,6 +143,7 @@ export interface FileRoutesByTo {
   '/system-settings': typeof SystemSettingsRoute
   '/workflow-engine': typeof WorkflowEngineRoute
   '/agents/$agentId': typeof AgentsAgentIdRoute
+  '/crm/$contactId': typeof CrmContactIdRoute
   '/enterprise-brain/$itemId': typeof EnterpriseBrainItemIdRoute
   '/missions/$missionId': typeof MissionsMissionIdRoute
   '/agents': typeof AgentsIndexRoute
@@ -155,6 +163,7 @@ export interface FileRoutesById {
   '/system-settings': typeof SystemSettingsRoute
   '/workflow-engine': typeof WorkflowEngineRoute
   '/agents/$agentId': typeof AgentsAgentIdRoute
+  '/crm/$contactId': typeof CrmContactIdRoute
   '/enterprise-brain/$itemId': typeof EnterpriseBrainItemIdRoute
   '/missions/$missionId': typeof MissionsMissionIdRoute
   '/agents/': typeof AgentsIndexRoute
@@ -175,6 +184,7 @@ export interface FileRouteTypes {
     | '/system-settings'
     | '/workflow-engine'
     | '/agents/$agentId'
+    | '/crm/$contactId'
     | '/enterprise-brain/$itemId'
     | '/missions/$missionId'
     | '/agents/'
@@ -193,6 +203,7 @@ export interface FileRouteTypes {
     | '/system-settings'
     | '/workflow-engine'
     | '/agents/$agentId'
+    | '/crm/$contactId'
     | '/enterprise-brain/$itemId'
     | '/missions/$missionId'
     | '/agents'
@@ -211,6 +222,7 @@ export interface FileRouteTypes {
     | '/system-settings'
     | '/workflow-engine'
     | '/agents/$agentId'
+    | '/crm/$contactId'
     | '/enterprise-brain/$itemId'
     | '/missions/$missionId'
     | '/agents/'
@@ -230,6 +242,7 @@ export interface RootRouteChildren {
   SystemSettingsRoute: typeof SystemSettingsRoute
   WorkflowEngineRoute: typeof WorkflowEngineRoute
   AgentsAgentIdRoute: typeof AgentsAgentIdRoute
+  CrmContactIdRoute: typeof CrmContactIdRoute
   EnterpriseBrainItemIdRoute: typeof EnterpriseBrainItemIdRoute
   MissionsMissionIdRoute: typeof MissionsMissionIdRoute
   AgentsIndexRoute: typeof AgentsIndexRoute
@@ -324,6 +337,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CrmIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/crm/$contactId': {
+      id: '/crm/$contactId'
+      path: '/crm/$contactId'
+      fullPath: '/crm/$contactId'
+      preLoaderRoute: typeof CrmContactIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/enterprise-brain/': {
       id: '/enterprise-brain/'
       path: '/enterprise-brain'
@@ -366,6 +386,7 @@ const rootRouteChildren: RootRouteChildren = {
   SystemSettingsRoute: SystemSettingsRoute,
   WorkflowEngineRoute: WorkflowEngineRoute,
   AgentsAgentIdRoute: AgentsAgentIdRoute,
+  CrmContactIdRoute: CrmContactIdRoute,
   EnterpriseBrainItemIdRoute: EnterpriseBrainItemIdRoute,
   MissionsMissionIdRoute: MissionsMissionIdRoute,
   AgentsIndexRoute: AgentsIndexRoute,
