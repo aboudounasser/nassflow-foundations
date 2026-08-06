@@ -25,6 +25,7 @@ import { Route as IntegrationsHubIndexRouteImport } from './routes/integrations-
 import { Route as IntegrationsHubIntegrationIdRouteImport } from './routes/integrations-hub.$integrationId'
 import { Route as MissionsIndexRouteImport } from './routes/missions.index'
 import { Route as MissionsMissionIdRouteImport } from './routes/missions.$missionId'
+import { Route as OrganizationIndexRouteImport } from './routes/organization.index'
 import { Route as WorkflowEngineIndexRouteImport } from './routes/workflow-engine.index'
 import { Route as WorkflowEngineWorkflowIdRouteImport } from './routes/workflow-engine.$workflowId'
 
@@ -109,6 +110,11 @@ const MissionsMissionIdRoute = MissionsMissionIdRouteImport.update({
   path: '/missions/$missionId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OrganizationIndexRoute = OrganizationIndexRouteImport.update({
+  id: '/organization/',
+  path: '/organization/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WorkflowEngineIndexRoute = WorkflowEngineIndexRouteImport.update({
   id: '/workflow-engine/',
   path: '/workflow-engine/',
@@ -139,6 +145,7 @@ export interface FileRoutesByFullPath {
   '/enterprise-brain/': typeof EnterpriseBrainIndexRoute
   '/integrations-hub/': typeof IntegrationsHubIndexRoute
   '/missions/': typeof MissionsIndexRoute
+  '/organization/': typeof OrganizationIndexRoute
   '/workflow-engine/': typeof WorkflowEngineIndexRoute
 }
 export interface FileRoutesByTo {
@@ -159,6 +166,7 @@ export interface FileRoutesByTo {
   '/enterprise-brain': typeof EnterpriseBrainIndexRoute
   '/integrations-hub': typeof IntegrationsHubIndexRoute
   '/missions': typeof MissionsIndexRoute
+  '/organization': typeof OrganizationIndexRoute
   '/workflow-engine': typeof WorkflowEngineIndexRoute
 }
 export interface FileRoutesById {
@@ -180,6 +188,7 @@ export interface FileRoutesById {
   '/enterprise-brain/': typeof EnterpriseBrainIndexRoute
   '/integrations-hub/': typeof IntegrationsHubIndexRoute
   '/missions/': typeof MissionsIndexRoute
+  '/organization/': typeof OrganizationIndexRoute
   '/workflow-engine/': typeof WorkflowEngineIndexRoute
 }
 export interface FileRouteTypes {
@@ -202,6 +211,7 @@ export interface FileRouteTypes {
     | '/enterprise-brain/'
     | '/integrations-hub/'
     | '/missions/'
+    | '/organization/'
     | '/workflow-engine/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -222,6 +232,7 @@ export interface FileRouteTypes {
     | '/enterprise-brain'
     | '/integrations-hub'
     | '/missions'
+    | '/organization'
     | '/workflow-engine'
   id:
     | '__root__'
@@ -242,6 +253,7 @@ export interface FileRouteTypes {
     | '/enterprise-brain/'
     | '/integrations-hub/'
     | '/missions/'
+    | '/organization/'
     | '/workflow-engine/'
   fileRoutesById: FileRoutesById
 }
@@ -263,6 +275,7 @@ export interface RootRouteChildren {
   EnterpriseBrainIndexRoute: typeof EnterpriseBrainIndexRoute
   IntegrationsHubIndexRoute: typeof IntegrationsHubIndexRoute
   MissionsIndexRoute: typeof MissionsIndexRoute
+  OrganizationIndexRoute: typeof OrganizationIndexRoute
   WorkflowEngineIndexRoute: typeof WorkflowEngineIndexRoute
 }
 
@@ -380,6 +393,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MissionsMissionIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/organization/': {
+      id: '/organization/'
+      path: '/organization'
+      fullPath: '/organization/'
+      preLoaderRoute: typeof OrganizationIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/workflow-engine/': {
       id: '/workflow-engine/'
       path: '/workflow-engine'
@@ -415,6 +435,7 @@ const rootRouteChildren: RootRouteChildren = {
   EnterpriseBrainIndexRoute: EnterpriseBrainIndexRoute,
   IntegrationsHubIndexRoute: IntegrationsHubIndexRoute,
   MissionsIndexRoute: MissionsIndexRoute,
+  OrganizationIndexRoute: OrganizationIndexRoute,
   WorkflowEngineIndexRoute: WorkflowEngineIndexRoute,
 }
 export const routeTree = rootRouteImport
