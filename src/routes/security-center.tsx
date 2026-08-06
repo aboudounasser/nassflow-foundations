@@ -3,7 +3,6 @@ import { ScrollText } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { EmptyState } from "@/components/common/empty-state";
-import { PageHeader } from "@/components/layout/page-header";
 import {
   AgentPermissionsTable,
   IntegrationPermissionsTable,
@@ -65,12 +64,18 @@ function Page() {
   const recent = events.slice(0, 5);
 
   return (
-    <div className="@container flex min-w-0 flex-col gap-6">
-      <PageHeader title="Security Center" description={DESCRIPTION} />
+    <>
+      <section className="col-span-12 min-w-0">
+        <h1 className="text-foreground">Security Center</h1>
+        <p className="mt-2 max-w-[640px] text-[16px] text-muted-foreground">{DESCRIPTION}</p>
+      </section>
 
-      <SecurityOverviewBanner data={overview} loading={loading} />
+      <section className="col-span-12 @container min-w-0">
+        <SecurityOverviewBanner data={overview} loading={loading} />
+      </section>
 
-      <ToggleGroup
+      <section className="col-span-12 @container flex min-w-0 flex-col gap-4">
+        <ToggleGroup
         type="single"
         value={tab}
         onValueChange={(value) => value && setTab(value as SecurityTab)}
@@ -125,6 +130,7 @@ function Page() {
       ) : (
         <PoliciesSection />
       )}
-    </div>
+      </section>
+    </>
   );
 }
