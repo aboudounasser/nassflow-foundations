@@ -13,7 +13,6 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as BillingRouteImport } from './routes/billing'
 import { Route as HelpCenterRouteImport } from './routes/help-center'
 import { Route as InsightsRouteImport } from './routes/insights'
-import { Route as OrganizationRouteImport } from './routes/organization'
 import { Route as SecurityCenterRouteImport } from './routes/security-center'
 import { Route as SystemSettingsRouteImport } from './routes/system-settings'
 import { Route as AgentsIndexRouteImport } from './routes/agents.index'
@@ -47,11 +46,6 @@ const HelpCenterRoute = HelpCenterRouteImport.update({
 const InsightsRoute = InsightsRouteImport.update({
   id: '/insights',
   path: '/insights',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const OrganizationRoute = OrganizationRouteImport.update({
-  id: '/organization',
-  path: '/organization',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SecurityCenterRoute = SecurityCenterRouteImport.update({
@@ -132,7 +126,6 @@ export interface FileRoutesByFullPath {
   '/billing': typeof BillingRoute
   '/help-center': typeof HelpCenterRoute
   '/insights': typeof InsightsRoute
-  '/organization': typeof OrganizationRoute
   '/security-center': typeof SecurityCenterRoute
   '/system-settings': typeof SystemSettingsRoute
   '/agents/$agentId': typeof AgentsAgentIdRoute
@@ -153,7 +146,6 @@ export interface FileRoutesByTo {
   '/billing': typeof BillingRoute
   '/help-center': typeof HelpCenterRoute
   '/insights': typeof InsightsRoute
-  '/organization': typeof OrganizationRoute
   '/security-center': typeof SecurityCenterRoute
   '/system-settings': typeof SystemSettingsRoute
   '/agents/$agentId': typeof AgentsAgentIdRoute
@@ -175,7 +167,6 @@ export interface FileRoutesById {
   '/billing': typeof BillingRoute
   '/help-center': typeof HelpCenterRoute
   '/insights': typeof InsightsRoute
-  '/organization': typeof OrganizationRoute
   '/security-center': typeof SecurityCenterRoute
   '/system-settings': typeof SystemSettingsRoute
   '/agents/$agentId': typeof AgentsAgentIdRoute
@@ -198,7 +189,6 @@ export interface FileRouteTypes {
     | '/billing'
     | '/help-center'
     | '/insights'
-    | '/organization'
     | '/security-center'
     | '/system-settings'
     | '/agents/$agentId'
@@ -219,7 +209,6 @@ export interface FileRouteTypes {
     | '/billing'
     | '/help-center'
     | '/insights'
-    | '/organization'
     | '/security-center'
     | '/system-settings'
     | '/agents/$agentId'
@@ -240,7 +229,6 @@ export interface FileRouteTypes {
     | '/billing'
     | '/help-center'
     | '/insights'
-    | '/organization'
     | '/security-center'
     | '/system-settings'
     | '/agents/$agentId'
@@ -262,7 +250,6 @@ export interface RootRouteChildren {
   BillingRoute: typeof BillingRoute
   HelpCenterRoute: typeof HelpCenterRoute
   InsightsRoute: typeof InsightsRoute
-  OrganizationRoute: typeof OrganizationRoute
   SecurityCenterRoute: typeof SecurityCenterRoute
   SystemSettingsRoute: typeof SystemSettingsRoute
   AgentsAgentIdRoute: typeof AgentsAgentIdRoute
@@ -307,13 +294,6 @@ declare module '@tanstack/react-router' {
       path: '/insights'
       fullPath: '/insights'
       preLoaderRoute: typeof InsightsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/organization': {
-      id: '/organization'
-      path: '/organization'
-      fullPath: '/organization'
-      preLoaderRoute: typeof OrganizationRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/security-center': {
@@ -422,7 +402,6 @@ const rootRouteChildren: RootRouteChildren = {
   BillingRoute: BillingRoute,
   HelpCenterRoute: HelpCenterRoute,
   InsightsRoute: InsightsRoute,
-  OrganizationRoute: OrganizationRoute,
   SecurityCenterRoute: SecurityCenterRoute,
   SystemSettingsRoute: SystemSettingsRoute,
   AgentsAgentIdRoute: AgentsAgentIdRoute,
@@ -441,3 +420,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
