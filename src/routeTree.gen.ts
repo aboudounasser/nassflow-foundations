@@ -11,7 +11,6 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BillingRouteImport } from './routes/billing'
-import { Route as HelpCenterRouteImport } from './routes/help-center'
 import { Route as InsightsRouteImport } from './routes/insights'
 import { Route as SecurityCenterRouteImport } from './routes/security-center'
 import { Route as SystemSettingsRouteImport } from './routes/system-settings'
@@ -38,11 +37,6 @@ const IndexRoute = IndexRouteImport.update({
 const BillingRoute = BillingRouteImport.update({
   id: '/billing',
   path: '/billing',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HelpCenterRoute = HelpCenterRouteImport.update({
-  id: '/help-center',
-  path: '/help-center',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InsightsRoute = InsightsRouteImport.update({
@@ -136,7 +130,6 @@ const WorkflowEngineWorkflowIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/billing': typeof BillingRoute
-  '/help-center': typeof HelpCenterRoute
   '/insights': typeof InsightsRoute
   '/security-center': typeof SecurityCenterRoute
   '/system-settings': typeof SystemSettingsRoute
@@ -158,7 +151,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/billing': typeof BillingRoute
-  '/help-center': typeof HelpCenterRoute
   '/insights': typeof InsightsRoute
   '/security-center': typeof SecurityCenterRoute
   '/system-settings': typeof SystemSettingsRoute
@@ -181,7 +173,6 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/billing': typeof BillingRoute
-  '/help-center': typeof HelpCenterRoute
   '/insights': typeof InsightsRoute
   '/security-center': typeof SecurityCenterRoute
   '/system-settings': typeof SystemSettingsRoute
@@ -205,7 +196,6 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/billing'
-    | '/help-center'
     | '/insights'
     | '/security-center'
     | '/system-settings'
@@ -227,7 +217,6 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/billing'
-    | '/help-center'
     | '/insights'
     | '/security-center'
     | '/system-settings'
@@ -249,7 +238,6 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/billing'
-    | '/help-center'
     | '/insights'
     | '/security-center'
     | '/system-settings'
@@ -272,7 +260,6 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BillingRoute: typeof BillingRoute
-  HelpCenterRoute: typeof HelpCenterRoute
   InsightsRoute: typeof InsightsRoute
   SecurityCenterRoute: typeof SecurityCenterRoute
   SystemSettingsRoute: typeof SystemSettingsRoute
@@ -306,13 +293,6 @@ declare module '@tanstack/react-router' {
       path: '/billing'
       fullPath: '/billing'
       preLoaderRoute: typeof BillingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/help-center': {
-      id: '/help-center'
-      path: '/help-center'
-      fullPath: '/help-center'
-      preLoaderRoute: typeof HelpCenterRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/insights': {
@@ -440,7 +420,6 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BillingRoute: BillingRoute,
-  HelpCenterRoute: HelpCenterRoute,
   InsightsRoute: InsightsRoute,
   SecurityCenterRoute: SecurityCenterRoute,
   SystemSettingsRoute: SystemSettingsRoute,
@@ -462,3 +441,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
