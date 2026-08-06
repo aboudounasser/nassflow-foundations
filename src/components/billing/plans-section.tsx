@@ -57,7 +57,7 @@ export function PlansSection() {
             <Button
               type="button"
               className="mt-5 w-full"
-              variant={plan.isCurrent ? "secondary" : "default"}
+              variant={plan.isCurrent ? "secondary" : "primary"}
               disabled={plan.isCurrent}
               onClick={() => setTarget(plan)}
             >
