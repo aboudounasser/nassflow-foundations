@@ -21,6 +21,7 @@ import { Route as CrmContactIdRouteImport } from './routes/crm.$contactId'
 import { Route as EnterpriseBrainIndexRouteImport } from './routes/enterprise-brain.index'
 import { Route as EnterpriseBrainItemIdRouteImport } from './routes/enterprise-brain.$itemId'
 import { Route as HelpCenterIndexRouteImport } from './routes/help-center.index'
+import { Route as HelpCenterArticleIdRouteImport } from './routes/help-center.$articleId'
 import { Route as IntegrationsHubIndexRouteImport } from './routes/integrations-hub.index'
 import { Route as IntegrationsHubIntegrationIdRouteImport } from './routes/integrations-hub.$integrationId'
 import { Route as MissionsIndexRouteImport } from './routes/missions.index'
@@ -90,6 +91,11 @@ const HelpCenterIndexRoute = HelpCenterIndexRouteImport.update({
   path: '/help-center/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HelpCenterArticleIdRoute = HelpCenterArticleIdRouteImport.update({
+  id: '/help-center/$articleId',
+  path: '/help-center/$articleId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IntegrationsHubIndexRoute = IntegrationsHubIndexRouteImport.update({
   id: '/integrations-hub/',
   path: '/integrations-hub/',
@@ -142,6 +148,7 @@ export interface FileRoutesByFullPath {
   '/agents/$agentId': typeof AgentsAgentIdRoute
   '/crm/$contactId': typeof CrmContactIdRoute
   '/enterprise-brain/$itemId': typeof EnterpriseBrainItemIdRoute
+  '/help-center/$articleId': typeof HelpCenterArticleIdRoute
   '/integrations-hub/$integrationId': typeof IntegrationsHubIntegrationIdRoute
   '/missions/$missionId': typeof MissionsMissionIdRoute
   '/organization/$memberId': typeof OrganizationMemberIdRoute
@@ -164,6 +171,7 @@ export interface FileRoutesByTo {
   '/agents/$agentId': typeof AgentsAgentIdRoute
   '/crm/$contactId': typeof CrmContactIdRoute
   '/enterprise-brain/$itemId': typeof EnterpriseBrainItemIdRoute
+  '/help-center/$articleId': typeof HelpCenterArticleIdRoute
   '/integrations-hub/$integrationId': typeof IntegrationsHubIntegrationIdRoute
   '/missions/$missionId': typeof MissionsMissionIdRoute
   '/organization/$memberId': typeof OrganizationMemberIdRoute
@@ -187,6 +195,7 @@ export interface FileRoutesById {
   '/agents/$agentId': typeof AgentsAgentIdRoute
   '/crm/$contactId': typeof CrmContactIdRoute
   '/enterprise-brain/$itemId': typeof EnterpriseBrainItemIdRoute
+  '/help-center/$articleId': typeof HelpCenterArticleIdRoute
   '/integrations-hub/$integrationId': typeof IntegrationsHubIntegrationIdRoute
   '/missions/$missionId': typeof MissionsMissionIdRoute
   '/organization/$memberId': typeof OrganizationMemberIdRoute
@@ -211,6 +220,7 @@ export interface FileRouteTypes {
     | '/agents/$agentId'
     | '/crm/$contactId'
     | '/enterprise-brain/$itemId'
+    | '/help-center/$articleId'
     | '/integrations-hub/$integrationId'
     | '/missions/$missionId'
     | '/organization/$memberId'
@@ -233,6 +243,7 @@ export interface FileRouteTypes {
     | '/agents/$agentId'
     | '/crm/$contactId'
     | '/enterprise-brain/$itemId'
+    | '/help-center/$articleId'
     | '/integrations-hub/$integrationId'
     | '/missions/$missionId'
     | '/organization/$memberId'
@@ -255,6 +266,7 @@ export interface FileRouteTypes {
     | '/agents/$agentId'
     | '/crm/$contactId'
     | '/enterprise-brain/$itemId'
+    | '/help-center/$articleId'
     | '/integrations-hub/$integrationId'
     | '/missions/$missionId'
     | '/organization/$memberId'
@@ -278,6 +290,7 @@ export interface RootRouteChildren {
   AgentsAgentIdRoute: typeof AgentsAgentIdRoute
   CrmContactIdRoute: typeof CrmContactIdRoute
   EnterpriseBrainItemIdRoute: typeof EnterpriseBrainItemIdRoute
+  HelpCenterArticleIdRoute: typeof HelpCenterArticleIdRoute
   IntegrationsHubIntegrationIdRoute: typeof IntegrationsHubIntegrationIdRoute
   MissionsMissionIdRoute: typeof MissionsMissionIdRoute
   OrganizationMemberIdRoute: typeof OrganizationMemberIdRoute
@@ -378,6 +391,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HelpCenterIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/help-center/$articleId': {
+      id: '/help-center/$articleId'
+      path: '/help-center/$articleId'
+      fullPath: '/help-center/$articleId'
+      preLoaderRoute: typeof HelpCenterArticleIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/integrations-hub/': {
       id: '/integrations-hub/'
       path: '/integrations-hub'
@@ -446,6 +466,7 @@ const rootRouteChildren: RootRouteChildren = {
   AgentsAgentIdRoute: AgentsAgentIdRoute,
   CrmContactIdRoute: CrmContactIdRoute,
   EnterpriseBrainItemIdRoute: EnterpriseBrainItemIdRoute,
+  HelpCenterArticleIdRoute: HelpCenterArticleIdRoute,
   IntegrationsHubIntegrationIdRoute: IntegrationsHubIntegrationIdRoute,
   MissionsMissionIdRoute: MissionsMissionIdRoute,
   OrganizationMemberIdRoute: OrganizationMemberIdRoute,
