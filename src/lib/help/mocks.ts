@@ -10,7 +10,7 @@ export const helpArticlesMock: HelpArticle[] = [
     title: "Premiers pas dans NASSFLOW OS",
     summary:
       "Découvrez l'organisation de l'interface : Top Bar, sidebar des 13 modules, zone principale et Context Panel.",
-    content: `NASSFLOW OS est un AI Operating System : la plateforme fait travailler ensemble vos équipes humaines et vos AI Agents.
+    content: `NASSFLOW OS est un AI Operating System : la plateforme fait travailler ensemble vos équipes humaines et vos agents IA.
 
 L'interface repose sur un Master Layout unique, identique dans tous les modules. En haut, la Top Bar. À gauche, la sidebar qui donne accès aux 13 modules : Dashboard, Missions, AI Workforce, Enterprise Brain, CRM, Workflow Engine, Integrations Hub, Insights, Organization, Security Center, Billing, System Settings et Help Center. Au centre, la zone de contenu du module courant. À droite, le Context Panel : il s'ouvre lorsque vous sélectionnez un élément (une mission, un AI Agent, un contact, un article d'aide) et affiche son résumé sans quitter la page.
 
@@ -45,7 +45,7 @@ Chaque widget partage le même conteneur, qui gère quatre états : chargement, 
     title: "Vocabulaire NASSFLOW OS",
     summary:
       "Mission, AI Workforce, AI Agent, Workflow, Enterprise Brain : le lexique officiel de la plateforme.",
-    content: `Mission : un objectif métier confié à un ou plusieurs AI Agents, découpé en étapes avec dépendances, coût IA et historique.
+    content: `Mission : un objectif métier confié à un ou plusieurs agents IA, découpé en étapes avec dépendances, coût IA et historique.
 
 AI Workforce : le module qui regroupe l'ensemble de vos collaborateurs IA. C'est le nom officiel du module et de l'équipe.
 
@@ -94,7 +94,7 @@ Le bouton « Créer une Mission » ouvre le Mission Builder, un assistant en plu
 Il vous guide en cinq étapes :
 1. Point de départ — choisissez la manière de démarrer la mission.
 2. Objectif — décrivez précisément le résultat attendu.
-3. Agents & Outils — sélectionnez les AI Agents mobilisés et les outils qu'ils pourront utiliser.
+3. Agents & Outils — sélectionnez les agents IA mobilisés et les outils qu'ils pourront utiliser.
 4. Étapes & Validation — définissez les étapes et les points de validation humaine.
 5. Révision — relisez la configuration avant de confirmer.
 
@@ -113,7 +113,7 @@ Chaque étape est validée avant de pouvoir passer à la suivante, et l'assistan
       "La vue plein écran d'une mission : diagramme de flux, timeline enrichie et lecture pas à pas.",
     content: `Depuis le détail d'une mission, le bouton « Plein écran » ouvre la vue d'orchestration à la route « /missions/{id} ».
 
-L'Orchestration Engine affiche les étapes sous forme de diagramme : chaque étape est une carte compacte avec les avatars des AI Agents concernés. Les connecteurs relient les étapes selon leurs dépendances, ce qui rend visibles les séquences comme les branches exécutées en parallèle. L'étape en cours d'exécution est mise en évidence par un halo.
+L'Orchestration Engine affiche les étapes sous forme de diagramme : chaque étape est une carte compacte avec les avatars des agents IA concernés. Les connecteurs relient les étapes selon leurs dépendances, ce qui rend visibles les séquences comme les branches exécutées en parallèle. L'étape en cours d'exécution est mise en évidence par un halo.
 
 La barre de Replay (lecture, pause, étape suivante) rejoue l'exécution pas à pas. Le diagramme, la timeline et le résumé de raisonnement restent synchronisés à chaque avancement.`,
     category: "Missions",
@@ -170,12 +170,12 @@ Les onglets Mémoire, Logs et Configuration sont en lecture seule dans cette ver
     id: "h-brain",
     title: "Alimenter l'Enterprise Brain",
     summary:
-      "Le socle documentaire de l'entreprise : documents, procédures, wiki et FAQ métier, et leur lien avec les AI Agents.",
+      "Le socle documentaire de l'entreprise : documents, procédures, wiki et FAQ métier, et leur lien avec les agents IA.",
     content: `L'Enterprise Brain, à la route « /enterprise-brain », contient la connaissance de votre entreprise. Quatre types de contenus coexistent : Document, Procédure, Wiki et FAQ.
 
 La page index propose un bandeau de synthèse, une barre d'outils (recherche, filtres par type et statut, bascule grille/liste) et des chips de collections pour filtrer par catégorie. Chaque contenu porte un responsable, un statut (publié, brouillon, archivé) et une version.
 
-La page de détail affiche le corps du document, ses tags, et surtout la section « Agents utilisant cette connaissance » : elle croise les mémoires des AI Agents pour montrer qui s'appuie sur ce contenu. Le lien est bidirectionnel depuis l'onglet Mémoire d'un agent.
+La page de détail affiche le corps du document, ses tags, et surtout la section « Agents utilisant cette connaissance » : elle croise les mémoires des agents IA pour montrer qui s'appuie sur ce contenu. Le lien est bidirectionnel depuis l'onglet Mémoire d'un agent.
 
 À ne pas confondre avec le Help Center, qui documente le produit NASSFLOW OS.`,
     category: "Enterprise Brain",
@@ -225,12 +225,12 @@ Retenez la distinction : une mission porte l'intention métier, un workflow port
     id: "h-integrations",
     title: "Connecter vos outils dans l'Integrations Hub",
     summary:
-      "Installer, reconnecter ou tester une intégration, et voir quels AI Agents s'appuient dessus.",
-    content: `L'Integrations Hub, à la route « /integrations-hub », recense les outils utilisés par vos AI Agents ainsi que ceux qui restent à installer.
+      "Installer, reconnecter ou tester une intégration, et voir quels agents IA s'appuient dessus.",
+    content: `L'Integrations Hub, à la route « /integrations-hub », recense les outils utilisés par vos agents IA ainsi que ceux qui restent à installer.
 
 La page index affiche un bandeau de synthèse, une barre d'outils et des cartes portant chacune un badge de statut. Une intégration non installée propose un bouton « Connecter ».
 
-La page de détail adapte ses actions au statut : reconnecter, déconnecter ou tester la connexion. Elle détaille aussi l'état de synchronisation, les permissions accordées et la liste des AI Agents qui utilisent cet outil.`,
+La page de détail adapte ses actions au statut : reconnecter, déconnecter ou tester la connexion. Elle détaille aussi l'état de synchronisation, les permissions accordées et la liste des agents IA qui utilisent cet outil.`,
     category: "Intégrations",
     tags: ["intégrations", "connecteurs", "outils"],
     readingTimeMin: 3,
@@ -243,7 +243,7 @@ La page de détail adapte ses actions au statut : reconnecter, déconnecter ou t
     title: "Lire vos Insights",
     summary:
       "Six graphiques calculés à partir des missions, agents, deals, workflows et intégrations, avec filtre de période.",
-    content: `Le module Insights, à la route « /insights », agrège les données des autres modules : missions, AI Agents, deals du CRM, workflows et intégrations.
+    content: `Le module Insights, à la route « /insights », agrège les données des autres modules : missions, agents IA, deals du CRM, workflows et intégrations.
 
 La page s'ouvre sur un bandeau de métriques transverses, complété par un filtre de période (7, 30 ou 90 jours) qui s'applique à l'ensemble de la page.
 
@@ -259,12 +259,12 @@ Six graphiques suivent : histogrammes, aires, courbes et camemberts. Aucune donn
     id: "h-organization",
     title: "Organisation hybride humains et IA",
     summary:
-      "L'annuaire et les départements : comment humains et AI Agents cohabitent dans la même structure.",
-    content: `Le module Organization, à la route « /organization », décrit votre entreprise telle qu'elle fonctionne réellement : des personnes et des AI Agents dans les mêmes départements.
+      "L'annuaire et les départements : comment humains et agents IA cohabitent dans la même structure.",
+    content: `Le module Organization, à la route « /organization », décrit votre entreprise telle qu'elle fonctionne réellement : des personnes et des agents IA dans les mêmes départements.
 
 La page index bascule entre deux vues : Annuaire, qui liste les membres, et Départements, qui présente chaque département avec son effectif hybride.
 
-La fiche d'un membre, à la route « /organization/{id} », affiche ses informations, son ancienneté, son manager, les membres qui lui sont rattachés et les AI Agents de son département.`,
+La fiche d'un membre, à la route « /organization/{id} », affiche ses informations, son ancienneté, son manager, les membres qui lui sont rattachés et les agents IA de son département.`,
     category: "Compte & organisation",
     tags: ["organisation", "départements", "annuaire", "équipe"],
     readingTimeMin: 3,
@@ -281,7 +281,7 @@ La fiche d'un membre, à la route « /organization/{id} », affiche ses informat
 
 Un bandeau affiche le score de posture de sécurité. Quatre sections sont ensuite accessibles :
 — Vue d'ensemble : les événements de sécurité récents.
-— Accès & Permissions : les accès des membres, les permissions des AI Agents et celles des intégrations.
+— Accès & Permissions : les accès des membres, les permissions des agents IA et celles des intégrations.
 — Journal d'audit : un flux filtrable d'événements agrégés depuis les autres modules.
 — Politiques : les règles de sécurité appliquées.
 
@@ -300,7 +300,7 @@ Le journal n'est pas une invention : il agrège des événements provenant réel
       "Le module Billing : consommation IA calculée depuis les missions et les logs d'agents, factures, plans et moyens de paiement.",
     content: `Le module Billing, à la route « /billing », ouvre sur un bandeau de synthèse avec la progression de votre quota. Quatre sections sont ensuite accessibles.
 
-Consommation : un graphique filtrable par période (7, 30 ou 90 jours) et des tableaux par agent et par mission. Les montants sont calculés à partir du coût des missions et des coûts estimés dans les logs des AI Agents, avec des liens directs vers l'agent ou la mission concernée.
+Consommation : un graphique filtrable par période (7, 30 ou 90 jours) et des tableaux par agent et par mission. Les montants sont calculés à partir du coût des missions et des coûts estimés dans les logs des agents IA, avec des liens directs vers l'agent ou la mission concernée.
 
 Factures : la liste des factures avec badge de statut et téléchargement.
 
@@ -394,7 +394,7 @@ export const helpFaqMock: HelpFaq[] = [
     id: "f-6",
     question: "Comment est calculée ma consommation IA ?",
     answer:
-      "Elle est dérivée du coût des missions et des coûts estimés enregistrés dans les logs des AI Agents. Le module Billing les agrège par agent, par mission et par jour, avec un filtre de période.",
+      "Elle est dérivée du coût des missions et des coûts estimés enregistrés dans les logs des agents IA. Le module Billing les agrège par agent, par mission et par jour, avec un filtre de période.",
     category: "Facturation",
   },
   {
@@ -408,7 +408,7 @@ export const helpFaqMock: HelpFaq[] = [
     id: "f-8",
     question: "Où voir qui a accès à quoi ?",
     answer:
-      "Dans le Security Center, section « Accès & Permissions ». Vous y trouvez les accès des membres, les permissions des AI Agents et celles des intégrations. System Settings renvoie vers ce module au lieu de dupliquer l'information.",
+      "Dans le Security Center, section « Accès & Permissions ». Vous y trouvez les accès des membres, les permissions des agents IA et celles des intégrations. System Settings renvoie vers ce module au lieu de dupliquer l'information.",
     category: "Sécurité",
   },
   {
