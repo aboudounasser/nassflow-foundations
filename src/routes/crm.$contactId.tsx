@@ -110,7 +110,8 @@ function Page() {
             <div className="min-w-0 space-y-2">
               <h1 className="text-foreground">{contact.name}</h1>
               <p className="text-[14px] text-muted-foreground">
-                {contact.role} · {contact.company} · Client depuis le{" "}
+                {contact.role} · {contact.company} ·{" "}
+                {contact.type === "client" ? "Client depuis le" : "Créé le"}{" "}
                 {formatCrmDate(contact.createdAt)}
               </p>
               <div className="flex flex-wrap gap-1">

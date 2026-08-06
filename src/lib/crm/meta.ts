@@ -102,7 +102,7 @@ const EUR_COMPACT_FMT = new Intl.NumberFormat("fr-FR", {
   style: "currency",
   currency: "EUR",
   notation: "compact",
-  maximumFractionDigits: 1,
+  maximumFractionDigits: 0,
 });
 
 /** Format court pour les cartes de statistiques (ex. 464 k€). */
