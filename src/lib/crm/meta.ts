@@ -98,6 +98,18 @@ export function formatEuro(value: number): string {
   return EUR_FMT.format(value);
 }
 
+const EUR_COMPACT_FMT = new Intl.NumberFormat("fr-FR", {
+  style: "currency",
+  currency: "EUR",
+  notation: "compact",
+  maximumFractionDigits: 1,
+});
+
+/** Format court pour les cartes de statistiques (ex. 464 k€). */
+export function formatEuroCompact(value: number): string {
+  return EUR_COMPACT_FMT.format(value);
+}
+
 export function contactInitials(name: string): string {
   return name
     .split(" ")
