@@ -12,9 +12,10 @@ import {
 } from "@/components/organization/org-member-card";
 import { OrgMemberSummaryPanel } from "@/components/organization/org-member-summary-panel";
 import { OrgOverview, OrgOverviewSkeleton } from "@/components/organization/org-overview";
-import { OrgToolbar, type MemberFilters } from "@/components/organization/org-toolbar";
+import { GRID_LIST_VIEWS, ModuleToolbar } from "@/components/common/module-toolbar";
 import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { memberFilterDescriptors } from "@/lib/organization/meta";
 import {
   agentsInDepartment,
   companyProfileMock,
@@ -24,7 +25,7 @@ import {
   orgMemberById,
   orgMembersMock,
 } from "@/lib/organization/mocks";
-import type { OrgMember, OrgTab, OrgView } from "@/lib/organization/types";
+import type { MemberFilters, OrgMember, OrgTab, OrgView } from "@/lib/organization/types";
 
 const DESCRIPTION =
   "L'organisation hybride de NASSFLOW OS : annuaire des membres humains et départements réunissant équipes humaines et agents IA.";
@@ -146,14 +147,19 @@ function Page() {
           </section>
 
           <section className="col-span-12 min-w-0">
-            <OrgToolbar
+            <ModuleToolbar
               filters={filters}
-              departments={departmentsMock.map((d) => d.name)}
               onChange={setFilters}
-              view={view}
-              onViewChange={setView}
               onReset={() => setFilters(DEFAULT_FILTERS)}
+              searchKey="search"
+              searchPlaceholder="Rechercher un nom, un e-mail, un poste…"
+              searchAriaLabel="Rechercher un membre"
+              descriptors={descriptors}
+              views={GRID_LIST_VIEWS}
+              view={view}
+              onViewChange={(v) => setView(v as OrgView)}
               resultCount={members.length}
+              resultLabel={(n) => `${n} membre${n > 1 ? "s" : ""}`}
             />
           </section>
 
