@@ -1,7 +1,7 @@
 import { Mail, MessageSquare, Phone, Users, type LucideIcon } from "lucide-react";
 
 import type { ContactStatus, ContactType, CrmActivity, DealStage } from "./types";
-import type { FilterDescriptor } from "@/components/common/module-toolbar";
+import type { FilterDescriptor } from "@/lib/toolbar/types";
 
 type BadgeVariant = "neutral" | "primary" | "success" | "warning" | "destructive" | "info";
 

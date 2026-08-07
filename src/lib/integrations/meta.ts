@@ -1,7 +1,7 @@
 import { CircleCheck, CircleSlash, Download, TriangleAlert, type LucideIcon } from "lucide-react";
 
 import type { IntegrationCategory, IntegrationStatus } from "./types";
-import type { FilterDescriptor } from "@/components/common/module-toolbar";
+import type { FilterDescriptor } from "@/lib/toolbar/types";
 
 type BadgeVariant = "neutral" | "primary" | "success" | "warning" | "destructive" | "info";
 
