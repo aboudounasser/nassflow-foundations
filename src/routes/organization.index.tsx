@@ -70,12 +70,17 @@ function Page() {
 
   const isPending =
     companyQuery.isPending || departmentsQuery.isPending || membersQuery.isPending;
-  const isError = companyQuery.isError || departmentsQuery.isError || membersQuery.isError;
+  const isError =
+    companyQuery.isError ||
+    departmentsQuery.isError ||
+    membersQuery.isError ||
+    departmentSummariesQuery.isError;
 
   const retry = () => {
     if (companyQuery.isError) void companyQuery.refetch();
     if (departmentsQuery.isError) void departmentsQuery.refetch();
     if (membersQuery.isError) void membersQuery.refetch();
+    if (departmentSummariesQuery.isError) void departmentSummariesQuery.refetch();
   };
 
   const members = useMemo(() => {
