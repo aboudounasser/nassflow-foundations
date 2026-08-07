@@ -6,6 +6,7 @@ import {
   ListOrdered,
   PauseCircle,
   PlayCircle,
+  TriangleAlert,
   Variable,
   Workflow as WorkflowIcon,
   Zap,
@@ -31,7 +32,7 @@ import {
   formatDuration,
   formatRelative,
 } from "@/lib/workflows/meta";
-import { workflowAgentById, workflowById, workflowMissions } from "@/lib/workflows/mocks";
+import { useWorkflow } from "@/lib/workflows/queries";
 import type { RunStatusFilter } from "@/lib/workflows/types";
 
 const DESCRIPTION =
@@ -62,16 +63,46 @@ function DetailSkeleton() {
 
 function Page() {
   const { workflowId } = Route.useParams();
-  const workflow = workflowById(workflowId);
   const navigate = useNavigate();
-  // État du module : loading / error / success (mock statique).
-  const [state] = useState<"loading" | "error" | "success">("success");
   const [runFilter, setRunFilter] = useState<RunStatusFilter>("all");
+
+  const workflowQuery = useWorkflow(workflowId);
+  const data = workflowQuery.data ?? null;
+  const workflow = data?.workflow ?? null;
+  const agent = data?.agent ?? null;
+  const missions = data?.missions ?? [];
 
   useContextPanelContent(
     () => (workflow ? <WorkflowSummaryPanel workflow={workflow} /> : null),
     [workflow?.id],
   );
+
+  if (workflowQuery.isError) {
+    return (
+      <section className="col-span-12 min-w-0">
+        <Card className="border-border bg-card p-4">
+          <EmptyState
+            icon={TriangleAlert}
+            title="Impossible de charger ce workflow"
+            description="Le détail du workflow n'a pas pu être récupéré. Vérifiez votre connexion puis réessayez."
+          />
+          <div className="flex justify-center">
+            <Button type="button" size="sm" onClick={() => void workflowQuery.refetch()}>
+              Réessayer
+            </Button>
+          </div>
+        </Card>
+      </section>
+    );
+  }
+
+  if (workflowQuery.isPending) {
+    return (
+      <section className="col-span-12 min-w-0">
+        <DetailSkeleton />
+      </section>
+    );
+  }
 
   if (!workflow) {
     return (
@@ -94,8 +125,6 @@ function Page() {
   const trigger = TRIGGER_KIND[workflow.triggerKind];
   const StatusIcon = status.icon;
   const TriggerIcon = trigger.icon;
-  const agent = workflowAgentById(workflow.agentId);
-  const missions = workflowMissions(workflow.relatedMissionIds);
   const isActive = workflow.status === "active";
 
   return (
