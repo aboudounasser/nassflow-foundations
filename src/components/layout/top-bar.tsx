@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Bell, ChevronDown, Menu, PanelRight } from "lucide-react";
+import { toast } from "sonner";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -98,10 +99,21 @@ export function TopBar({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuItem>Profil</DropdownMenuItem>
-            <DropdownMenuItem>Préférences</DropdownMenuItem>
+            <div className="px-2 py-1.5">
+              <p className="text-[14px] font-medium text-foreground">Nasser Aboudou</p>
+              <p className="text-[12px] text-muted-foreground">nasser@nassflow.io</p>
+            </div>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Déconnexion</DropdownMenuItem>
+            <DropdownMenuItem disabled title="Bientôt disponible">
+              Profil
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/system-settings">Préférences</Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => toast("Déconnexion (mock)")}>
+              Déconnexion
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

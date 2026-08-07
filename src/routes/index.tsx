@@ -151,7 +151,7 @@ function DashboardCeo() {
       {/* 6. Mission Center */}
       <div className="col-span-12 xl:col-span-6">
         <WidgetShell
-          title="Mission Center"
+          title="Missions"
           description="Missions actives et progression"
           icon={Target}
           emptyIcon={Target}
@@ -167,7 +167,7 @@ function DashboardCeo() {
       {/* 7. Live Activity */}
       <div className="col-span-12 xl:col-span-6">
         <WidgetShell
-          title="Live Activity"
+          title="Activity Feed"
           description="Flux d'activité en temps réel"
           icon={Activity}
           emptyIcon={Activity}
@@ -232,7 +232,7 @@ function DashboardCeo() {
       {/* 11. AI Insights */}
       <div className="col-span-12 xl:col-span-6">
         <WidgetShell
-          title="AI Insights"
+          title="Insights"
           description="Analyses génératives explicables"
           icon={Lightbulb}
           emptyIcon={Lightbulb}
@@ -261,7 +261,7 @@ function DashboardCeo() {
       {/* 13. Historique */}
       <div className="col-span-12">
         <WidgetShell
-          title="Historique"
+          title="History"
           description="Journal des événements majeurs"
           icon={History}
           emptyIcon={History}

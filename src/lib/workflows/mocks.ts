@@ -555,7 +555,7 @@ export const workflowsMock: Workflow[] = [
       {
         id: "wf-5-b3",
         type: "action",
-        label: "Répondre depuis la base de connaissances",
+        label: "Répondre depuis l'Enterprise Brain",
         description: "Réponse générée à partir de l'Enterprise Brain.",
         tool: "Enterprise Brain",
       },
@@ -971,7 +971,7 @@ export const workflowsMock: Workflow[] = [
     id: "wf-10",
     name: "Consolidation du reporting exécutif",
     description:
-      "Agrège les KPI de tous les modules et prépare le tableau de bord hebdomadaire du comité exécutif.",
+      "Agrège les KPI de tous les modules et prépare le rapport exécutif hebdomadaire du comité exécutif.",
     status: "active",
     triggerKind: "manual",
     scheduleExpression: null,
@@ -1004,7 +1004,7 @@ export const workflowsMock: Workflow[] = [
       {
         id: "wf-10-n4",
         type: "action",
-        label: "Produire le tableau de bord",
+        label: "Produire le rapport exécutif",
         description: "Génère la vue exécutive prête à partager.",
         tool: "Report Builder",
       },
