@@ -42,16 +42,12 @@ export function AgentsOverviewSkeleton() {
 
 export function AgentsOverview({
   agents,
-  missions,
+  runningMissions,
 }: {
   agents: AgentDetail[];
-  missions: MissionDetail[];
+  runningMissions: number;
 }) {
-  const ids = new Set(agents.map((a) => a.id));
   const actifs = agents.filter((a) => a.status === "active").length;
-  const missionsEnCours = missions.filter(
-    (m) => RUNNING.includes(m.status) && m.agents.some((a) => ids.has(a.id)),
-  ).length;
   const reussite =
     agents.length > 0
       ? Math.round(agents.reduce((sum, a) => sum + a.confidenceScore, 0) / agents.length)
@@ -62,7 +58,7 @@ export function AgentsOverview({
       <div className="grid grid-cols-2 gap-4 @2xl:grid-cols-3 @5xl:grid-cols-5">
         <StatCard icon={Bot} value={String(agents.length)} label="Collaborateurs IA" />
         <StatCard icon={Activity} value={String(actifs)} label="Agents actifs" />
-        <StatCard icon={Target} value={String(missionsEnCours)} label="Missions en cours" />
+        <StatCard icon={Target} value={String(runningMissions)} label="Missions en cours" />
         <StatCard icon={Gauge} value={`${reussite} %`} label="Taux de réussite moyen" />
         <StatCard icon={Clock} value="1 248 h" label="Temps économisé" />
       </div>
