@@ -61,7 +61,7 @@ export const GRID_LIST_VIEWS: ViewDescriptor[] = [
   { value: "list", label: "Liste", icon: List },
 ];
 
-export function ModuleToolbar<F extends Record<string, unknown>>({
+export function ModuleToolbar<F extends object>({
   filters,
   onChange,
   onReset,
@@ -90,7 +90,8 @@ export function ModuleToolbar<F extends Record<string, unknown>>({
   resultLabel: (count: number) => string;
   actions?: React.ReactNode;
 }) {
-  const set = (key: string, value: unknown) => onChange({ ...filters, [key]: value });
+  const record = filters as Record<string, unknown>;
+  const set = (key: string, value: unknown) => onChange({ ...filters, [key]: value } as F);
 
   return (
     <div className="@container flex flex-col gap-3 rounded-xl border border-border bg-surface p-4">
@@ -101,7 +102,7 @@ export function ModuleToolbar<F extends Record<string, unknown>>({
             aria-hidden="true"
           />
           <Input
-            value={String(filters[searchKey] ?? "")}
+            value={String(record[searchKey] ?? "")}
             onChange={(e) => set(searchKey, e.target.value)}
             placeholder={searchPlaceholder}
             aria-label={searchAriaLabel}
@@ -114,7 +115,7 @@ export function ModuleToolbar<F extends Record<string, unknown>>({
             return (
               <Select
                 key={d.key}
-                value={String(filters[d.key] ?? "all")}
+                value={String(record[d.key] ?? "all")}
                 onValueChange={(v) => set(d.key, v)}
               >
                 <SelectTrigger className={d.width ?? "w-[170px]"} aria-label={d.ariaLabel}>
@@ -136,7 +137,7 @@ export function ModuleToolbar<F extends Record<string, unknown>>({
             return (
               <Select
                 key={d.key}
-                value={String(filters[d.key] ?? "")}
+                value={String(record[d.key] ?? "")}
                 onValueChange={(v) => set(d.key, v)}
               >
                 <SelectTrigger className={d.width ?? "w-[180px]"} aria-label={d.ariaLabel}>
@@ -154,7 +155,7 @@ export function ModuleToolbar<F extends Record<string, unknown>>({
             );
           }
 
-          const selected = (filters[d.key] as string[] | undefined) ?? [];
+          const selected = (record[d.key] as string[] | undefined) ?? [];
           return (
             <DropdownMenu key={d.key}>
               <DropdownMenuTrigger asChild>
