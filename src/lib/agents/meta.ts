@@ -21,6 +21,7 @@ import type {
   AgentStatus,
   MemoryLevel,
 } from "./types";
+import type { FilterDescriptor } from "@/components/common/module-toolbar";
 
 type BadgeVariant = "neutral" | "primary" | "success" | "warning" | "destructive" | "info";
 
@@ -159,3 +160,33 @@ export function formatDuration(ms: number | null): string {
   if (ms === null) return "—";
   return ms < 1000 ? `${ms} ms` : `${(ms / 1000).toFixed(1).replace(".", ",")} s`;
 }
+
+export const AGENT_FILTER_DESCRIPTORS: FilterDescriptor[] = [
+  {
+    kind: "select",
+    key: "domain",
+    ariaLabel: "Filtrer par domaine",
+    placeholder: "Domaine",
+    allLabel: "Tous les domaines",
+    options: AGENT_DOMAINS.map((d) => ({ value: d, label: d })),
+  },
+  {
+    kind: "select",
+    key: "status",
+    ariaLabel: "Filtrer par statut",
+    placeholder: "Statut",
+    allLabel: "Tous les statuts",
+    width: "w-[160px]",
+    options: AGENT_STATUS_ORDER.map((s) => ({ value: s, label: AGENT_STATUS[s].label })),
+  },
+  {
+    kind: "sort",
+    key: "sort",
+    ariaLabel: "Trier les agents",
+    options: [
+      { value: "name", label: "Nom" },
+      { value: "confidence", label: "Confiance" },
+      { value: "activity", label: "Activité récente" },
+    ],
+  },
+];
