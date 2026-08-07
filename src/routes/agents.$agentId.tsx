@@ -224,214 +224,210 @@ function Page() {
       </section>
 
       <section className="col-span-12 min-w-0">
-        {state === "loading" ? (
-          <DetailSkeleton />
-        ) : (
-          <Tabs value={tab} onValueChange={setTab} className="space-y-4">
-            {isMobile ? (
-              <Select value={tab} onValueChange={setTab}>
-                <SelectTrigger aria-label="Choisir une section">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {TABS.map((t) => (
-                    <SelectItem key={t.value} value={t.value}>
-                      {t.label}
-                    </SelectItem>
-                  ))}
-                  {FUTURE_TABS.map((label) => (
-                    <SelectItem key={label} value={`soon-${label}`} disabled>
-                      {label} · Bientôt
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            ) : (
-              <div className="overflow-x-auto">
-                <TabsList className="h-auto flex-wrap justify-start">
-                  {TABS.map((t) => (
-                    <TabsTrigger key={t.value} value={t.value}>
-                      {t.label}
-                    </TabsTrigger>
-                  ))}
-                  {FUTURE_TABS.map((label) => (
-                    <TabsTrigger key={label} value={`soon-${label}`} disabled>
-                      {label}
-                      <Badge className="ml-2">Bientôt</Badge>
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
-              </div>
-            )}
+        <Tabs value={tab} onValueChange={setTab} className="space-y-4">
+          {isMobile ? (
+            <Select value={tab} onValueChange={setTab}>
+              <SelectTrigger aria-label="Choisir une section">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {TABS.map((t) => (
+                  <SelectItem key={t.value} value={t.value}>
+                    {t.label}
+                  </SelectItem>
+                ))}
+                {FUTURE_TABS.map((label) => (
+                  <SelectItem key={label} value={`soon-${label}`} disabled>
+                    {label} · Bientôt
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          ) : (
+            <div className="overflow-x-auto">
+              <TabsList className="h-auto flex-wrap justify-start">
+                {TABS.map((t) => (
+                  <TabsTrigger key={t.value} value={t.value}>
+                    {t.label}
+                  </TabsTrigger>
+                ))}
+                {FUTURE_TABS.map((label) => (
+                  <TabsTrigger key={label} value={`soon-${label}`} disabled>
+                    {label}
+                    <Badge className="ml-2">Bientôt</Badge>
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </div>
+          )}
 
-            <TabsContent value="overview" className="space-y-6">
-              <p className="text-[14px] leading-6 text-muted-foreground">{agent.description}</p>
+          <TabsContent value="overview" className="space-y-6">
+            <p className="text-[14px] leading-6 text-muted-foreground">{agent.description}</p>
 
-              <div className="@container">
-                <div className="grid grid-cols-2 gap-4 @2xl:grid-cols-3 @5xl:grid-cols-4">
-                  {agent.kpis.map((kpi) => (
-                    <Card key={kpi.label} className="border-border bg-surface p-4">
-                      <p className="truncate text-[12px] uppercase tracking-wide text-muted-foreground">
-                        {kpi.label}
-                      </p>
-                      <p className="mt-1 text-[20px] font-medium tabular-nums text-foreground">
-                        {kpi.value}
-                      </p>
-                    </Card>
-                  ))}
-                  <Card className="border-border bg-surface p-4">
+            <div className="@container">
+              <div className="grid grid-cols-2 gap-4 @2xl:grid-cols-3 @5xl:grid-cols-4">
+                {agent.kpis.map((kpi) => (
+                  <Card key={kpi.label} className="border-border bg-surface p-4">
                     <p className="truncate text-[12px] uppercase tracking-wide text-muted-foreground">
-                      Disponibilité
+                      {kpi.label}
                     </p>
                     <p className="mt-1 text-[20px] font-medium tabular-nums text-foreground">
-                      {agent.uptime}
+                      {kpi.value}
                     </p>
                   </Card>
-                  <Card className="border-border bg-surface p-4">
-                    <p className="truncate text-[12px] uppercase tracking-wide text-muted-foreground">
-                      Dernière activité
-                    </p>
-                    <p className="mt-1 text-[14px] text-foreground">
-                      {formatAgentActivity(agent.lastActivity)}
-                    </p>
-                  </Card>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <h2 className="text-[14px] font-medium text-foreground">Collabore avec</h2>
-                {collaborators.length === 0 ? (
-                  <EmptyState icon={Bot} title="Aucune collaboration déclarée." />
-                ) : (
-                  <div className="flex flex-wrap gap-2">
-                    {collaborators.map((co) => (
-                      <button
-                        key={co.id}
-                        type="button"
-                        onClick={() =>
-                          navigate({ to: "/agents/$agentId", params: { agentId: co.id } })
-                        }
-                        className="flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-left transition-colors duration-150 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                      >
-                        <Avatar className="size-8">
-                          <AvatarFallback className="text-[10px]">{co.avatar}</AvatarFallback>
-                        </Avatar>
-                        <span className="min-w-0">
-                          <span className="block truncate text-[14px] text-foreground">
-                            {co.name}
-                          </span>
-                          <span className="block truncate text-[12px] text-muted-foreground">
-                            {co.domain}
-                          </span>
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </TabsContent>
-
-            <TabsContent value="capabilities">
-              <ul className="space-y-3">
-                {agent.capabilities.map((cap) => (
-                  <li key={cap.id} className="rounded-lg border border-border bg-surface p-4">
-                    <p className="text-[14px] font-medium text-foreground">{cap.label}</p>
-                    <p className="mt-1 text-[14px] leading-6 text-muted-foreground">
-                      {cap.description}
-                    </p>
-                  </li>
                 ))}
-              </ul>
-            </TabsContent>
-
-            <TabsContent value="tools">
-              <div className="@container">
-                <div className="grid grid-cols-1 gap-4 @2xl:grid-cols-2 @5xl:grid-cols-3">
-                  {agent.tools.map((tool) => {
-                    const access = ACCESS_LEVEL[tool.accessLevel];
-                    const toolStatus = TOOL_STATUS[tool.status];
-                    const ToolIcon = toolStatus.icon;
-                    return (
-                      <div
-                        key={tool.id}
-                        className="space-y-2 rounded-lg border border-border bg-surface p-4"
-                      >
-                        <p className="truncate text-[14px] font-medium text-foreground">
-                          {tool.name}
-                        </p>
-                        <div className="flex flex-wrap gap-1">
-                          <Badge>{tool.category}</Badge>
-                          <Badge variant={access.variant}>{access.label}</Badge>
-                          <Badge variant={toolStatus.variant}>
-                            <ToolIcon aria-hidden="true" />
-                            {toolStatus.label}
-                          </Badge>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                <Card className="border-border bg-surface p-4">
+                  <p className="truncate text-[12px] uppercase tracking-wide text-muted-foreground">
+                    Disponibilité
+                  </p>
+                  <p className="mt-1 text-[20px] font-medium tabular-nums text-foreground">
+                    {agent.uptime}
+                  </p>
+                </Card>
+                <Card className="border-border bg-surface p-4">
+                  <p className="truncate text-[12px] uppercase tracking-wide text-muted-foreground">
+                    Dernière activité
+                  </p>
+                  <p className="mt-1 text-[14px] text-foreground">
+                    {formatAgentActivity(agent.lastActivity)}
+                  </p>
+                </Card>
               </div>
-            </TabsContent>
+            </div>
 
-            <TabsContent value="permissions">
-              <div className="overflow-x-auto rounded-lg border border-border bg-surface">
-                <div className="min-w-[420px]">
-                  <div className="grid grid-cols-[minmax(0,1fr)_repeat(4,44px)] items-center gap-2 border-b border-border px-3 py-2 text-[12px] uppercase tracking-wide text-muted-foreground">
-                    <span>Ressource</span>
-                    <span>Lect.</span>
-                    <span>Écr.</span>
-                    <span>Exéc.</span>
-                    <span>Valid.</span>
-                  </div>
-                  {agent.permissions.map((p) => (
-                    <PermissionRow key={p.resource} permission={p} />
-                  ))}
-                </div>
-              </div>
-              <p className="mt-2 text-[12px] text-muted-foreground">
-                Lecture seule — l'édition des permissions arrivera dans une prochaine itération.
-              </p>
-            </TabsContent>
-
-            <TabsContent value="missions">
-              {missions.length === 0 ? (
-                <EmptyState
-                  icon={Target}
-                  title="Aucune mission associée"
-                  description="Cet agent n'intervient dans aucune mission pour l'instant."
-                />
+            <div className="space-y-2">
+              <h2 className="text-[14px] font-medium text-foreground">Collabore avec</h2>
+              {collaborators.length === 0 ? (
+                <EmptyState icon={Bot} title="Aucune collaboration déclarée." />
               ) : (
-                <div className="flex flex-col gap-3">
-                  {missions.map((mission) => (
-                    <MissionSummaryCard
-                      key={mission.id}
-                      mission={mission}
-                      onSelect={() =>
-                        navigate({
-                          to: "/missions/$missionId",
-                          params: { missionId: mission.id },
-                        })
+                <div className="flex flex-wrap gap-2">
+                  {collaborators.map((co) => (
+                    <button
+                      key={co.id}
+                      type="button"
+                      onClick={() =>
+                        navigate({ to: "/agents/$agentId", params: { agentId: co.id } })
                       }
-                    />
+                      className="flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-left transition-colors duration-150 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    >
+                      <Avatar className="size-8">
+                        <AvatarFallback className="text-[10px]">{co.avatar}</AvatarFallback>
+                      </Avatar>
+                      <span className="min-w-0">
+                        <span className="block truncate text-[14px] text-foreground">
+                          {co.name}
+                        </span>
+                        <span className="block truncate text-[12px] text-muted-foreground">
+                          {co.domain}
+                        </span>
+                      </span>
+                    </button>
                   ))}
                 </div>
               )}
-            </TabsContent>
+            </div>
+          </TabsContent>
 
-            <TabsContent value="memory">
-              <AgentMemoryTab memory={agent.memory} />
-            </TabsContent>
+          <TabsContent value="capabilities">
+            <ul className="space-y-3">
+              {agent.capabilities.map((cap) => (
+                <li key={cap.id} className="rounded-lg border border-border bg-surface p-4">
+                  <p className="text-[14px] font-medium text-foreground">{cap.label}</p>
+                  <p className="mt-1 text-[14px] leading-6 text-muted-foreground">
+                    {cap.description}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </TabsContent>
 
-            <TabsContent value="logs">
-              <AgentLogsTab logs={agent.logs} />
-            </TabsContent>
+          <TabsContent value="tools">
+            <div className="@container">
+              <div className="grid grid-cols-1 gap-4 @2xl:grid-cols-2 @5xl:grid-cols-3">
+                {agent.tools.map((tool) => {
+                  const access = ACCESS_LEVEL[tool.accessLevel];
+                  const toolStatus = TOOL_STATUS[tool.status];
+                  const ToolIcon = toolStatus.icon;
+                  return (
+                    <div
+                      key={tool.id}
+                      className="space-y-2 rounded-lg border border-border bg-surface p-4"
+                    >
+                      <p className="truncate text-[14px] font-medium text-foreground">
+                        {tool.name}
+                      </p>
+                      <div className="flex flex-wrap gap-1">
+                        <Badge>{tool.category}</Badge>
+                        <Badge variant={access.variant}>{access.label}</Badge>
+                        <Badge variant={toolStatus.variant}>
+                          <ToolIcon aria-hidden="true" />
+                          {toolStatus.label}
+                        </Badge>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </TabsContent>
 
-            <TabsContent value="config">
-              <AgentConfigTab config={agent.config} tools={agent.tools} />
-            </TabsContent>
-          </Tabs>
-        )}
+          <TabsContent value="permissions">
+            <div className="overflow-x-auto rounded-lg border border-border bg-surface">
+              <div className="min-w-[420px]">
+                <div className="grid grid-cols-[minmax(0,1fr)_repeat(4,44px)] items-center gap-2 border-b border-border px-3 py-2 text-[12px] uppercase tracking-wide text-muted-foreground">
+                  <span>Ressource</span>
+                  <span>Lect.</span>
+                  <span>Écr.</span>
+                  <span>Exéc.</span>
+                  <span>Valid.</span>
+                </div>
+                {agent.permissions.map((p) => (
+                  <PermissionRow key={p.resource} permission={p} />
+                ))}
+              </div>
+            </div>
+            <p className="mt-2 text-[12px] text-muted-foreground">
+              Lecture seule — l'édition des permissions arrivera dans une prochaine itération.
+            </p>
+          </TabsContent>
+
+          <TabsContent value="missions">
+            {missions.length === 0 ? (
+              <EmptyState
+                icon={Target}
+                title="Aucune mission associée"
+                description="Cet agent n'intervient dans aucune mission pour l'instant."
+              />
+            ) : (
+              <div className="flex flex-col gap-3">
+                {missions.map((mission) => (
+                  <MissionSummaryCard
+                    key={mission.id}
+                    mission={mission}
+                    onSelect={() =>
+                      navigate({
+                        to: "/missions/$missionId",
+                        params: { missionId: mission.id },
+                      })
+                    }
+                  />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="memory">
+            <AgentMemoryTab memory={agent.memory} />
+          </TabsContent>
+
+          <TabsContent value="logs">
+            <AgentLogsTab logs={agent.logs} />
+          </TabsContent>
+
+          <TabsContent value="config">
+            <AgentConfigTab config={agent.config} tools={agent.tools} />
+          </TabsContent>
+        </Tabs>
       </section>
     </>
   );
