@@ -15,8 +15,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { formatPlanPrice, showsMonthlySuffix } from "@/lib/billing/aggregations";
-import { billingPlansMock } from "@/lib/billing/mocks";
+import { formatPlanPrice, planCta, showsMonthlySuffix } from "@/lib/billing/aggregations";
+import { billingPlansMock, currentPlan } from "@/lib/billing/mocks";
 import type { BillingPlan, PlanCta } from "@/lib/billing/types";
 import { cn } from "@/lib/utils";
 
@@ -31,13 +31,26 @@ export function PlansSection() {
   const [target, setTarget] = useState<BillingPlan | null>(null);
   const [cancelOpen, setCancelOpen] = useState(false);
 
-  const isDowngrade = target !== null && (target.tier === "free" || target.ctaType === "downgrade");
+  const current = currentPlan();
+  const targetCta = target ? planCta(target, current) : null;
+  const isDowngrade = targetCta === "downgrade";
+
+  const agentsLabel =
+    target?.limits.agents === null
+      ? "un nombre illimité d'agents"
+      : `${target?.limits.agents} agent${(target?.limits.agents ?? 0) > 1 ? "s" : ""}`;
+
+  const missionsLabel =
+    target?.limits.missionsPerMonth === null
+      ? "un nombre illimité de missions par mois"
+      : `${target?.limits.missionsPerMonth} missions par mois`;
 
   return (
     <>
       <div className="grid min-w-0 gap-4 @3xl:grid-cols-2 @6xl:grid-cols-4">
         {billingPlansMock.map((plan) => {
-          const cta = CTA[plan.ctaType];
+          const ctaType = planCta(plan, current);
+          const cta = CTA[ctaType];
           return (
           <Card
             key={plan.id}
@@ -77,9 +90,9 @@ export function PlansSection() {
               type="button"
               className="mt-5 w-full"
               variant={cta.variant}
-              disabled={plan.ctaType === "current"}
+              disabled={ctaType === "current"}
               onClick={() =>
-                plan.ctaType === "contact_sales"
+                ctaType === "contact_sales"
                   ? toast("Demande de contact envoyée (mock)")
                   : setTarget(plan)
               }
@@ -137,7 +150,7 @@ export function PlansSection() {
             <AlertDialogTitle>Passer au plan {target?.name} ?</AlertDialogTitle>
             <AlertDialogDescription>
               {isDowngrade && target
-                ? `Votre organisation perdrait l'accès aux fonctionnalités du plan Enterprise et serait limitée à ${target.limits.agents ?? "un nombre illimité de"} agents et ${target.limits.missionsPerMonth} missions par mois. Cette action est simulée à ce stade.`
+                ? `Votre organisation perdrait les fonctionnalités du plan ${current.name} et serait limitée à ${agentsLabel} et ${missionsLabel}. Cette action est simulée à ce stade.`
                 : "Le changement de plan modifierait la facturation et les quotas de l'organisation. Cette action est simulée à ce stade et ne modifie aucune donnée."}
             </AlertDialogDescription>
           </AlertDialogHeader>
