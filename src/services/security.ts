@@ -1,27 +1,30 @@
 /**
- * Agrégations du module Security Center.
+ * Service du module Security Center.
  * Toutes les valeurs sont dérivées des mocks déjà existants (agents, missions,
  * workflows, organisation, intégrations) : aucun jeu de données parallèle.
  */
 import { agentsDetailMock } from "@/lib/agents/mocks";
-import { integrationsMock } from "@/lib/integrations/mocks";
 import { referenceDate } from "@/lib/insights/aggregations";
+import { integrationsMock } from "@/lib/integrations/mocks";
 import { missionsDetailMock } from "@/lib/missions/mocks";
 import { orgMembersMock } from "@/lib/organization/mocks";
-import type { MemberRole, MemberStatus } from "@/lib/organization/types";
 import { workflowsMock } from "@/lib/workflows/mocks";
-
-import type { SecurityEvent, SecurityEventSeverity } from "./types";
+import { securityPoliciesMock } from "@/lib/security/mocks";
+import type {
+  AccessMatrixRow,
+  AgentPermissionsRow,
+  IntegrationPermissionsRow,
+  SecurityEvent,
+  SecurityEventSeverity,
+  SecurityOverview,
+  SecurityPolicy,
+} from "@/lib/security/types";
+import type { Scope } from "@/lib/tenancy/types";
+import { delay } from "@/services/latency";
 
 const DAY_MS = 86_400_000;
 
-export function accessMatrix(): {
-  memberId: string;
-  memberName: string;
-  role: MemberRole;
-  department: string;
-  status: MemberStatus;
-}[] {
+function accessMatrix(): AccessMatrixRow[] {
   return orgMembersMock.map((m) => ({
     memberId: m.id,
     memberName: m.name,
@@ -31,12 +34,7 @@ export function accessMatrix(): {
   }));
 }
 
-export function agentPermissionsSummary(): {
-  agentId: string;
-  agentName: string;
-  totalPermissions: number;
-  writeOrHigher: number;
-}[] {
+function agentPermissionsSummary(): AgentPermissionsRow[] {
   return agentsDetailMock
     .map((agent) => ({
       agentId: agent.id,
@@ -47,12 +45,7 @@ export function agentPermissionsSummary(): {
     .sort((a, b) => b.writeOrHigher - a.writeOrHigher);
 }
 
-export function integrationPermissionsSummary(): {
-  integrationId: string;
-  integrationName: string;
-  grantedCount: number;
-  totalCount: number;
-}[] {
+function integrationPermissionsSummary(): IntegrationPermissionsRow[] {
   return integrationsMock
     .filter((i) => i.permissions.length > 0)
     .map((i) => ({
@@ -65,7 +58,7 @@ export function integrationPermissionsSummary(): {
 }
 
 /** Journal d'audit : normalisation d'événements déjà présents dans les autres modules. */
-export function securityEventFeed(): SecurityEvent[] {
+function securityEventFeed(): SecurityEvent[] {
   const events: SecurityEvent[] = [];
 
   for (const agent of agentsDetailMock) {
@@ -162,7 +155,7 @@ export function securityEventFeed(): SecurityEvent[] {
 }
 
 /** Événements critiques sur les 7 derniers jours (référence = dernier événement des mocks). */
-export function criticalEventsLast7Days(events = securityEventFeed()): SecurityEvent[] {
+function criticalEventsLast7Days(events = securityEventFeed()): SecurityEvent[] {
   const since = referenceDate().getTime() - 7 * DAY_MS;
   return events.filter(
     (e) => e.severity === "critical" && new Date(e.timestamp).getTime() >= since,
@@ -177,7 +170,7 @@ export function criticalEventsLast7Days(events = securityEventFeed()): SecurityE
  *   − 3 par log agent de type "error" sur les 7 derniers jours
  * Le résultat est borné entre 0 et 100.
  */
-export function securityPostureScore(): number {
+function securityPostureScore(): number {
   const since = referenceDate().getTime() - 7 * DAY_MS;
   const integrationErrors = integrationsMock.filter((i) => i.status === "error").length;
   const suspended = orgMembersMock.filter((m) => m.status === "suspended").length;
@@ -192,7 +185,7 @@ export function securityPostureScore(): number {
   return Math.max(0, Math.min(100, score));
 }
 
-export function securityOverview() {
+function securityOverview(): SecurityOverview {
   const events = securityEventFeed();
   return {
     score: securityPostureScore(),
@@ -202,4 +195,28 @@ export function securityOverview() {
     integrationsInError: integrationsMock.filter((i) => i.status === "error").length,
     totalEvents: events.length,
   };
+}
+
+/** La vue Security Center est monolithique : une seule requête suffit. */
+export interface SecurityData {
+  overview: SecurityOverview;
+  events: SecurityEvent[];
+  criticalEvents: SecurityEvent[];
+  accessMatrix: AccessMatrixRow[];
+  agentPermissions: AgentPermissionsRow[];
+  integrationPermissions: IntegrationPermissionsRow[];
+  policies: SecurityPolicy[];
+}
+
+export async function getSecurity(_scope: Scope): Promise<SecurityData> {
+  const events = securityEventFeed();
+  return delay({
+    overview: securityOverview(),
+    events,
+    criticalEvents: criticalEventsLast7Days(events),
+    accessMatrix: accessMatrix(),
+    agentPermissions: agentPermissionsSummary(),
+    integrationPermissions: integrationPermissionsSummary(),
+    policies: securityPoliciesMock,
+  });
 }
