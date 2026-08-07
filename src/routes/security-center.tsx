@@ -26,7 +26,7 @@ import {
 import type { SecurityTab } from "@/lib/security/types";
 
 const DESCRIPTION =
-  "Tableau de bord de sécurité cross-module de NASSFLOW OS : posture, accès, permissions, journal d'audit et politiques.";
+  "Vue de sécurité cross-module de NASSFLOW OS : posture, accès, permissions, journal d'audit et politiques.";
 
 export const Route = createFileRoute("/security-center")({
   head: () => ({

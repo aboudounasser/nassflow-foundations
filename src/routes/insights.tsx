@@ -45,7 +45,7 @@ import { INTEGRATION_STATUS } from "@/lib/integrations/meta";
 import { MISSION_STATUS } from "@/lib/missions/meta";
 
 const DESCRIPTION =
-  "Tableau de bord analytique cross-module de NASSFLOW OS : missions, workforce, pipeline, workflows et intégrations.";
+  "Vue analytique cross-module de NASSFLOW OS : missions, workforce, pipeline, workflows et intégrations.";
 
 export const Route = createFileRoute("/insights")({
   head: () => ({
