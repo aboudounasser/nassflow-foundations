@@ -4,6 +4,7 @@ import {
   companyProfileMock,
   departmentsMock,
   directReports,
+  membersInDepartment,
   orgMemberById,
   orgMembersMock,
 } from "@/lib/organization/mocks";
@@ -24,6 +25,25 @@ export async function getCompanyProfile(_scope: Scope): Promise<CompanyProfile> 
 
 export async function getDepartments(_scope: Scope): Promise<Department[]> {
   return delay(departmentsMock);
+}
+
+/** Départements enrichis : lead, membres humains et agents IA du même domaine. */
+export interface DepartmentSummary {
+  department: Department;
+  lead: OrgMember | null;
+  members: OrgMember[];
+  agents: AgentDetail[];
+}
+
+export async function getDepartmentSummaries(_scope: Scope): Promise<DepartmentSummary[]> {
+  return delay(
+    departmentsMock.map((department) => ({
+      department,
+      lead: orgMemberById(department.leadMemberId),
+      members: membersInDepartment(department.name),
+      agents: agentsInDepartment(department.name),
+    })),
+  );
 }
 
 export async function getOrgMembers(_scope: Scope): Promise<OrgMember[]> {

@@ -20,6 +20,14 @@ export function useDepartments() {
   });
 }
 
+export function useDepartmentSummaries() {
+  const { scope } = useSession();
+  return useQuery({
+    queryKey: [...scopeKey(scope), "organization", "departments", "summaries"],
+    queryFn: () => organizationService.getDepartmentSummaries(scope),
+  });
+}
+
 export function useOrgMembers() {
   const { scope } = useSession();
   return useQuery({
