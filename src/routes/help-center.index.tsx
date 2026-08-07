@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { LifeBuoy, Search } from "lucide-react";
+import { LifeBuoy, Search, TriangleAlert } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { WidgetShell } from "@/components/dashboard/widget-shell";
@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { helpArticlesMock, helpCategoryCounts, helpFaqMock } from "@/lib/help/mocks";
+import { useHelpCenter } from "@/lib/help/queries";
 import type { ArticleCategory, HelpArticle, HelpSection, HelpSort } from "@/lib/help/types";
 import { cn } from "@/lib/utils";
 
@@ -63,15 +63,16 @@ function Page() {
   const [category, setCategory] = useState<ArticleCategory | "all">("all");
   const [sort, setSort] = useState<HelpSort>("relevance");
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  // État du module : loading / success (mocks statiques).
-  const [state] = useState<"loading" | "error" | "success">("success");
   const { requestOpen } = useContextPanel();
 
-  const categories = useMemo(() => helpCategoryCounts(), []);
+  const helpQuery = useHelpCenter();
+  const allArticles = useMemo(() => helpQuery.data?.articles ?? [], [helpQuery.data]);
+  const allFaq = useMemo(() => helpQuery.data?.faq ?? [], [helpQuery.data]);
+  const categories = helpQuery.data?.categoryCounts ?? [];
   const query = search.trim().toLowerCase();
 
   const articles = useMemo(() => {
-    const list = helpArticlesMock.filter(
+    const list = allArticles.filter(
       (a) => matchArticle(a, query) && (category === "all" || a.category === category),
     );
     if (sort === "recent") {
@@ -83,18 +84,18 @@ function Page() {
       return [...list].sort((a, b) => a.readingTimeMin - b.readingTimeMin);
     }
     return list;
-  }, [query, category, sort]);
+  }, [query, category, sort, allArticles]);
 
   const faqs = useMemo(
     () =>
-      helpFaqMock.filter(
+      allFaq.filter(
         (f) =>
           (category === "all" || f.category === category) &&
           (!query ||
             f.question.toLowerCase().includes(query) ||
             f.answer.toLowerCase().includes(query)),
       ),
-    [query, category],
+    [query, category, allFaq],
   );
 
   const selected = articles.find((a) => a.id === selectedId) ?? null;
@@ -115,7 +116,33 @@ function Page() {
     requestOpen();
   };
 
-  const widgetState = state === "success" ? (articles.length === 0 ? "empty" : "success") : state;
+  const widgetState = helpQuery.isError
+    ? "error"
+    : helpQuery.isPending
+      ? "loading"
+      : articles.length === 0
+        ? "empty"
+        : "success";
+
+  if (helpQuery.isError) {
+    return (
+      <>
+        <ModulePage title="Help Center" description={DESCRIPTION} />
+        <section className="col-span-12 min-w-0">
+          <EmptyState
+            icon={TriangleAlert}
+            title="Impossible de charger le Help Center"
+            description="La documentation n'a pas pu être récupérée. Vérifiez votre connexion puis réessayez."
+          />
+          <div className="flex justify-center">
+            <Button type="button" size="sm" onClick={() => void helpQuery.refetch()}>
+              Réessayer
+            </Button>
+          </div>
+        </section>
+      </>
+    );
+  }
 
   return (
     <>
@@ -165,12 +192,12 @@ function Page() {
         </ToggleGroup>
 
         {section === "support" ? (
-          <HelpSupportSection />
+          <HelpSupportSection allTickets={helpQuery.data?.tickets ?? []} />
         ) : (
           <>
             <div className="flex flex-wrap gap-2">
               <CategoryChip active={category === "all"} onClick={() => setCategory("all")}>
-                Toutes ({helpArticlesMock.length})
+                Toutes ({allArticles.length})
               </CategoryChip>
               {categories.map((c) => (
                 <CategoryChip

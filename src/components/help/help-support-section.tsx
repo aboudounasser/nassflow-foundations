@@ -13,14 +13,13 @@ import {
   TICKET_STATUS_ORDER,
   formatHelpDate,
 } from "@/lib/help/meta";
-import { supportTicketsMock } from "@/lib/help/mocks";
-import type { SupportTicketStatus } from "@/lib/help/types";
+import type { SupportTicket, SupportTicketStatus } from "@/lib/help/types";
 import { cn } from "@/lib/utils";
 
-export function HelpSupportSection() {
+export function HelpSupportSection({ allTickets }: { allTickets: SupportTicket[] }) {
   const [status, setStatus] = useState<SupportTicketStatus | "all">("all");
 
-  const tickets = supportTicketsMock.filter((t) => status === "all" || t.status === status);
+  const tickets = allTickets.filter((t) => status === "all" || t.status === status);
 
   return (
     <div className="flex min-w-0 flex-col gap-4">
@@ -60,10 +59,10 @@ export function HelpSupportSection() {
 
       <div className="flex flex-wrap gap-2">
         <StatusChip active={status === "all"} onClick={() => setStatus("all")}>
-          Tous ({supportTicketsMock.length})
+          Tous ({allTickets.length})
         </StatusChip>
         {TICKET_STATUS_ORDER.map((s) => {
-          const count = supportTicketsMock.filter((t) => t.status === s).length;
+          const count = allTickets.filter((t) => t.status === s).length;
           return (
             <StatusChip key={s} active={status === s} onClick={() => setStatus(s)}>
               {TICKET_STATUS[s].label} ({count})
