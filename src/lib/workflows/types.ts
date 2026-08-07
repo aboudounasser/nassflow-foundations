@@ -62,3 +62,10 @@ export interface Workflow {
 export type WorkflowView = "grid" | "list";
 export type WorkflowSortKey = "lastRun" | "successRate" | "name";
 export type RunStatusFilter = "all" | WorkflowRun["status"];
+
+export interface WorkflowFilters {
+  search: string;
+  status: WorkflowStatus | "all";
+  trigger: TriggerKind | "all";
+  sort: WorkflowSortKey;
+}

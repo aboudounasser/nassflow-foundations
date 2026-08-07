@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 
 import type { NodeType, TriggerKind, WorkflowRun, WorkflowStatus, WorkflowVariable } from "./types";
+import type { FilterDescriptor } from "@/components/common/module-toolbar";
 
 type BadgeVariant = "neutral" | "primary" | "success" | "warning" | "destructive" | "info";
 

@@ -38,3 +38,11 @@ export interface CompanyProfile {
 export type OrgTab = "directory" | "departments";
 export type OrgView = "grid" | "list";
 export type MemberSortKey = "name" | "joinedAt" | "department";
+
+export interface MemberFilters {
+  search: string;
+  department: string | "all";
+  role: MemberRole | "all";
+  status: MemberStatus | "all";
+  sort: MemberSortKey;
+}

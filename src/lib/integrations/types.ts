@@ -34,3 +34,10 @@ export interface Integration {
 
 export type IntegrationSortKey = "name" | "status" | "lastSync";
 export type IntegrationView = "grid" | "list";
+
+export interface IntegrationFilters {
+  search: string;
+  category: IntegrationCategory | "all";
+  status: IntegrationStatus | "all";
+  sort: IntegrationSortKey;
+}

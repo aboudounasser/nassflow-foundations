@@ -1,6 +1,7 @@
 import { CircleCheck, MailCheck, PauseCircle, type LucideIcon } from "lucide-react";
 
 import type { MemberRole, MemberStatus } from "./types";
+import type { FilterDescriptor } from "@/components/common/module-toolbar";
 
 type BadgeVariant = "neutral" | "primary" | "success" | "warning" | "destructive" | "info";
 
