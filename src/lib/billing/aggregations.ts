@@ -6,7 +6,7 @@
 import { agentsDetailMock } from "@/lib/agents/mocks";
 import { referenceDate } from "@/lib/insights/aggregations";
 import { missionsDetailMock } from "@/lib/missions/mocks";
-import type { BillingPlan } from "./types";
+import type { BillingPlan, PlanCta, PlanTier } from "./types";
 
 const DAY_MS = 86_400_000;
 

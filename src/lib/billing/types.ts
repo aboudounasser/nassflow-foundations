@@ -23,7 +23,6 @@ export interface BillingPlan {
   isFree: boolean;
   isRecommended: boolean;
   isCurrent: boolean;
-  ctaType: PlanCta;
   limits: PlanLimits;
   features: string[];
 }
