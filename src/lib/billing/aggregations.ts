@@ -69,6 +69,24 @@ export function showsMonthlySuffix(plan: BillingPlan): boolean {
   return !plan.isFree && plan.pricePerMonth !== null;
 }
 
+const TIER_RANK: Record<PlanTier, number> = {
+  free: 0,
+  starter: 1,
+  business: 2,
+  enterprise: 3,
+};
+
+/**
+ * Le CTA d'un plan dépend TOUJOURS du plan courant.
+ * Un même plan est une montée ou une descente en gamme selon le
+ * contexte : cette valeur ne doit jamais être figée dans les données.
+ */
+export function planCta(plan: BillingPlan, current: BillingPlan): PlanCta {
+  if (plan.isCurrent) return "current";
+  if (plan.pricePerMonth === null) return "contact_sales";
+  return TIER_RANK[plan.tier] > TIER_RANK[current.tier] ? "upgrade" : "downgrade";
+}
+
 export function consumptionByMission(): {
   missionId: string;
   title: string;
