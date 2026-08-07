@@ -971,7 +971,7 @@ export const workflowsMock: Workflow[] = [
     id: "wf-10",
     name: "Consolidation du reporting exécutif",
     description:
-      "Agrège les KPI de tous les modules et prépare le rapport exécutif hebdomadaire du comité exécutif.",
+      "Agrège les KPI de tous les modules et prépare le rapport hebdomadaire du comité exécutif.",
     status: "active",
     triggerKind: "manual",
     scheduleExpression: null,

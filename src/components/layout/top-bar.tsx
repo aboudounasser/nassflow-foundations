@@ -14,6 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { currentUserMock } from "@/lib/account/mocks";
 
 export function TopBar({
   onOpenMenu,
@@ -94,15 +95,17 @@ export function TopBar({
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" aria-label="Menu utilisateur">
               <Avatar className="size-8">
-                <AvatarFallback className="bg-card text-[12px] text-foreground">NF</AvatarFallback>
+                <AvatarFallback className="bg-card text-[12px] text-foreground">
+                  {currentUserMock.initials}
+                </AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
-            <div className="px-2 py-1.5">
-              <p className="text-[14px] font-medium text-foreground">Nasser Aboudou</p>
-              <p className="text-[12px] text-muted-foreground">nasser@nassflow.io</p>
-            </div>
+            <DropdownMenuLabel>{currentUserMock.name}</DropdownMenuLabel>
+            <DropdownMenuLabel className="pt-0 font-normal text-muted-foreground">
+              {currentUserMock.email}
+            </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem disabled title="Bientôt disponible">
               Profil

@@ -148,7 +148,7 @@ function DashboardCeo() {
         </WidgetShell>
       </div>
 
-      {/* 6. Mission Center */}
+      {/* 6. Missions */}
       <div className="col-span-12 xl:col-span-6">
         <WidgetShell
           title="Missions"
@@ -164,7 +164,7 @@ function DashboardCeo() {
         </WidgetShell>
       </div>
 
-      {/* 7. Live Activity */}
+      {/* 7. Activity Feed */}
       <div className="col-span-12 xl:col-span-6">
         <WidgetShell
           title="Activity Feed"
@@ -229,7 +229,7 @@ function DashboardCeo() {
         </WidgetShell>
       </div>
 
-      {/* 11. AI Insights */}
+      {/* 11. Insights */}
       <div className="col-span-12 xl:col-span-6">
         <WidgetShell
           title="Insights"
@@ -258,7 +258,7 @@ function DashboardCeo() {
         </WidgetShell>
       </div>
 
-      {/* 13. Historique */}
+      {/* 13. History */}
       <div className="col-span-12">
         <WidgetShell
           title="History"
