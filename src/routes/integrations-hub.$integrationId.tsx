@@ -8,10 +8,10 @@ import {
   RefreshCw,
   RotateCcw,
   ShieldCheck,
+  TriangleAlert,
   Unplug,
   X,
 } from "lucide-react";
-import { useState } from "react";
 import { toast } from "sonner";
 
 import { EmptyState } from "@/components/common/empty-state";
@@ -30,7 +30,7 @@ import {
   formatSyncRelative,
   integrationInitials,
 } from "@/lib/integrations/meta";
-import { agentsUsingIntegration, integrationById } from "@/lib/integrations/mocks";
+import { useIntegration } from "@/lib/integrations/queries";
 
 const DESCRIPTION =
   "Détail d'une intégration : statut de connexion, synchronisation, permissions accordées et agents qui l'utilisent.";
@@ -60,15 +60,44 @@ function DetailSkeleton() {
 
 function Page() {
   const { integrationId } = Route.useParams();
-  const integration = integrationById(integrationId);
   const navigate = useNavigate();
-  // État du module : loading / error / success (mock statique).
-  const [state] = useState<"loading" | "error" | "success">("success");
+
+  const integrationQuery = useIntegration(integrationId);
+  const data = integrationQuery.data ?? null;
+  const integration = data?.integration ?? null;
+  const usages = data?.agentUsage ?? [];
 
   useContextPanelContent(
     () => (integration ? <IntegrationSummaryPanel integration={integration} /> : null),
     [integration?.id],
   );
+
+  if (integrationQuery.isError) {
+    return (
+      <section className="col-span-12 min-w-0">
+        <Card className="border-border bg-card p-4">
+          <EmptyState
+            icon={TriangleAlert}
+            title="Impossible de charger cette intégration"
+            description="Le détail de l'intégration n'a pas pu être récupéré. Vérifiez votre connexion puis réessayez."
+          />
+          <div className="flex justify-center">
+            <Button type="button" size="sm" onClick={() => void integrationQuery.refetch()}>
+              Réessayer
+            </Button>
+          </div>
+        </Card>
+      </section>
+    );
+  }
+
+  if (integrationQuery.isPending) {
+    return (
+      <section className="col-span-12 min-w-0">
+        <DetailSkeleton />
+      </section>
+    );
+  }
 
   if (!integration) {
     return (
@@ -89,7 +118,6 @@ function Page() {
 
   const status = INTEGRATION_STATUS[integration.status];
   const StatusIcon = status.icon;
-  const usages = agentsUsingIntegration(integration.name);
   const notInstalled = integration.status === "not_installed";
   const needsReconnect = integration.status === "error" || integration.status === "disconnected";
 
