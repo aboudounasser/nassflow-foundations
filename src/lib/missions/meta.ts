@@ -1,19 +1,24 @@
 import {
   Archive,
   Ban,
+  Calendar,
   CheckCircle2,
   CircleDashed,
   CirclePause,
   CircleSlash,
   Clock,
+  LayoutGrid,
+  List,
   Play,
   TriangleAlert,
   XCircle,
   type LucideIcon,
 } from "lucide-react";
 
-import type { Mission } from "@/lib/dashboard/types";
-import type { MissionStatus, MissionStepStatus } from "./types";
+import type { FilterDescriptor, ViewDescriptor } from "@/components/common/module-toolbar";
+import { PRIORITY_BADGE } from "@/lib/dashboard/meta";
+import type { Mission, Priority } from "@/lib/dashboard/types";
+import type { MissionAgent, MissionStatus, MissionStepStatus } from "./types";
 
 export type BadgeVariant = "neutral" | "primary" | "success" | "warning" | "destructive" | "info";
 
@@ -88,4 +93,65 @@ export function formatDateTime(value: string): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
   return DATETIME_FMT.format(date);
+}
+
+export const MISSION_STATUS_ORDER: MissionStatus[] = [
+  "draft",
+  "ready",
+  "running",
+  "waiting",
+  "blocked",
+  "completed",
+  "failed",
+  "cancelled",
+  "archived",
+];
+
+export const PRIORITY_ORDER: Priority[] = ["critical", "high", "medium", "low"];
+
+export const MISSION_VIEWS: ViewDescriptor[] = [
+  { value: "list", label: "Liste", icon: List },
+  { value: "kanban", label: "Kanban", icon: LayoutGrid },
+  { value: "calendar", label: "Calendrier", icon: Calendar },
+];
+
+export function missionFilterDescriptors(agents: MissionAgent[]): FilterDescriptor[] {
+  return [
+    {
+      kind: "multiselect",
+      key: "statuses",
+      ariaLabel: "Filtrer par statut",
+      buttonLabel: "Statuts",
+      options: MISSION_STATUS_ORDER.map((s) => ({ value: s, label: MISSION_STATUS[s].label })),
+    },
+    {
+      kind: "select",
+      key: "priority",
+      ariaLabel: "Filtrer par priorité",
+      placeholder: "Priorité",
+      allLabel: "Toutes priorités",
+      width: "w-[150px]",
+      options: PRIORITY_ORDER.map((p) => ({ value: p, label: PRIORITY_BADGE[p].label })),
+    },
+    {
+      kind: "select",
+      key: "agentId",
+      ariaLabel: "Filtrer par agent",
+      placeholder: "Agent",
+      allLabel: "Tous les agents",
+      width: "w-[170px]",
+      options: agents.map((a) => ({ value: a.id, label: a.name })),
+    },
+    {
+      kind: "sort",
+      key: "sort",
+      ariaLabel: "Trier les missions",
+      width: "w-[170px]",
+      options: [
+        { value: "dueDate", label: "Échéance" },
+        { value: "priority", label: "Priorité" },
+        { value: "progress", label: "Progression" },
+      ],
+    },
+  ];
 }

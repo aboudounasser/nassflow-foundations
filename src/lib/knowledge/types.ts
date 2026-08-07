@@ -23,3 +23,10 @@ export interface KnowledgeItem {
 }
 
 export type KnowledgeView = "grid" | "list";
+
+export interface KnowledgeFilters {
+  search: string;
+  types: KnowledgeType[];
+  category: string | "all";
+  status: KnowledgeStatus | "all";
+}
