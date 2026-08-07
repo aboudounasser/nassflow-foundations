@@ -10,7 +10,7 @@ import {
   formatSyncRelative,
   integrationInitials,
 } from "@/lib/integrations/meta";
-import type { IntegrationAgentUsage } from "@/lib/integrations/mocks";
+import type { AgentDetail, AgentTool } from "@/lib/agents/types";
 import type { Integration } from "@/lib/integrations/types";
 
 /** Résumé compact d'une intégration — Context Panel global. */
@@ -19,7 +19,7 @@ export function IntegrationSummaryPanel({
   usages,
 }: {
   integration: Integration;
-  usages: IntegrationAgentUsage[];
+  usages: { agent: AgentDetail; tool: AgentTool }[];
 }) {
   const status = INTEGRATION_STATUS[integration.status];
   const StatusIcon = status.icon;
