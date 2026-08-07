@@ -1,6 +1,5 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Archive, ArrowLeft, Brain, Copy, Pencil } from "lucide-react";
-import { useMemo, useState } from "react";
+import { Archive, ArrowLeft, Brain, Copy, Pencil, TriangleAlert } from "lucide-react";
 import { toast } from "sonner";
 
 import { useContextPanelContent } from "@/components/layout/context-panel";
@@ -9,10 +8,11 @@ import { KnowledgeSummaryPanel } from "@/components/knowledge/knowledge-summary-
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { KNOWLEDGE_STATUS, KNOWLEDGE_TYPE, formatKnowledgeDate } from "@/lib/knowledge/meta";
-import { agentsUsingKnowledge, knowledgeById } from "@/lib/knowledge/mocks";
+import { useKnowledgeItem } from "@/lib/knowledge/queries";
 
 const DESCRIPTION =
   "Connaissance complète de l'Enterprise Brain : contenu, métadonnées et agents IA qui s'appuient dessus.";
@@ -42,17 +42,44 @@ function DetailSkeleton() {
 
 function Page() {
   const { itemId } = Route.useParams();
-  const item = knowledgeById(itemId);
   const navigate = useNavigate();
-  // État du module : loading / error / success (mock statique).
-  const [state] = useState<"loading" | "error" | "success">("success");
 
-  const agents = useMemo(() => agentsUsingKnowledge(itemId), [itemId]);
+  const itemQuery = useKnowledgeItem(itemId);
+  const data = itemQuery.data ?? null;
+  const item = data?.item ?? null;
+  const agents = data?.agents ?? [];
 
   useContextPanelContent(
     () => (item ? <KnowledgeSummaryPanel item={item} agentCount={agents.length} /> : null),
     [item?.id, agents.length],
   );
+
+  if (itemQuery.isError) {
+    return (
+      <section className="col-span-12 min-w-0">
+        <Card className="border-border bg-card p-4">
+          <EmptyState
+            icon={TriangleAlert}
+            title="Impossible de charger cette connaissance"
+            description="Le document n'a pas pu être récupéré. Vérifiez votre connexion puis réessayez."
+          />
+          <div className="flex justify-center">
+            <Button type="button" size="sm" onClick={() => void itemQuery.refetch()}>
+              Réessayer
+            </Button>
+          </div>
+        </Card>
+      </section>
+    );
+  }
+
+  if (itemQuery.isPending) {
+    return (
+      <section className="col-span-12 min-w-0">
+        <DetailSkeleton />
+      </section>
+    );
+  }
 
   if (!item) {
     return (
