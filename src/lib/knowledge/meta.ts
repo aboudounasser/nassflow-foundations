@@ -1,6 +1,7 @@
 import { BookOpen, ClipboardList, FileText, HelpCircle } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
+import type { FilterDescriptor } from "@/components/common/module-toolbar";
 import type { KnowledgeStatus, KnowledgeType } from "./types";
 
 type BadgeVariant = "neutral" | "primary" | "success" | "warning" | "destructive" | "info";
@@ -41,4 +42,44 @@ export function formatKnowledgeDate(iso: string): string {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return "—";
   return DATE_FMT.format(date);
+}
+
+export function knowledgeFilterDescriptors(
+  categories: { category: string; count: number }[],
+  typeCounts: Record<KnowledgeType, number>,
+): FilterDescriptor[] {
+  return [
+    {
+      kind: "multiselect",
+      key: "types",
+      ariaLabel: "Filtrer par type",
+      buttonLabel: "Types",
+      options: KNOWLEDGE_TYPE_ORDER.map((t) => ({
+        value: t,
+        label: KNOWLEDGE_TYPE[t].plural,
+        count: typeCounts[t],
+      })),
+    },
+    {
+      kind: "select",
+      key: "category",
+      ariaLabel: "Filtrer par catégorie",
+      placeholder: "Catégorie",
+      allLabel: "Toutes les catégories",
+      width: "w-[180px]",
+      options: categories.map((c) => ({
+        value: c.category,
+        label: `${c.category} (${c.count})`,
+      })),
+    },
+    {
+      kind: "select",
+      key: "status",
+      ariaLabel: "Filtrer par statut",
+      placeholder: "Statut",
+      allLabel: "Tous les statuts",
+      width: "w-[160px]",
+      options: KNOWLEDGE_STATUS_ORDER.map((s) => ({ value: s, label: KNOWLEDGE_STATUS[s].label })),
+    },
+  ];
 }

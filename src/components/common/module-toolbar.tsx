@@ -206,11 +206,11 @@ export function ModuleToolbar<F extends object>({
           ))}
         </ToggleGroup>
         <span className="text-[12px] text-muted-foreground">{resultLabel(resultCount)}</span>
-        {actions}
         <Button variant="ghost" size="sm" onClick={onReset}>
           <RotateCcw />
           Réinitialiser
         </Button>
+        {actions ? <div className="ml-auto">{actions}</div> : null}
       </div>
     </div>
   );

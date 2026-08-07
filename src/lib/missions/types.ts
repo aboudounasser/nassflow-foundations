@@ -72,6 +72,14 @@ export interface MissionDetail extends Omit<Mission, "status" | "agents"> {
 export type MissionSortKey = "dueDate" | "priority" | "progress";
 export type MissionView = "list" | "kanban" | "calendar";
 
+export interface MissionFilters {
+  search: string;
+  statuses: MissionStatus[];
+  priority: Priority | "all";
+  agentId: string | "all";
+  sort: MissionSortKey;
+}
+
 /* ---------- Mission Builder (assistant de création) ---------- */
 
 export type TriggerType = "manual" | "scheduled" | "event";
