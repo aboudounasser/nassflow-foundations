@@ -5,10 +5,10 @@ import { SettingRow, SettingsCard } from "@/components/settings/settings-rows";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatSettingsDate } from "@/lib/settings/meta";
-import { systemInfoMock } from "@/lib/settings/mocks";
+import type { SystemInfo } from "@/lib/settings/types";
 
-export function SystemSection() {
-  const s = systemInfoMock;
+export function SystemSection({ system }: { system: SystemInfo }) {
+  const s = system;
 
   return (
     <div className="flex min-w-0 flex-col gap-4">

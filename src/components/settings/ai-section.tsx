@@ -3,10 +3,9 @@ import { Lock } from "lucide-react";
 import { SettingRow, SettingsCard } from "@/components/settings/settings-rows";
 import { Badge } from "@/components/ui/badge";
 import { AUTONOMY_LEVEL, READ_ONLY_NOTICE, VALIDATION_THRESHOLD } from "@/lib/settings/meta";
-import { aiSettingsMock } from "@/lib/settings/mocks";
+import type { AiSettings } from "@/lib/settings/types";
 
-export function AiSection() {
-  const ai = aiSettingsMock;
+export function AiSection({ ai }: { ai: AiSettings }) {
   const autonomy = AUTONOMY_LEVEL[ai.defaultAutonomyLevel];
   const validation = VALIDATION_THRESHOLD[ai.defaultValidationThreshold];
 

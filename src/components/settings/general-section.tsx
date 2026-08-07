@@ -4,17 +4,19 @@ import { ArrowUpRight, Lock } from "lucide-react";
 import { SettingRow, SettingsCard } from "@/components/settings/settings-rows";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { companyProfileMock } from "@/lib/organization/mocks";
+import { useCompanyProfile } from "@/lib/organization/queries";
 import {
   DENSITY_LABEL,
   FIRST_DAY_LABEL,
   READ_ONLY_NOTICE,
   THEME_OPTIONS,
 } from "@/lib/settings/meta";
-import { displaySettingsMock } from "@/lib/settings/mocks";
+import type { DisplaySettings } from "@/lib/settings/types";
 
-export function GeneralSection() {
-  const d = displaySettingsMock;
+export function GeneralSection({ display }: { display: DisplaySettings }) {
+  const d = display;
+  const companyQuery = useCompanyProfile();
+  const company = companyQuery.data;
 
   return (
     <div className="flex min-w-0 flex-col gap-4">
@@ -75,15 +77,15 @@ export function GeneralSection() {
           seule.
         </p>
         <div className="mt-2">
-          <SettingRow label="Nom">{companyProfileMock.name}</SettingRow>
-          <SettingRow label="Secteur">{companyProfileMock.industry}</SettingRow>
-          <SettingRow label="Taille">{companyProfileMock.size}</SettingRow>
-          <SettingRow label="Année de création">{companyProfileMock.foundedYear}</SettingRow>
+          <SettingRow label="Nom">{company?.name}</SettingRow>
+          <SettingRow label="Secteur">{company?.industry}</SettingRow>
+          <SettingRow label="Taille">{company?.size}</SettingRow>
+          <SettingRow label="Année de création">{company?.foundedYear}</SettingRow>
           <SettingRow label="Plan">
-            <Badge variant="primary">{companyProfileMock.plan}</Badge>
+            <Badge variant="primary">{company?.plan}</Badge>
           </SettingRow>
-          <SettingRow label="Fuseau horaire">{companyProfileMock.timezone}</SettingRow>
-          <SettingRow label="Locale principale">{companyProfileMock.primaryLocale}</SettingRow>
+          <SettingRow label="Fuseau horaire">{company?.timezone}</SettingRow>
+          <SettingRow label="Locale principale">{company?.primaryLocale}</SettingRow>
         </div>
       </SettingsCard>
     </div>
