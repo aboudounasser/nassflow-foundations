@@ -49,3 +49,32 @@ export interface PaymentMethod {
 }
 
 export type BillingTab = "consumption" | "invoices" | "plans" | "payment";
+
+export interface ConsumptionRowByAgent {
+  agentId: string;
+  agentName: string;
+  calls: number;
+  cost: number;
+}
+
+export interface ConsumptionRowByMission {
+  missionId: string;
+  title: string;
+  aiCalls: number;
+  cost: number;
+}
+
+export interface ConsumptionSummary {
+  totalCost: number;
+  totalAiCalls: number;
+  missionCount: number;
+  avgCostPerMission: number;
+}
+
+/** Payload unique de l'onglet Consommation — un seul aller-retour. */
+export interface ConsumptionData {
+  summary: ConsumptionSummary;
+  byAgent: ConsumptionRowByAgent[];
+  byMission: ConsumptionRowByMission[];
+  byDay: { day: string; cost: number }[];
+}
