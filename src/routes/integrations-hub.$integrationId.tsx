@@ -68,8 +68,9 @@ function Page() {
   const usages = data?.agentUsage ?? [];
 
   useContextPanelContent(
-    () => (integration ? <IntegrationSummaryPanel integration={integration} /> : null),
-    [integration?.id],
+    () =>
+      integration ? <IntegrationSummaryPanel integration={integration} usages={usages} /> : null,
+    [integration?.id, usages],
   );
 
   if (integrationQuery.isError) {

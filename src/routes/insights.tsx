@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { BarChart3, Download, Share2 } from "lucide-react";
+import { BarChart3, Download, Share2, TriangleAlert } from "lucide-react";
 import { useMemo, useState } from "react";
 import {
   Area,
@@ -20,20 +20,13 @@ import {
 } from "recharts";
 import { toast } from "sonner";
 
+import { EmptyState } from "@/components/common/empty-state";
 import { WidgetShell } from "@/components/dashboard/widget-shell";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import {
-  averageConfidenceByAgent,
-  insightsOverview,
-  integrationsByStatus,
-  missionsByStatus,
-  missionsCompletedByWeek,
-  pipelineValueByStage,
-  workflowSuccessRateByDay,
-} from "@/lib/insights/aggregations";
+import { useInsights } from "@/lib/insights/queries";
 import {
   CHART_TOOLTIP_STYLE,
   VARIANT_COLOR,
@@ -109,21 +102,42 @@ function OverviewTile({ value, label }: { value: string; label: string }) {
 
 function Page() {
   const [period, setPeriod] = useState<(typeof PERIODS)[number]["value"]>("30");
-  // État du module : loading / success (mocks statiques).
-  const [state] = useState<"loading" | "success">("success");
 
   const selected = PERIODS.find((p) => p.value === period) ?? PERIODS[1];
+  const insightsQuery = useInsights(
+    useMemo(() => ({ weeks: selected.weeks, days: selected.days }), [selected]),
+  );
+  const data = insightsQuery.data;
 
-  const overview = useMemo(() => insightsOverview(), []);
-  const byStatus = useMemo(() => missionsByStatus(), []);
-  const byAgent = useMemo(() => averageConfidenceByAgent(), []);
-  const byStage = useMemo(() => pipelineValueByStage(), []);
-  const byIntegration = useMemo(() => integrationsByStatus(), []);
-  const completedByWeek = useMemo(() => missionsCompletedByWeek(selected.weeks), [selected.weeks]);
-  const successByDay = useMemo(() => workflowSuccessRateByDay(selected.days), [selected.days]);
+  const overview = data?.overview ?? null;
+  const byStatus = data?.missionsByStatus ?? [];
+  const byAgent = data?.averageConfidenceByAgent ?? [];
+  const byStage = data?.pipelineValueByStage ?? [];
+  const byIntegration = data?.integrationsByStatus ?? [];
+  const completedByWeek = data?.missionsCompletedByWeek ?? [];
+  const successByDay = data?.workflowSuccessRateByDay ?? [];
 
-  const chartState = (data: unknown[]) =>
-    state === "loading" ? "loading" : data.length === 0 ? "empty" : "success";
+  const chartState = (rows: unknown[]) =>
+    insightsQuery.isPending ? "loading" : rows.length === 0 ? "empty" : "success";
+
+  if (insightsQuery.isError) {
+    return (
+      <section className="col-span-12 min-w-0">
+        <Card className="border-border bg-card p-4">
+          <EmptyState
+            icon={TriangleAlert}
+            title="Impossible de charger les Insights"
+            description="Les analyses n'ont pas pu être récupérées. Vérifiez votre connexion puis réessayez."
+          />
+          <div className="flex justify-center">
+            <Button type="button" size="sm" onClick={() => void insightsQuery.refetch()}>
+              Réessayer
+            </Button>
+          </div>
+        </Card>
+      </section>
+    );
+  }
 
   return (
     <>
@@ -153,7 +167,7 @@ function Page() {
       </section>
 
       <section className="col-span-12 @container">
-        {state === "loading" ? (
+        {!overview ? (
           <div className="grid grid-cols-2 gap-4 @3xl:grid-cols-5">
             {Array.from({ length: 5 }).map((_, i) => (
               <Skeleton key={i} className="h-[76px] rounded-xl" />

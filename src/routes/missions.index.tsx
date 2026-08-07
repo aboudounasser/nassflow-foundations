@@ -1,7 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Plus, Target } from "lucide-react";
+import { Plus, Target, TriangleAlert } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import { EmptyState } from "@/components/common/empty-state";
 import { ModuleToolbar } from "@/components/common/module-toolbar";
 import { WidgetShell } from "@/components/dashboard/widget-shell";
 import { useContextPanel, useContextPanelContent } from "@/components/layout/context-panel";
@@ -16,7 +17,8 @@ import {
   MissionListView,
 } from "@/components/missions/mission-views";
 import { Button } from "@/components/ui/button";
-import { missionAgents, missionsDetailMock } from "@/lib/missions/mocks";
+import { Card } from "@/components/ui/card";
+import { useMissions } from "@/lib/missions/queries";
 import { MISSION_VIEWS, PRIORITY_WEIGHT, missionFilterDescriptors } from "@/lib/missions/meta";
 import type { MissionDetail, MissionFilters, MissionView } from "@/lib/missions/types";
 
@@ -59,16 +61,16 @@ function Page() {
       void navigate({ to: "/missions", search: {}, replace: true });
     }
   };
-  // État du module : loading / empty / error / success (mock statique).
-  const [state] = useState<"loading" | "error" | "success">("success");
   const { requestOpen } = useContextPanel();
 
-  const agents = missionAgents;
+  const missionsQuery = useMissions();
+  const agents = useMemo(() => missionsQuery.data?.agents ?? [], [missionsQuery.data]);
+  const allMissions = useMemo(() => missionsQuery.data?.missions ?? [], [missionsQuery.data]);
   const descriptors = useMemo(() => missionFilterDescriptors(agents), [agents]);
 
   const missions = useMemo(() => {
     const query = filters.search.trim().toLowerCase();
-    const filtered = missionsDetailMock.filter((mission) => {
+    const filtered = allMissions.filter((mission) => {
       if (
         query &&
         !mission.title.toLowerCase().includes(query) &&
@@ -88,14 +90,13 @@ function Page() {
       if (filters.sort === "progress") return b.progress - a.progress;
       return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
     });
-  }, [filters]);
+  }, [filters, allMissions]);
 
   const selected = missions.find((m) => m.id === selectedId) ?? null;
 
   useContextPanelContent(
-    () =>
-      selected ? <MissionDetailPanel mission={selected} allMissions={missionsDetailMock} /> : null,
-    [selected?.id],
+    () => (selected ? <MissionDetailPanel mission={selected} allMissions={allMissions} /> : null),
+    [selected?.id, allMissions],
   );
 
   const handleSelect = (mission: MissionDetail) => {
@@ -103,7 +104,32 @@ function Page() {
     requestOpen();
   };
 
-  const widgetState = state === "success" ? (missions.length === 0 ? "empty" : "success") : state;
+  const widgetState = missionsQuery.isError
+    ? "error"
+    : missionsQuery.isPending
+      ? "loading"
+      : missions.length === 0
+        ? "empty"
+        : "success";
+
+  if (missionsQuery.isError) {
+    return (
+      <section className="col-span-12 min-w-0">
+        <Card className="border-border bg-card p-4">
+          <EmptyState
+            icon={TriangleAlert}
+            title="Impossible de charger les Missions"
+            description="Les missions n'ont pas pu être récupérées. Vérifiez votre connexion puis réessayez."
+          />
+          <div className="flex justify-center">
+            <Button type="button" size="sm" onClick={() => void missionsQuery.refetch()}>
+              Réessayer
+            </Button>
+          </div>
+        </Card>
+      </section>
+    );
+  }
 
   return (
     <>
@@ -167,7 +193,12 @@ function Page() {
         </WidgetShell>
       </section>
 
-      <MissionBuilderDialog open={dialogOpen} onOpenChange={handleDialogChange} agents={agents} />
+      <MissionBuilderDialog
+        open={dialogOpen}
+        onOpenChange={handleDialogChange}
+        agents={agents}
+        blueprints={missionsQuery.data?.blueprints ?? []}
+      />
     </>
   );
 }

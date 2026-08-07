@@ -39,7 +39,6 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { formatDueDate } from "@/lib/missions/meta";
-import { missionBlueprints } from "@/lib/missions/mocks";
 import type {
   MissionAgent,
   MissionBlueprint,
@@ -172,10 +171,12 @@ export function MissionBuilderDialog({
   open,
   onOpenChange,
   agents,
+  blueprints,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   agents: MissionAgent[];
+  blueprints: MissionBlueprint[];
 }) {
   const [step, setStep] = useState(0);
   const [draft, setDraft] = useState<MissionDraft>(EMPTY_DRAFT);
@@ -324,7 +325,7 @@ export function MissionBuilderDialog({
               {mode === "template" ? (
                 <FieldGroup title="Modèles disponibles">
                   <ul className="space-y-2">
-                    {missionBlueprints.map((bp) => {
+                    {blueprints.map((bp) => {
                       const active = blueprintId === bp.id;
                       return (
                         <li key={bp.id}>

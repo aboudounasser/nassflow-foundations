@@ -8,8 +8,19 @@ import type { Integration } from "@/lib/integrations/types";
 import type { Scope } from "@/lib/tenancy/types";
 import { delay } from "@/services/latency";
 
-export async function getIntegrations(_scope: Scope): Promise<Integration[]> {
-  return delay(integrationsMock);
+/** Liste + usages agents précalculés : la vue ne fait plus d'agrégation. */
+export interface IntegrationsListData {
+  integrations: Integration[];
+  usageByIntegration: Record<string, IntegrationAgentUsage[]>;
+}
+
+export async function getIntegrations(_scope: Scope): Promise<IntegrationsListData> {
+  return delay({
+    integrations: integrationsMock,
+    usageByIntegration: Object.fromEntries(
+      integrationsMock.map((i) => [i.id, agentsUsingIntegration(i.name)]),
+    ),
+  });
 }
 
 /** Agrégat de la vue détail : un seul aller-retour par identifiant (option B). */

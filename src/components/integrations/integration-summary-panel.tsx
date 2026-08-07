@@ -10,14 +10,19 @@ import {
   formatSyncRelative,
   integrationInitials,
 } from "@/lib/integrations/meta";
-import { agentsUsingIntegration } from "@/lib/integrations/mocks";
+import type { AgentDetail, AgentTool } from "@/lib/agents/types";
 import type { Integration } from "@/lib/integrations/types";
 
 /** Résumé compact d'une intégration — Context Panel global. */
-export function IntegrationSummaryPanel({ integration }: { integration: Integration }) {
+export function IntegrationSummaryPanel({
+  integration,
+  usages,
+}: {
+  integration: Integration;
+  usages: { agent: AgentDetail; tool: AgentTool }[];
+}) {
   const status = INTEGRATION_STATUS[integration.status];
   const StatusIcon = status.icon;
-  const usages = agentsUsingIntegration(integration.name);
   const granted = integration.permissions.filter((p) => p.granted).length;
   const navigate = useNavigate();
 

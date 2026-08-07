@@ -28,22 +28,15 @@ import { MissionSummaryCard } from "@/components/dashboard/mission-summary-card"
 import { NotificationItem } from "@/components/dashboard/notification-item";
 import { OpportunityCard } from "@/components/dashboard/opportunity-card";
 import { WidgetShell } from "@/components/dashboard/widget-shell";
+import { Skeleton } from "@/components/ui/skeleton";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import {
-  activityMock,
-  agentsMock,
-  calendarMock,
-  decisionsMock,
-  enterprisePulseMock,
-  forecastMock,
-  healthMock,
-  historyMock,
-  insightsMock,
-  kpisMock,
-  missionsMock,
-  notificationsMock,
-  opportunitiesMock,
-} from "@/lib/dashboard/mocks";
+  useDashboardOperations,
+  useDashboardOutlook,
+  useDashboardPulse,
+  useDashboardWorkforce,
+} from "@/lib/dashboard/queries";
+import type { WidgetState } from "@/lib/dashboard/types";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -65,17 +58,49 @@ export const Route = createFileRoute("/")({
   component: DashboardCeo,
 });
 
+/** État d'un WidgetShell dérivé de sa requête de groupe. */
+function groupState(
+  query: { isError: boolean; isPending: boolean },
+  rows: unknown[] | null,
+): WidgetState {
+  if (query.isError) return "error";
+  if (query.isPending) return "loading";
+  if (rows && rows.length === 0) return "empty";
+  return "success";
+}
+
 function DashboardCeo() {
-  const total = agentsMock.length;
-  const actifs = agentsMock.filter((a) => a.status === "active").length;
-  const enMission = agentsMock.filter(
+  const pulseQuery = useDashboardPulse();
+  const operationsQuery = useDashboardOperations();
+  const workforceQuery = useDashboardWorkforce();
+  const outlookQuery = useDashboardOutlook();
+
+  const pulse = pulseQuery.data?.pulse ?? null;
+  const kpis = pulseQuery.data?.kpis ?? [];
+  const health = pulseQuery.data?.health ?? [];
+  const decisions = operationsQuery.data?.decisions ?? [];
+  const missions = operationsQuery.data?.missions ?? [];
+  const calendar = operationsQuery.data?.calendar ?? [];
+  const agents = workforceQuery.data?.agents ?? [];
+  const activity = workforceQuery.data?.activity ?? [];
+  const notifications = workforceQuery.data?.notifications ?? [];
+  const history = workforceQuery.data?.history ?? [];
+  const opportunities = outlookQuery.data?.opportunities ?? [];
+  const insights = outlookQuery.data?.insights ?? [];
+  const forecast = outlookQuery.data?.forecast ?? null;
+
+  const total = agents.length;
+  const actifs = agents.filter((a) => a.status === "active").length;
+  const enMission = agents.filter(
     (a) => a.status === "active" && a.progress > 0 && a.progress < 100,
   ).length;
-  const enAttente = agentsMock.filter((a) => a.status === "paused").length;
-  const enErreur = agentsMock.filter((a) => a.status === "error").length;
-  const workforceSummary = `${total} collaborateurs IA · ${actifs} actifs · ${enMission} en mission · ${enAttente} en attente${
-    enErreur > 0 ? ` · ${enErreur} en erreur` : ""
-  }`;
+  const enAttente = agents.filter((a) => a.status === "paused").length;
+  const enErreur = agents.filter((a) => a.status === "error").length;
+  const workforceSummary = workforceQuery.isPending
+    ? "Chargement des collaborateurs IA…"
+    : `${total} collaborateurs IA · ${actifs} actifs · ${enMission} en mission · ${enAttente} en attente${
+        enErreur > 0 ? ` · ${enErreur} en erreur` : ""
+      }`;
 
   return (
     <TooltipProvider delayDuration={150}>
@@ -88,15 +113,21 @@ function DashboardCeo() {
 
       {/* 1. Enterprise Pulse */}
       <div className="col-span-12">
-        <EnterprisePulseCard data={enterprisePulseMock} />
+        {pulse ? (
+          <EnterprisePulseCard data={pulse} />
+        ) : (
+          <Skeleton className="h-[220px] w-full rounded-xl" />
+        )}
       </div>
 
       {/* 2. KPIs stratégiques */}
       <div className="col-span-12 @container">
         <div className="grid grid-cols-1 gap-4 @sm:grid-cols-2 @3xl:grid-cols-4">
-          {kpisMock.map((kpi) => (
-            <KpiCard key={kpi.id} kpi={kpi} />
-          ))}
+          {pulseQuery.isPending
+            ? Array.from({ length: 4 }).map((_, i) => (
+                <Skeleton key={i} className="h-[132px] rounded-xl" />
+              ))
+            : kpis.map((kpi) => <KpiCard key={kpi.id} kpi={kpi} />)}
         </div>
       </div>
 
@@ -106,11 +137,13 @@ function DashboardCeo() {
           title="Enterprise Health"
           description="Santé par domaine opérationnel"
           icon={HeartPulse}
+          state={groupState(pulseQuery, health)}
+          onRetry={() => void pulseQuery.refetch()}
           emptyIcon={HeartPulse}
           emptyTitle="Aucun domaine surveillé"
           contentClassName="grid grid-cols-1 gap-4 @md:grid-cols-2 @3xl:grid-cols-3"
         >
-          {healthMock.map((category) => (
+          {health.map((category) => (
             <HealthCategoryCard key={category.id} category={category} />
           ))}
         </WidgetShell>
@@ -122,11 +155,13 @@ function DashboardCeo() {
           title="AI Workforce"
           description={workforceSummary}
           icon={Bot}
+          state={groupState(workforceQuery, agents)}
+          onRetry={() => void workforceQuery.refetch()}
           emptyIcon={Bot}
           emptyTitle="Aucun agent déployé"
           contentClassName="grid grid-cols-1 gap-4 @xl:grid-cols-2"
         >
-          {agentsMock.map((agent) => (
+          {agents.map((agent) => (
             <AgentSummaryCard key={agent.id} agent={agent} />
           ))}
         </WidgetShell>
@@ -138,11 +173,13 @@ function DashboardCeo() {
           title="Decision Center"
           description="Décisions en attente d'arbitrage"
           icon={Gavel}
+          state={groupState(operationsQuery, decisions)}
+          onRetry={() => void operationsQuery.refetch()}
           emptyIcon={Gavel}
           emptyTitle="Aucune décision en attente"
           contentClassName="space-y-4"
         >
-          {decisionsMock.map((decision) => (
+          {decisions.map((decision) => (
             <DecisionItemCard key={decision.id} decision={decision} />
           ))}
         </WidgetShell>
@@ -154,11 +191,13 @@ function DashboardCeo() {
           title="Missions"
           description="Missions actives et progression"
           icon={Target}
+          state={groupState(operationsQuery, missions)}
+          onRetry={() => void operationsQuery.refetch()}
           emptyIcon={Target}
           emptyTitle="Aucune mission active"
           contentClassName="space-y-3"
         >
-          {missionsMock.map((mission) => (
+          {missions.map((mission) => (
             <MissionSummaryCard key={mission.id} mission={mission} />
           ))}
         </WidgetShell>
@@ -170,11 +209,13 @@ function DashboardCeo() {
           title="Activity Feed"
           description="Flux d'activité en temps réel"
           icon={Activity}
+          state={groupState(workforceQuery, activity)}
+          onRetry={() => void workforceQuery.refetch()}
           emptyIcon={Activity}
           emptyTitle="Aucune activité récente"
         >
           <ul className="divide-y divide-border">
-            {activityMock.map((event) => (
+            {activity.map((event) => (
               <ActivityFeedItem key={event.id} event={event} />
             ))}
           </ul>
@@ -187,11 +228,13 @@ function DashboardCeo() {
           title="Notifications"
           description="Alertes prioritaires"
           icon={Bell}
+          state={groupState(workforceQuery, notifications)}
+          onRetry={() => void workforceQuery.refetch()}
           emptyIcon={Bell}
           emptyTitle="Aucune notification"
           contentClassName="space-y-3"
         >
-          {notificationsMock.map((notification) => (
+          {notifications.map((notification) => (
             <NotificationItem key={notification.id} notification={notification} />
           ))}
         </WidgetShell>
@@ -203,11 +246,13 @@ function DashboardCeo() {
           title="Agenda"
           description="Prochaines échéances"
           icon={CalendarDays}
+          state={groupState(operationsQuery, calendar)}
+          onRetry={() => void operationsQuery.refetch()}
           emptyIcon={CalendarDays}
           emptyTitle="Aucun événement à venir"
           contentClassName="space-y-3"
         >
-          {calendarMock.map((event) => (
+          {calendar.map((event) => (
             <CalendarEventItem key={event.id} event={event} />
           ))}
         </WidgetShell>
@@ -219,11 +264,13 @@ function DashboardCeo() {
           title="Opportunity Radar"
           description="Opportunités détectées par l'IA"
           icon={Compass}
+          state={groupState(outlookQuery, opportunities)}
+          onRetry={() => void outlookQuery.refetch()}
           emptyIcon={Compass}
           emptyTitle="Aucune opportunité détectée"
           contentClassName="space-y-3"
         >
-          {opportunitiesMock.map((opportunity) => (
+          {opportunities.map((opportunity) => (
             <OpportunityCard key={opportunity.id} opportunity={opportunity} />
           ))}
         </WidgetShell>
@@ -235,11 +282,13 @@ function DashboardCeo() {
           title="Insights"
           description="Analyses génératives explicables"
           icon={Lightbulb}
+          state={groupState(outlookQuery, insights)}
+          onRetry={() => void outlookQuery.refetch()}
           emptyIcon={Lightbulb}
           emptyTitle="Aucun insight généré"
           contentClassName="space-y-3"
         >
-          {insightsMock.map((insight) => (
+          {insights.map((insight) => (
             <InsightCard key={insight.id} insight={insight} />
           ))}
         </WidgetShell>
@@ -249,12 +298,14 @@ function DashboardCeo() {
       <div className="col-span-12 xl:col-span-6">
         <WidgetShell
           title="Forecast"
-          description={forecastMock.metric}
+          description={forecast?.metric ?? "Prévision"}
           icon={TrendingUp}
+          state={groupState(outlookQuery, forecast ? null : [])}
+          onRetry={() => void outlookQuery.refetch()}
           emptyIcon={TrendingUp}
           emptyTitle="Aucune prévision"
         >
-          <ForecastCard forecast={forecastMock} />
+          {forecast ? <ForecastCard forecast={forecast} /> : null}
         </WidgetShell>
       </div>
 
@@ -264,11 +315,13 @@ function DashboardCeo() {
           title="History"
           description="Journal des événements majeurs"
           icon={History}
+          state={groupState(workforceQuery, history)}
+          onRetry={() => void workforceQuery.refetch()}
           emptyIcon={History}
           emptyTitle="Aucun historique"
         >
           <ul className="divide-y divide-border">
-            {historyMock.map((event) => (
+            {history.map((event) => (
               <HistoryEventItem key={event.id} event={event} />
             ))}
           </ul>

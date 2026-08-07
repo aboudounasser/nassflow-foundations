@@ -53,7 +53,11 @@ function Page() {
   const { requestOpen } = useContextPanel();
 
   const integrationsQuery = useIntegrations();
-  const allIntegrations = useMemo(() => integrationsQuery.data ?? [], [integrationsQuery.data]);
+  const allIntegrations = useMemo(
+    () => integrationsQuery.data?.integrations ?? [],
+    [integrationsQuery.data],
+  );
+  const usageByIntegration = integrationsQuery.data?.usageByIntegration ?? {};
 
   const integrations = useMemo(() => {
     const query = filters.search.trim().toLowerCase();
@@ -87,8 +91,14 @@ function Page() {
   const selected = allIntegrations.find((i) => i.id === selectedId) ?? null;
 
   useContextPanelContent(
-    () => (selected ? <IntegrationSummaryPanel integration={selected} /> : null),
-    [selected?.id],
+    () =>
+      selected ? (
+        <IntegrationSummaryPanel
+          integration={selected}
+          usages={usageByIntegration[selected.id] ?? []}
+        />
+      ) : null,
+    [selected?.id, usageByIntegration],
   );
 
   const handleSelect = (integration: Integration) => {
@@ -178,6 +188,7 @@ function Page() {
               <IntegrationCard
                 key={integration.id}
                 integration={integration}
+                agentCount={(usageByIntegration[integration.id] ?? []).length}
                 selected={integration.id === selectedId}
                 compact={view === "list"}
                 onSelect={handleSelect}
