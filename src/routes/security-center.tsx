@@ -17,7 +17,7 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useSecurity } from "@/lib/security/queries";
-import type { SecurityTab } from "@/lib/security/types";
+import type { SecurityOverview, SecurityTab } from "@/lib/security/types";
 
 const DESCRIPTION =
   "Vue de sécurité cross-module de NASSFLOW OS : posture, accès, permissions, journal d'audit et politiques.";
@@ -37,6 +37,17 @@ export const Route = createFileRoute("/security-center")({
 });
 
 const TABS: { value: SecurityTab; label: string }[] = [
+  { value: "overview", label: "Vue d'ensemble" },
+];
+
+const EMPTY_OVERVIEW: SecurityOverview = {
+  score: 0,
+  criticalLast7Days: 0,
+  activeMembers: 0,
+  suspendedMembers: 0,
+  integrationsInError: 0,
+  totalEvents: 0,
+};
   { value: "overview", label: "Vue d'ensemble" },
   { value: "access", label: "Accès & Permissions" },
   { value: "audit", label: "Journal d'audit" },
