@@ -76,17 +76,39 @@ export function GeneralSection({ display }: { display: DisplaySettings }) {
           Ces informations sont gérées dans le module Organization et s'affichent ici en lecture
           seule.
         </p>
-        <div className="mt-2">
-          <SettingRow label="Nom">{company?.name}</SettingRow>
-          <SettingRow label="Secteur">{company?.industry}</SettingRow>
-          <SettingRow label="Taille">{company?.size}</SettingRow>
-          <SettingRow label="Année de création">{company?.foundedYear}</SettingRow>
-          <SettingRow label="Plan">
-            <Badge variant="primary">{company?.plan}</Badge>
-          </SettingRow>
-          <SettingRow label="Fuseau horaire">{company?.timezone}</SettingRow>
-          <SettingRow label="Locale principale">{company?.primaryLocale}</SettingRow>
-        </div>
+        {companyQuery.isError ? (
+          <div className="mt-2 flex flex-wrap items-center gap-3">
+            <p className="text-[13px] text-muted-foreground">
+              Le profil d'entreprise n'a pas pu être chargé.
+            </p>
+            <Button
+              type="button"
+              size="sm"
+              variant="secondary"
+              onClick={() => void companyQuery.refetch()}
+            >
+              Réessayer
+            </Button>
+          </div>
+        ) : company ? (
+          <div className="mt-2">
+            <SettingRow label="Nom">{company.name}</SettingRow>
+            <SettingRow label="Secteur">{company.industry}</SettingRow>
+            <SettingRow label="Taille">{company.size}</SettingRow>
+            <SettingRow label="Année de création">{company.foundedYear}</SettingRow>
+            <SettingRow label="Plan">
+              <Badge variant="primary">{company.plan}</Badge>
+            </SettingRow>
+            <SettingRow label="Fuseau horaire">{company.timezone}</SettingRow>
+            <SettingRow label="Locale principale">{company.primaryLocale}</SettingRow>
+          </div>
+        ) : (
+          <div className="mt-2 flex flex-col gap-2">
+            {Array.from({ length: 7 }).map((_, i) => (
+              <Skeleton key={i} className="h-8 w-full rounded-lg" />
+            ))}
+          </div>
+        )}
       </SettingsCard>
     </div>
   );
