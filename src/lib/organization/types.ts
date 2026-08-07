@@ -26,6 +26,7 @@ export interface Department {
 }
 
 export interface CompanyProfile {
+  id: string;
   name: string;
   industry: string;
   size: string;
