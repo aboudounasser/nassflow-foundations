@@ -1,5 +1,9 @@
 import type { IntegrationAgentUsage } from "@/lib/integrations/mocks";
-import { agentsUsingIntegration, integrationById, integrationsMock } from "@/lib/integrations/mocks";
+import {
+  agentsUsingIntegration,
+  integrationById,
+  integrationsMock,
+} from "@/lib/integrations/mocks";
 import type { Integration } from "@/lib/integrations/types";
 import type { Scope } from "@/lib/tenancy/types";
 import { delay } from "@/services/latency";

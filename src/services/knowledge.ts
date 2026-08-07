@@ -1,5 +1,10 @@
 import type { AgentDetail } from "@/lib/agents/types";
-import { agentsUsingKnowledge, knowledgeById, knowledgeCategories, knowledgeMock } from "@/lib/knowledge/mocks";
+import {
+  agentsUsingKnowledge,
+  knowledgeById,
+  knowledgeCategories,
+  knowledgeMock,
+} from "@/lib/knowledge/mocks";
 import type { KnowledgeItem } from "@/lib/knowledge/types";
 import type { Scope } from "@/lib/tenancy/types";
 import { delay } from "@/services/latency";

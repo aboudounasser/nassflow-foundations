@@ -50,10 +50,7 @@ function Page() {
   const { requestOpen } = useContextPanel();
 
   const workflowsQuery = useWorkflows();
-  const allWorkflows = useMemo(
-    () => workflowsQuery.data?.workflows ?? [],
-    [workflowsQuery.data],
-  );
+  const allWorkflows = useMemo(() => workflowsQuery.data?.workflows ?? [], [workflowsQuery.data]);
 
   const workflows = useMemo(() => {
     const query = filters.search.trim().toLowerCase();
