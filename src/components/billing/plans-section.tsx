@@ -15,8 +15,9 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { formatPlanPrice, planCta, showsMonthlySuffix } from "@/lib/billing/aggregations";
-import { billingPlansMock, currentPlan } from "@/lib/billing/mocks";
+import { useBillingPlans } from "@/lib/billing/queries";
 import type { BillingPlan, PlanCta } from "@/lib/billing/types";
 import { cn } from "@/lib/utils";
 
@@ -30,9 +31,10 @@ const CTA: Record<PlanCta, { label: string; variant: "primary" | "secondary" }> 
 export function PlansSection() {
   const [target, setTarget] = useState<BillingPlan | null>(null);
   const [cancelOpen, setCancelOpen] = useState(false);
+  const { data: plans, isPending } = useBillingPlans();
 
-  const current = currentPlan();
-  const targetCta = target ? planCta(target, current) : null;
+  const current = plans?.find((p) => p.isCurrent) ?? plans?.at(-1);
+  const targetCta = target && current ? planCta(target, current) : null;
   const isDowngrade = targetCta === "downgrade";
 
   const agentsLabel =
@@ -45,10 +47,22 @@ export function PlansSection() {
       ? "un nombre illimité de missions par mois"
       : `${target?.limits.missionsPerMonth} missions par mois`;
 
+  if (isPending) {
+    return (
+      <div className="grid min-w-0 gap-4 @3xl:grid-cols-2 @6xl:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Skeleton key={i} className="h-[420px] rounded-xl" />
+        ))}
+      </div>
+    );
+  }
+
+  if (!plans || !current) return null;
+
   return (
     <>
       <div className="grid min-w-0 gap-4 @3xl:grid-cols-2 @6xl:grid-cols-4">
-        {billingPlansMock.map((plan) => {
+        {plans.map((plan) => {
           const ctaType = planCta(plan, current);
           const cta = CTA[ctaType];
           return (

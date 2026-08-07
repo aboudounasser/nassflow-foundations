@@ -7,8 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { formatEuro } from "@/lib/billing/aggregations";
-import { invoicesMock } from "@/lib/billing/mocks";
+import { useInvoices } from "@/lib/billing/queries";
 import type { InvoiceStatus } from "@/lib/billing/types";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const STATUS: Record<
   InvoiceStatus,
@@ -30,10 +31,11 @@ const DATE_FMT = new Intl.DateTimeFormat("fr-FR", {
 
 export function InvoicesSection() {
   const [statuses, setStatuses] = useState<InvoiceStatus[]>([]);
+  const { data: invoices, isPending } = useInvoices();
 
   const sorted = useMemo(
-    () => [...invoicesMock].sort((a, b) => b.issuedAt.localeCompare(a.issuedAt)),
-    [],
+    () => [...(invoices ?? [])].sort((a, b) => b.issuedAt.localeCompare(a.issuedAt)),
+    [invoices],
   );
   const filtered = useMemo(
     () => sorted.filter((i) => statuses.length === 0 || statuses.includes(i.status)),
@@ -41,6 +43,19 @@ export function InvoicesSection() {
   );
 
   const reset = () => setStatuses([]);
+
+  if (isPending) {
+    return (
+      <Card className="min-w-0 border-border bg-card p-4">
+        <Skeleton className="h-6 w-40 rounded-lg" />
+        <div className="mt-4 flex flex-col gap-2">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Skeleton key={i} className="h-20 w-full rounded-lg" />
+          ))}
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <Card className="min-w-0 border-border bg-card p-4">
