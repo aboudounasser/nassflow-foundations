@@ -1,6 +1,5 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArchiveIcon, ArrowLeft, Send, UserPlus, Users } from "lucide-react";
-import { useMemo, useState } from "react";
+import { ArchiveIcon, ArrowLeft, Send, TriangleAlert, UserPlus, Users } from "lucide-react";
 import { toast } from "sonner";
 
 import { EmptyState } from "@/components/common/empty-state";
@@ -22,7 +21,7 @@ import {
   formatCrmDate,
   formatCrmDateTime,
 } from "@/lib/crm/meta";
-import { contactById, crmAgentById, crmMissionById, dealsOfContact } from "@/lib/crm/mocks";
+import { useContact } from "@/lib/crm/queries";
 
 const DESCRIPTION =
   "Fiche complète d'un contact CRM : coordonnées, opportunités, journal d'activités, mission liée et agent IA assigné.";
@@ -52,19 +51,46 @@ function DetailSkeleton() {
 
 function Page() {
   const { contactId } = Route.useParams();
-  const contact = contactById(contactId);
   const navigate = useNavigate();
-  // État du module : loading / error / success (mock statique).
-  const [state] = useState<"loading" | "error" | "success">("success");
 
-  const deals = useMemo(() => dealsOfContact(contactId), [contactId]);
-  const mission = crmMissionById(contact?.relatedMissionId ?? null);
-  const agent = crmAgentById(contact?.agentId ?? null);
+  const contactQuery = useContact(contactId);
+  const data = contactQuery.data ?? null;
+  const contact = data?.contact ?? null;
+  const deals = data?.deals ?? [];
+  const mission = data?.mission ?? null;
+  const agent = data?.agent ?? null;
 
   useContextPanelContent(
     () => (contact ? <ContactSummaryPanel contact={contact} dealCount={deals.length} /> : null),
     [contact?.id, deals.length],
   );
+
+  if (contactQuery.isError) {
+    return (
+      <section className="col-span-12 min-w-0">
+        <Card className="border-border bg-card p-4">
+          <EmptyState
+            icon={TriangleAlert}
+            title="Impossible de charger ce contact"
+            description="La fiche du contact n'a pas pu être récupérée. Vérifiez votre connexion puis réessayez."
+          />
+          <div className="flex justify-center">
+            <Button type="button" size="sm" onClick={() => void contactQuery.refetch()}>
+              Réessayer
+            </Button>
+          </div>
+        </Card>
+      </section>
+    );
+  }
+
+  if (contactQuery.isPending) {
+    return (
+      <section className="col-span-12 min-w-0">
+        <DetailSkeleton />
+      </section>
+    );
+  }
 
   if (!contact) {
     return (
