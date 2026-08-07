@@ -15,36 +15,55 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { formatEuro } from "@/lib/billing/aggregations";
+import { formatPlanPrice, showsMonthlySuffix } from "@/lib/billing/aggregations";
 import { billingPlansMock } from "@/lib/billing/mocks";
-import type { BillingPlan } from "@/lib/billing/types";
+import type { BillingPlan, PlanCta } from "@/lib/billing/types";
 import { cn } from "@/lib/utils";
+
+const CTA: Record<PlanCta, { label: string; variant: "primary" | "secondary" }> = {
+  current: { label: "Plan actuel", variant: "secondary" },
+  upgrade: { label: "Passer à ce plan", variant: "primary" },
+  downgrade: { label: "Choisir ce plan", variant: "secondary" },
+  contact_sales: { label: "Contacter l'équipe commerciale", variant: "secondary" },
+};
 
 export function PlansSection() {
   const [target, setTarget] = useState<BillingPlan | null>(null);
+  const [cancelOpen, setCancelOpen] = useState(false);
+
+  const isDowngrade = target !== null && (target.tier === "free" || target.ctaType === "downgrade");
 
   return (
     <>
-      <div className="grid min-w-0 gap-4 @3xl:grid-cols-3">
-        {billingPlansMock.map((plan) => (
+      <div className="grid min-w-0 gap-4 @3xl:grid-cols-2 @6xl:grid-cols-4">
+        {billingPlansMock.map((plan) => {
+          const cta = CTA[plan.ctaType];
+          return (
           <Card
             key={plan.id}
             className={cn(
               "flex min-w-0 flex-col border-border bg-card p-5",
-              plan.isCurrent && "border-primary",
+              (plan.isCurrent || plan.isRecommended) && "border-primary",
             )}
           >
             <div className="flex flex-wrap items-center justify-between gap-2">
               <p className="text-[16px] font-medium text-foreground">{plan.name}</p>
-              {plan.isCurrent ? <Badge variant="primary">Plan actuel</Badge> : null}
+              {plan.isCurrent ? (
+                <Badge variant="primary">Plan actuel</Badge>
+              ) : plan.isRecommended ? (
+                <Badge variant="primary">Recommandé</Badge>
+              ) : null}
             </div>
+            <p className="mt-1 text-[12px] text-muted-foreground">{plan.tagline}</p>
             <p className="mt-3 text-[24px] font-bold tabular-nums text-foreground">
-              {formatEuro(plan.pricePerMonth, 0)}
-              <span className="text-[12px] font-normal text-muted-foreground"> / mois</span>
+              {formatPlanPrice(plan)}
+              {showsMonthlySuffix(plan) ? (
+                <span className="text-[12px] font-normal text-muted-foreground"> / mois</span>
+              ) : null}
             </p>
             <p className="mt-2 text-[12px] text-muted-foreground">
-              {plan.includedAiCalls.toLocaleString("fr-FR")} appels IA inclus ·{" "}
-              {plan.includedSeats} sièges
+              {plan.limits.aiCalls.toLocaleString("fr-FR")} appels IA · {plan.limits.seats}{" "}
+              {plan.limits.seats > 1 ? "sièges" : "siège"}
             </p>
             <ul className="mt-4 flex flex-1 flex-col gap-2">
               {plan.features.map((feature) => (
@@ -57,23 +76,69 @@ export function PlansSection() {
             <Button
               type="button"
               className="mt-5 w-full"
-              variant={plan.isCurrent ? "secondary" : "primary"}
-              disabled={plan.isCurrent}
-              onClick={() => setTarget(plan)}
+              variant={cta.variant}
+              disabled={plan.ctaType === "current"}
+              onClick={() =>
+                plan.ctaType === "contact_sales"
+                  ? toast("Demande de contact envoyée (mock)")
+                  : setTarget(plan)
+              }
             >
-              {plan.isCurrent ? "Plan actuel" : "Changer de plan"}
+              {cta.label}
             </Button>
+            <p className="mt-2 min-h-[16px] text-center text-[11px] text-muted-foreground">
+              {plan.trialDays !== null
+                ? `${plan.trialDays} jours d'essai, sans carte bancaire`
+                : null}
+            </p>
           </Card>
-        ))}
+          );
+        })}
       </div>
+
+      <Card className="mt-6 border-border bg-card p-5">
+        <p className="text-[14px] font-medium text-foreground">Résilier l'abonnement</p>
+        <p className="mt-2 text-[12px] text-muted-foreground">
+          L'accès à NASSFLOW OS resterait actif jusqu'à la fin de la période facturée en cours.
+          Les données de l'organisation seraient conservées 90 jours avant suppression définitive.
+        </p>
+        <Button
+          type="button"
+          variant="destructive"
+          size="sm"
+          className="mt-4"
+          onClick={() => setCancelOpen(true)}
+        >
+          Résilier l'abonnement
+        </Button>
+      </Card>
+
+      <AlertDialog open={cancelOpen} onOpenChange={setCancelOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Résilier l'abonnement ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              L'abonnement prendrait fin à l'issue de la période facturée en cours. Cette action
+              est simulée à ce stade et ne modifie aucune donnée.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={() => toast("Résiliation programmée (mock)")}>
+              Confirmer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <AlertDialog open={target !== null} onOpenChange={(open) => !open && setTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Passer au plan {target?.name} ?</AlertDialogTitle>
             <AlertDialogDescription>
-              Le changement de plan modifierait la facturation et les quotas de l'organisation.
-              Cette action est simulée à ce stade et ne modifie aucune donnée.
+              {isDowngrade && target
+                ? `Votre organisation perdrait l'accès aux fonctionnalités du plan Enterprise et serait limitée à ${target.limits.agents ?? "un nombre illimité de"} agents et ${target.limits.missionsPerMonth} missions par mois. Cette action est simulée à ce stade.`
+                : "Le changement de plan modifierait la facturation et les quotas de l'organisation. Cette action est simulée à ce stade et ne modifie aucune donnée."}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
