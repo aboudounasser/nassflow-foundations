@@ -1,13 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Target } from "lucide-react";
+import { Plus, Target } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import { ModuleToolbar } from "@/components/common/module-toolbar";
 import { WidgetShell } from "@/components/dashboard/widget-shell";
 import { useContextPanel, useContextPanelContent } from "@/components/layout/context-panel";
 import { ModulePage } from "@/components/layout/page-header";
 import { MissionBuilderDialog } from "@/components/missions/mission-builder-dialog";
 import { MissionDetailPanel } from "@/components/missions/mission-detail-panel";
-import { MissionToolbar, type MissionFilters } from "@/components/missions/mission-toolbar";
 import {
   MissionCalendarView,
   MissionKanbanSkeleton,
@@ -17,8 +17,8 @@ import {
 } from "@/components/missions/mission-views";
 import { Button } from "@/components/ui/button";
 import { missionAgents, missionsDetailMock } from "@/lib/missions/mocks";
-import { PRIORITY_WEIGHT } from "@/lib/missions/meta";
-import type { MissionDetail, MissionView } from "@/lib/missions/types";
+import { MISSION_VIEWS, PRIORITY_WEIGHT, missionFilterDescriptors } from "@/lib/missions/meta";
+import type { MissionDetail, MissionFilters, MissionView } from "@/lib/missions/types";
 
 const DESCRIPTION =
   "Pilotez les missions confiées aux agents IA : liste, kanban, calendrier et fiche détaillée.";
@@ -51,6 +51,9 @@ function Page() {
   // État du module : loading / empty / error / success (mock statique).
   const [state] = useState<"loading" | "error" | "success">("success");
   const { requestOpen } = useContextPanel();
+
+  const agents = missionAgents;
+  const descriptors = useMemo(() => missionFilterDescriptors(agents), [agents]);
 
   const missions = useMemo(() => {
     const query = filters.search.trim().toLowerCase();
@@ -96,15 +99,25 @@ function Page() {
       <ModulePage title="Missions" description={DESCRIPTION} />
 
       <section className="col-span-12">
-        <MissionToolbar
+        <ModuleToolbar
           filters={filters}
           onChange={setFilters}
-          view={view}
-          onViewChange={setView}
-          agents={missionAgents}
           onReset={() => setFilters(DEFAULT_FILTERS)}
-          onCreate={() => setDialogOpen(true)}
+          searchKey="search"
+          searchPlaceholder="Rechercher une mission ou un tag…"
+          searchAriaLabel="Rechercher une mission"
+          descriptors={descriptors}
+          views={MISSION_VIEWS}
+          view={view}
+          onViewChange={(v) => setView(v as MissionView)}
           resultCount={missions.length}
+          resultLabel={(n) => `${n} mission${n > 1 ? "s" : ""}`}
+          actions={
+            <Button onClick={() => setDialogOpen(true)}>
+              <Plus />
+              Créer une Mission
+            </Button>
+          }
         />
       </section>
 
@@ -143,7 +156,7 @@ function Page() {
         </WidgetShell>
       </section>
 
-      <MissionBuilderDialog open={dialogOpen} onOpenChange={setDialogOpen} agents={missionAgents} />
+      <MissionBuilderDialog open={dialogOpen} onOpenChange={setDialogOpen} agents={agents} />
     </>
   );
 }

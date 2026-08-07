@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Brain } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import { GRID_LIST_VIEWS, ModuleToolbar } from "@/components/common/module-toolbar";
 import { WidgetShell } from "@/components/dashboard/widget-shell";
 import { KnowledgeCard, KnowledgeCardSkeletonGrid } from "@/components/knowledge/knowledge-card";
 import {
@@ -9,13 +10,17 @@ import {
   KnowledgeOverviewSkeleton,
 } from "@/components/knowledge/knowledge-overview";
 import { KnowledgeSummaryPanel } from "@/components/knowledge/knowledge-summary-panel";
-import { KnowledgeToolbar, type KnowledgeFilters } from "@/components/knowledge/knowledge-toolbar";
 import { useContextPanel, useContextPanelContent } from "@/components/layout/context-panel";
 import { ModulePage } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
-import { KNOWLEDGE_TYPE_ORDER } from "@/lib/knowledge/meta";
+import { KNOWLEDGE_TYPE_ORDER, knowledgeFilterDescriptors } from "@/lib/knowledge/meta";
 import { agentsUsingKnowledge, knowledgeCategories, knowledgeMock } from "@/lib/knowledge/mocks";
-import type { KnowledgeItem, KnowledgeType, KnowledgeView } from "@/lib/knowledge/types";
+import type {
+  KnowledgeFilters,
+  KnowledgeItem,
+  KnowledgeType,
+  KnowledgeView,
+} from "@/lib/knowledge/types";
 import { cn } from "@/lib/utils";
 
 const DESCRIPTION =
@@ -59,6 +64,11 @@ function Page() {
     }
     return counts;
   }, []);
+
+  const descriptors = useMemo(
+    () => knowledgeFilterDescriptors(categories, typeCounts),
+    [categories, typeCounts],
+  );
 
   const items = useMemo(() => {
     const query = filters.search.trim().toLowerCase();
@@ -112,15 +122,19 @@ function Page() {
       </section>
 
       <section className="col-span-12 min-w-0">
-        <KnowledgeToolbar
+        <ModuleToolbar
           filters={filters}
           onChange={setFilters}
-          view={view}
-          onViewChange={setView}
           onReset={() => setFilters(DEFAULT_FILTERS)}
-          categories={categories}
-          typeCounts={typeCounts}
+          searchKey="search"
+          searchPlaceholder="Rechercher un titre, un résumé, un tag…"
+          searchAriaLabel="Rechercher une connaissance"
+          descriptors={descriptors}
+          views={GRID_LIST_VIEWS}
+          view={view}
+          onViewChange={(v) => setView(v as KnowledgeView)}
           resultCount={items.length}
+          resultLabel={(n) => `${n} connaissance${n > 1 ? "s" : ""}`}
         />
       </section>
 
