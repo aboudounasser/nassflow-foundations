@@ -60,7 +60,7 @@ function Page() {
       </section>
 
       <section className="col-span-12 @container min-w-0">
-        {securityQuery.isError || !data ? (
+        {securityQuery.isError ? (
           <Card className="border-border bg-card p-4">
             <EmptyState
               icon={TriangleAlert}
@@ -74,7 +74,10 @@ function Page() {
             </div>
           </Card>
         ) : (
-          <SecurityOverviewBanner data={data.overview} loading={loading} />
+          <SecurityOverviewBanner
+            data={data?.overview ?? EMPTY_OVERVIEW}
+            loading={loading || !data}
+          />
         )}
       </section>
 
@@ -93,7 +96,7 @@ function Page() {
           ))}
         </ToggleGroup>
 
-        {securityQuery.isError || !data ? null : loading ? (
+        {securityQuery.isError ? null : loading || !data ? (
           <div className="grid gap-3">
             {Array.from({ length: 4 }).map((_, i) => (
               <Skeleton key={i} className="h-24 w-full rounded-lg" />
