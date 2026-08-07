@@ -15,7 +15,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { paymentMethodsMock } from "@/lib/billing/mocks";
+import { Skeleton } from "@/components/ui/skeleton";
+import { usePaymentMethods } from "@/lib/billing/queries";
 import type { PaymentMethod } from "@/lib/billing/types";
 
 const DATE_FMT = new Intl.DateTimeFormat("fr-FR", {
@@ -26,6 +27,20 @@ const DATE_FMT = new Intl.DateTimeFormat("fr-FR", {
 
 export function PaymentMethodsSection() {
   const [target, setTarget] = useState<PaymentMethod | null>(null);
+  const { data: methods, isPending } = usePaymentMethods();
+
+  if (isPending) {
+    return (
+      <Card className="min-w-0 border-border bg-card p-4">
+        <Skeleton className="h-6 w-48 rounded-lg" />
+        <div className="mt-4 flex flex-col gap-2">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Skeleton key={i} className="h-20 w-full rounded-lg" />
+          ))}
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <>
@@ -44,7 +59,7 @@ export function PaymentMethodsSection() {
         </div>
 
         <ul className="mt-4 flex flex-col gap-2">
-          {paymentMethodsMock.map((method) => {
+          {(methods ?? []).map((method) => {
             const Icon = method.type === "card" ? CreditCard : Banknote;
             return (
               <li

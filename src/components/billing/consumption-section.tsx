@@ -12,6 +12,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -20,12 +21,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  consumptionByAgent,
-  consumptionByDay,
-  consumptionByMission,
-  formatEuro,
-} from "@/lib/billing/aggregations";
+import { formatEuro } from "@/lib/billing/aggregations";
+import { useConsumption } from "@/lib/billing/queries";
 
 const PERIODS = [7, 30, 90] as const;
 type Period = (typeof PERIODS)[number];
@@ -33,10 +30,23 @@ type Period = (typeof PERIODS)[number];
 export function ConsumptionSection() {
   const navigate = useNavigate();
   const [period, setPeriod] = useState<Period>(30);
+  const { data, isPending } = useConsumption();
 
-  const series = useMemo(() => consumptionByDay(period), [period]);
-  const agents = useMemo(() => consumptionByAgent(), []);
-  const missions = useMemo(() => consumptionByMission(), []);
+  const series = useMemo(() => (data ? data.byDay.slice(-period) : []), [data, period]);
+  const agents = data?.byAgent ?? [];
+  const missions = data?.byMission ?? [];
+
+  if (isPending) {
+    return (
+      <div className="flex min-w-0 flex-col gap-4">
+        <Skeleton className="h-[300px] w-full rounded-xl" />
+        <div className="grid min-w-0 gap-4 @4xl:grid-cols-2">
+          <Skeleton className="h-[320px] w-full rounded-xl" />
+          <Skeleton className="h-[320px] w-full rounded-xl" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-w-0 flex-col gap-4">
