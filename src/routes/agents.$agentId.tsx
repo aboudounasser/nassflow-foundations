@@ -1,6 +1,16 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Bot, Check, Copy, PauseCircle, PlayCircle, Target, X } from "lucide-react";
-import { useMemo, useState } from "react";
+import {
+  ArrowLeft,
+  Bot,
+  Check,
+  Copy,
+  PauseCircle,
+  PlayCircle,
+  Target,
+  TriangleAlert,
+  X,
+} from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 import { AgentSummaryPanel } from "@/components/agents/agent-summary-panel";
@@ -25,8 +35,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ACCESS_LEVEL, AGENT_STATUS, TOOL_STATUS, formatAgentActivity } from "@/lib/agents/meta";
-import { agentsDetailMock, missionsOfAgent } from "@/lib/agents/mocks";
-import type { AgentDetail, AgentPermission } from "@/lib/agents/types";
+import { useAgent } from "@/lib/agents/queries";
+import type { AgentPermission } from "@/lib/agents/types";
 
 const DESCRIPTION =
   "Fiche complète d'un collaborateur IA : identité, capacités, outils, permissions et missions associées.";
@@ -94,19 +104,47 @@ function DetailSkeleton() {
 
 function Page() {
   const { agentId } = Route.useParams();
-  const agent = agentsDetailMock.find((a) => a.id === agentId) ?? null;
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [tab, setTab] = useState<string>("overview");
-  // État du module : loading / error / success (mock statique).
-  const [state] = useState<"loading" | "error" | "success">("success");
 
-  const missions = useMemo(() => missionsOfAgent(agentId), [agentId]);
+  const agentQuery = useAgent(agentId);
+  const data = agentQuery.data ?? null;
+  const agent = data?.agent ?? null;
+  const missions = data?.missions ?? [];
+  const collaborators = data?.collaborators ?? [];
 
   useContextPanelContent(
     () => (agent ? <AgentSummaryPanel agent={agent} missionCount={missions.length} /> : null),
     [agent?.id, missions.length],
   );
+
+  if (agentQuery.isError) {
+    return (
+      <section className="col-span-12 min-w-0">
+        <Card className="border-border bg-card p-4">
+          <EmptyState
+            icon={TriangleAlert}
+            title="Impossible de charger cet agent"
+            description="La fiche de l'agent n'a pas pu être récupérée. Vérifiez votre connexion puis réessayez."
+          />
+          <div className="flex justify-center">
+            <Button type="button" size="sm" onClick={() => void agentQuery.refetch()}>
+              Réessayer
+            </Button>
+          </div>
+        </Card>
+      </section>
+    );
+  }
+
+  if (agentQuery.isPending) {
+    return (
+      <section className="col-span-12 min-w-0">
+        <DetailSkeleton />
+      </section>
+    );
+  }
 
   if (!agent) {
     return (
@@ -127,9 +165,6 @@ function Page() {
 
   const status = AGENT_STATUS[agent.status];
   const StatusIcon = status.icon;
-  const collaborators = agent.collaboratesWith
-    .map((id) => agentsDetailMock.find((a) => a.id === id))
-    .filter((a): a is AgentDetail => Boolean(a));
 
   return (
     <>
