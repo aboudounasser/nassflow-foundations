@@ -50,8 +50,8 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="flex max-w-md flex-col items-center gap-2 text-center">
-        <span className="flex size-12 items-center justify-center rounded-xl border border-border bg-card">
-          <TriangleAlert className="size-5 text-muted-foreground" aria-hidden="true" />
+        <span className="flex size-12 items-center justify-center rounded-xl border border-destructive/40 bg-card">
+          <TriangleAlert className="size-5 text-destructive" aria-hidden="true" />
         </span>
         <h1 className="mt-2 text-xl font-semibold tracking-tight text-foreground">
           Cette page n'a pas pu se charger
