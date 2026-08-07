@@ -1,5 +1,5 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { ArrowLeft, Copy, History, ListTree, PlayCircle, Target } from "lucide-react";
+import { ArrowLeft, Copy, History, ListTree, PlayCircle, Target, TriangleAlert } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -19,8 +19,9 @@ import {
 } from "@/components/missions/mission-run-view";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { MISSION_STATUS } from "@/lib/missions/meta";
-import { missionAgents, missionsDetailMock } from "@/lib/missions/mocks";
+import { useMission } from "@/lib/missions/queries";
 import type { MissionEventType } from "@/lib/missions/types";
 
 const DESCRIPTION =
@@ -40,9 +41,10 @@ export const Route = createFileRoute("/missions/$missionId")({
 
 function Page() {
   const { missionId } = Route.useParams();
-  const mission = missionsDetailMock.find((m) => m.id === missionId) ?? null;
-  // État du module : loading / error / success (mock statique).
-  const [state, setState] = useState<"loading" | "error" | "success">("success");
+  const missionQuery = useMission(missionId);
+  const mission = missionQuery.data?.mission ?? null;
+  const allMissions = useMemo(() => missionQuery.data?.allMissions ?? [], [missionQuery.data]);
+  const agents = useMemo(() => missionQuery.data?.agents ?? [], [missionQuery.data]);
   const [filters, setFilters] = useState<MissionEventType[]>([]);
 
   const events = useMemo(() => (mission ? buildTimeline(mission) : []), [mission]);
@@ -61,10 +63,41 @@ function Page() {
   }, [mission, current]);
 
   useContextPanelContent(
-    () =>
-      mission ? <MissionDetailPanel mission={mission} allMissions={missionsDetailMock} /> : null,
-    [mission?.id],
+    () => (mission ? <MissionDetailPanel mission={mission} allMissions={allMissions} /> : null),
+    [mission?.id, allMissions],
   );
+
+  if (missionQuery.isError) {
+    return (
+      <section className="col-span-12 min-w-0">
+        <Card className="border-border bg-card p-4">
+          <EmptyState
+            icon={TriangleAlert}
+            title="Impossible de charger la mission"
+            description="Les données de la mission n'ont pas pu être récupérées. Réessayez."
+          />
+          <div className="flex justify-center">
+            <Button type="button" size="sm" onClick={() => void missionQuery.refetch()}>
+              Réessayer
+            </Button>
+          </div>
+        </Card>
+      </section>
+    );
+  }
+
+  if (missionQuery.isPending) {
+    return (
+      <>
+        <section className="col-span-12">
+          <OrchestrationSkeleton />
+        </section>
+        <section className="col-span-12">
+          <TimelineSkeleton />
+        </section>
+      </>
+    );
+  }
 
   if (!mission) {
     return (
@@ -89,8 +122,8 @@ function Page() {
 
   const hasSteps = mission.steps.length > 0;
   const hasEvents = events.length > 0;
-  const diagramState = state === "success" ? (hasSteps ? "success" : "empty") : state;
-  const timelineState = state === "success" ? (hasEvents ? "success" : "empty") : state;
+  const diagramState = hasSteps ? "success" : "empty";
+  const timelineState = hasEvents ? "success" : "empty";
 
   return (
     <>
@@ -147,11 +180,10 @@ function Page() {
           emptyIcon={Target}
           emptyTitle="Aucune étape définie pour cette mission"
           skeleton={<OrchestrationSkeleton />}
-          onRetry={() => setState("success")}
         >
           <OrchestrationDiagram
             mission={mission}
-            agents={missionAgents}
+            agents={agents}
             activeStepId={activeStepId}
           />
         </WidgetShell>
@@ -166,7 +198,6 @@ function Page() {
           showMenu={false}
           emptyIcon={History}
           emptyTitle="Aucun événement à rejouer"
-          onRetry={() => setState("success")}
         >
           <ReplayControls
             events={events}
@@ -176,7 +207,7 @@ function Page() {
             onTogglePlay={replay.togglePlay}
             onReset={replay.reset}
             mission={mission}
-            agents={missionAgents}
+            agents={agents}
           />
         </WidgetShell>
       </section>
@@ -191,7 +222,6 @@ function Page() {
           emptyIcon={History}
           emptyTitle="Aucun historique pour cette mission"
           skeleton={<TimelineSkeleton />}
-          onRetry={() => setState("success")}
         >
           <EnrichedTimeline
             events={events}
