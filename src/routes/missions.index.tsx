@@ -32,7 +32,7 @@ export const Route = createFileRoute("/missions/")({
       { property: "og:description", content: DESCRIPTION },
     ],
   }),
-  validateSearch: (search: Record<string, unknown>): { new?: boolean } => ({
+  validateSearch: (search: Record<string, unknown>): { new?: boolean | undefined } => ({
     new: search["new"] === true || search["new"] === "true" ? true : undefined,
   }),
   component: Page,
