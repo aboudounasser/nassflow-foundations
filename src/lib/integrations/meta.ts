@@ -76,3 +76,35 @@ export function formatIntegrationDate(iso: string | null): string {
   if (Number.isNaN(date.getTime())) return "—";
   return DATE_FMT.format(date);
 }
+
+export const INTEGRATION_FILTER_DESCRIPTORS: FilterDescriptor[] = [
+  {
+    kind: "select",
+    key: "category",
+    ariaLabel: "Filtrer par catégorie",
+    placeholder: "Catégorie",
+    allLabel: "Toutes les catégories",
+    width: "w-[190px]",
+    options: INTEGRATION_CATEGORY_ORDER.map((c) => ({ value: c, label: c })),
+  },
+  {
+    kind: "select",
+    key: "status",
+    ariaLabel: "Filtrer par statut",
+    placeholder: "Statut",
+    allLabel: "Tous les statuts",
+    width: "w-[180px]",
+    options: INTEGRATION_STATUS_ORDER.map((s) => ({ value: s, label: INTEGRATION_STATUS[s].label })),
+  },
+  {
+    kind: "sort",
+    key: "sort",
+    ariaLabel: "Trier les intégrations",
+    width: "w-[210px]",
+    options: [
+      { value: "name", label: "Nom" },
+      { value: "status", label: "Statut" },
+      { value: "lastSync", label: "Dernière synchro" },
+    ],
+  },
+];

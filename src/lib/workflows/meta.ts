@@ -110,3 +110,35 @@ export function formatDuration(ms: number | null): string {
   const rest = Math.round(seconds % 60);
   return `${minutes} min ${rest.toString().padStart(2, "0")} s`;
 }
+
+export const WORKFLOW_FILTER_DESCRIPTORS: FilterDescriptor[] = [
+  {
+    kind: "select",
+    key: "status",
+    ariaLabel: "Filtrer par statut",
+    placeholder: "Statut",
+    allLabel: "Tous les statuts",
+    width: "w-[170px]",
+    options: WORKFLOW_STATUS_ORDER.map((s) => ({ value: s, label: WORKFLOW_STATUS[s].label })),
+  },
+  {
+    kind: "select",
+    key: "trigger",
+    ariaLabel: "Filtrer par déclencheur",
+    placeholder: "Déclencheur",
+    allLabel: "Tous les déclencheurs",
+    width: "w-[190px]",
+    options: TRIGGER_KIND_ORDER.map((t) => ({ value: t, label: TRIGGER_KIND[t].label })),
+  },
+  {
+    kind: "sort",
+    key: "sort",
+    ariaLabel: "Trier les workflows",
+    width: "w-[220px]",
+    options: [
+      { value: "lastRun", label: "Dernière exécution" },
+      { value: "successRate", label: "Taux de réussite" },
+      { value: "name", label: "Nom" },
+    ],
+  },
+];
