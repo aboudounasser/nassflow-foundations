@@ -1,5 +1,4 @@
 import { ArrowUpDown, LayoutGrid, List, RotateCcw, Search } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -17,44 +16,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import type { FilterDescriptor, ToolbarOption, ViewDescriptor } from "@/lib/toolbar/types";
 
-export type ToolbarOption = {
-  value: string;
-  label: string;
-  /** Compteur optionnel affiché à droite de l'option. */
-  count?: number;
-};
-
-export type FilterDescriptor =
-  | {
-      kind: "select";
-      key: string;
-      ariaLabel: string;
-      placeholder: string;
-      allLabel: string;
-      width?: string;
-      options: ToolbarOption[];
-    }
-  | {
-      kind: "multiselect";
-      key: string;
-      ariaLabel: string;
-      buttonLabel: string;
-      options: ToolbarOption[];
-    }
-  | {
-      kind: "sort";
-      key: string;
-      ariaLabel: string;
-      width?: string;
-      options: ToolbarOption[];
-    };
-
-export type ViewDescriptor = {
-  value: string;
-  label: string;
-  icon: LucideIcon;
-};
+export type { ToolbarOption, FilterDescriptor, ViewDescriptor };
 
 export const GRID_LIST_VIEWS: ViewDescriptor[] = [
   { value: "grid", label: "Grille", icon: LayoutGrid },
