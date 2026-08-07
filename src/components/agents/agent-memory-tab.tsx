@@ -41,64 +41,64 @@ export function AgentMemoryTab({ memory }: { memory: AgentMemoryEntry[] }) {
             const linkedId =
               entry.level === "enterprise_brain" && entry.sourceId ? entry.sourceId : null;
             return (
-            <Card
-              key={entry.id}
-              className={`space-y-2 border-border bg-surface p-4 ${
-                linkedId
-                  ? "cursor-pointer transition-colors duration-150 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  : ""
-              }`}
-              {...(linkedId
-                ? {
-                    role: "link" as const,
-                    tabIndex: 0,
-                    onClick: () =>
-                      navigate({ to: "/enterprise-brain/$itemId", params: { itemId: linkedId } }),
-                    onKeyDown: (e: React.KeyboardEvent) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        navigate({
-                          to: "/enterprise-brain/$itemId",
-                          params: { itemId: linkedId },
-                        });
-                      }
-                    },
-                  }
-                : {})}
-            >
-              <div className="flex flex-wrap items-start justify-between gap-2">
-                <p className="min-w-0 text-[14px] font-medium text-foreground">{entry.title}</p>
-                <div className="flex flex-wrap gap-1">
-                  <Badge variant={MEMORY_LEVEL[entry.level].variant}>
-                    {MEMORY_LEVEL[entry.level].label}
-                  </Badge>
-                  {entry.confidenceScore !== null ? (
-                    <Badge variant="neutral">Confiance {entry.confidenceScore}%</Badge>
-                  ) : null}
-                  {linkedId ? (
-                    <ExternalLink
-                      className="size-4 shrink-0 self-center text-muted-foreground"
-                      aria-hidden="true"
-                    />
-                  ) : null}
+              <Card
+                key={entry.id}
+                className={`space-y-2 border-border bg-surface p-4 ${
+                  linkedId
+                    ? "cursor-pointer transition-colors duration-150 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    : ""
+                }`}
+                {...(linkedId
+                  ? {
+                      role: "link" as const,
+                      tabIndex: 0,
+                      onClick: () =>
+                        navigate({ to: "/enterprise-brain/$itemId", params: { itemId: linkedId } }),
+                      onKeyDown: (e: React.KeyboardEvent) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          navigate({
+                            to: "/enterprise-brain/$itemId",
+                            params: { itemId: linkedId },
+                          });
+                        }
+                      },
+                    }
+                  : {})}
+              >
+                <div className="flex flex-wrap items-start justify-between gap-2">
+                  <p className="min-w-0 text-[14px] font-medium text-foreground">{entry.title}</p>
+                  <div className="flex flex-wrap gap-1">
+                    <Badge variant={MEMORY_LEVEL[entry.level].variant}>
+                      {MEMORY_LEVEL[entry.level].label}
+                    </Badge>
+                    {entry.confidenceScore !== null ? (
+                      <Badge variant="neutral">Confiance {entry.confidenceScore}%</Badge>
+                    ) : null}
+                    {linkedId ? (
+                      <ExternalLink
+                        className="size-4 shrink-0 self-center text-muted-foreground"
+                        aria-hidden="true"
+                      />
+                    ) : null}
+                  </div>
                 </div>
-              </div>
-              <p className="text-[14px] leading-6 text-muted-foreground">{entry.content}</p>
-              <dl className="flex flex-wrap gap-x-6 gap-y-1 text-[12px] text-muted-foreground">
-                <div className="flex gap-1">
-                  <dt>Source :</dt>
-                  <dd className="text-foreground">{entry.source}</dd>
-                </div>
-                <div className="flex gap-1">
-                  <dt>Créée le :</dt>
-                  <dd className="text-foreground">{formatAgentActivity(entry.createdAt)}</dd>
-                </div>
-                <div className="flex gap-1">
-                  <dt>Dernier accès :</dt>
-                  <dd className="text-foreground">{formatAgentActivity(entry.lastAccessed)}</dd>
-                </div>
-              </dl>
-            </Card>
+                <p className="text-[14px] leading-6 text-muted-foreground">{entry.content}</p>
+                <dl className="flex flex-wrap gap-x-6 gap-y-1 text-[12px] text-muted-foreground">
+                  <div className="flex gap-1">
+                    <dt>Source :</dt>
+                    <dd className="text-foreground">{entry.source}</dd>
+                  </div>
+                  <div className="flex gap-1">
+                    <dt>Créée le :</dt>
+                    <dd className="text-foreground">{formatAgentActivity(entry.createdAt)}</dd>
+                  </div>
+                  <div className="flex gap-1">
+                    <dt>Dernier accès :</dt>
+                    <dd className="text-foreground">{formatAgentActivity(entry.lastAccessed)}</dd>
+                  </div>
+                </dl>
+              </Card>
             );
           })}
         </div>

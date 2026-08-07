@@ -214,9 +214,7 @@ function Page() {
                 Variables
               </h2>
               {workflow.variables.length === 0 ? (
-                <p className="text-[14px] text-muted-foreground">
-                  Aucune variable configurée.
-                </p>
+                <p className="text-[14px] text-muted-foreground">Aucune variable configurée.</p>
               ) : (
                 <div className="overflow-x-auto rounded-lg border border-border">
                   <table className="w-full min-w-[420px] text-left text-[14px]">
@@ -236,9 +234,7 @@ function Page() {
                     <tbody>
                       {workflow.variables.map((variable) => (
                         <tr key={variable.name} className="border-b border-border last:border-0">
-                          <td className="px-3 py-2 font-medium text-foreground">
-                            {variable.name}
-                          </td>
+                          <td className="px-3 py-2 font-medium text-foreground">{variable.name}</td>
                           <td className="px-3 py-2 text-muted-foreground">
                             {VARIABLE_TYPE[variable.type]}
                           </td>

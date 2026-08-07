@@ -22,10 +22,7 @@ export const KNOWLEDGE_TYPE: Record<
 
 export const KNOWLEDGE_TYPE_ORDER: KnowledgeType[] = ["document", "procedure", "wiki", "faq"];
 
-export const KNOWLEDGE_STATUS: Record<
-  KnowledgeStatus,
-  { label: string; variant: BadgeVariant }
-> = {
+export const KNOWLEDGE_STATUS: Record<KnowledgeStatus, { label: string; variant: BadgeVariant }> = {
   published: { label: "Publié", variant: "success" },
   draft: { label: "Brouillon", variant: "warning" },
   archived: { label: "Archivé", variant: "neutral" },

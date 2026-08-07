@@ -21,8 +21,8 @@
   /* Radius scale */
   --radius-sm: 8px;
   --radius-md: 10px;
-  --radius-lg: 12px;   /* buttons, inputs */
-  --radius-xl: 16px;   /* cards */
+  --radius-lg: 12px; /* buttons, inputs */
+  --radius-xl: 16px; /* cards */
   --radius-2xl: 20px;
   --radius-3xl: 24px;
 
@@ -101,33 +101,33 @@
 :root {
   --radius: 12px;
 
-  --background: oklch(0.1408 0.0044 285.82);   /* #09090B */
-  --surface: oklch(0.1785 0.0041 285.98);      /* #111113 */
-  --card: oklch(0.2103 0.0059 285.89);         /* #18181B */
+  --background: oklch(0.1408 0.0044 285.82); /* #09090B */
+  --surface: oklch(0.1785 0.0041 285.98); /* #111113 */
+  --card: oklch(0.2103 0.0059 285.89); /* #18181B */
   --card-foreground: oklch(0.9851 0 89.88);
   --popover: oklch(0.2103 0.0059 285.89);
   --popover-foreground: oklch(0.9851 0 89.88);
-  --foreground: oklch(0.9851 0 89.88);         /* #FAFAFA */
+  --foreground: oklch(0.9851 0 89.88); /* #FAFAFA */
   --muted: oklch(0.2103 0.0059 285.89);
   --muted-foreground: oklch(0.7118 0.0129 286.07); /* #A1A1AA */
-  --border: oklch(0.2739 0.0055 286.03);       /* #27272A */
+  --border: oklch(0.2739 0.0055 286.03); /* #27272A */
   --input: oklch(0.2739 0.0055 286.03);
 
-  --primary: oklch(0.5854 0.2041 277.12);      /* #6366F1 */
-  --primary-hover: oklch(0.5106 0.2301 276.97);/* #4F46E5 */
+  --primary: oklch(0.5854 0.2041 277.12); /* #6366F1 */
+  --primary-hover: oklch(0.5106 0.2301 276.97); /* #4F46E5 */
   --primary-foreground: oklch(0.9851 0 89.88);
   --secondary: oklch(0.2103 0.0059 285.89);
   --secondary-foreground: oklch(0.9851 0 89.88);
   --accent: oklch(0.2739 0.0055 286.03);
   --accent-foreground: oklch(0.9851 0 89.88);
 
-  --success: oklch(0.7227 0.192 149.58);       /* #22C55E */
+  --success: oklch(0.7227 0.192 149.58); /* #22C55E */
   --success-foreground: oklch(0.1408 0.0044 285.82);
-  --warning: oklch(0.7686 0.1647 70.08);       /* #F59E0B */
+  --warning: oklch(0.7686 0.1647 70.08); /* #F59E0B */
   --warning-foreground: oklch(0.1408 0.0044 285.82);
-  --destructive: oklch(0.6368 0.2078 25.33);   /* #EF4444 */
+  --destructive: oklch(0.6368 0.2078 25.33); /* #EF4444 */
   --destructive-foreground: oklch(0.9851 0 89.88);
-  --info: oklch(0.6847 0.1479 237.32);         /* #0EA5E9 */
+  --info: oklch(0.6847 0.1479 237.32); /* #0EA5E9 */
   --info-foreground: oklch(0.1408 0.0044 285.82);
 
   --ring: oklch(0.5854 0.2041 277.12);
@@ -140,16 +140,32 @@
 }
 
 @keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 @keyframes scale-in {
-  from { opacity: 0; transform: scale(0.98); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 @keyframes slide-in-right {
-  from { transform: translateX(8px); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+  from {
+    transform: translateX(8px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 @layer base {
@@ -170,10 +186,28 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  h1 { font-size: 32px; line-height: 40px; font-weight: 700; letter-spacing: -0.02em; }
-  h2 { font-size: 28px; line-height: 36px; font-weight: 600; letter-spacing: -0.015em; }
-  h3 { font-size: 22px; line-height: 30px; font-weight: 600; }
-  h4 { font-size: 18px; line-height: 26px; font-weight: 500; }
+  h1 {
+    font-size: 32px;
+    line-height: 40px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  h2 {
+    font-size: 28px;
+    line-height: 36px;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+  }
+  h3 {
+    font-size: 22px;
+    line-height: 30px;
+    font-weight: 600;
+  }
+  h4 {
+    font-size: 18px;
+    line-height: 26px;
+    font-weight: 500;
+  }
 
   :focus-visible {
     outline: 2px solid var(--color-ring);

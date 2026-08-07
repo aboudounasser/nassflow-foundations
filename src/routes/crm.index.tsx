@@ -4,15 +4,8 @@ import { useMemo, useState } from "react";
 
 import { WidgetShell } from "@/components/dashboard/widget-shell";
 import { ContactCard, ContactCardSkeletonGrid } from "@/components/crm/contact-card";
-import {
-  ContactSummaryPanel,
-  DealSummaryPanel,
-} from "@/components/crm/contact-summary-panel";
-import {
-  CrmOverview,
-  CrmOverviewSkeleton,
-  PipelineOverview,
-} from "@/components/crm/crm-overview";
+import { ContactSummaryPanel, DealSummaryPanel } from "@/components/crm/contact-summary-panel";
+import { CrmOverview, CrmOverviewSkeleton, PipelineOverview } from "@/components/crm/crm-overview";
 import { CrmToolbar, type ContactFilters } from "@/components/crm/crm-toolbar";
 import { PipelineKanban, PipelineSkeleton } from "@/components/crm/pipeline-view";
 import { useContextPanel, useContextPanelContent } from "@/components/layout/context-panel";
@@ -78,8 +71,7 @@ function Page() {
     });
   }, [filters]);
 
-  const selectedContact =
-    contactsMock.find((c) => c.id === selectedContactId) ?? null;
+  const selectedContact = contactsMock.find((c) => c.id === selectedContactId) ?? null;
   const selectedDeal = dealsMock.find((d) => d.id === selectedDealId) ?? null;
 
   useContextPanelContent(() => {
@@ -191,11 +183,7 @@ function Page() {
       ) : (
         <>
           <section className="col-span-12 min-w-0">
-            {state === "loading" ? (
-              <CrmOverviewSkeleton />
-            ) : (
-              <PipelineOverview deals={dealsMock} />
-            )}
+            {state === "loading" ? <CrmOverviewSkeleton /> : <PipelineOverview deals={dealsMock} />}
           </section>
 
           <section className="col-span-12 min-w-0">

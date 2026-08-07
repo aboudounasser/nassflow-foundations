@@ -36,12 +36,7 @@ export interface MissionStep {
 }
 
 export type MissionEventType =
-  | "step"
-  | "decision"
-  | "tool_call"
-  | "handoff"
-  | "validation"
-  | "error";
+  "step" | "decision" | "tool_call" | "handoff" | "validation" | "error";
 
 export interface MissionHistoryEntry {
   timestamp: string;

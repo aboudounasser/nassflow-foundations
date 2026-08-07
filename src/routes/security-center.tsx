@@ -76,60 +76,60 @@ function Page() {
 
       <section className="col-span-12 @container flex min-w-0 flex-col gap-4">
         <ToggleGroup
-        type="single"
-        value={tab}
-        onValueChange={(value) => value && setTab(value as SecurityTab)}
-        variant="outline"
-        className="flex-wrap justify-start"
-      >
-        {TABS.map((t) => (
-          <ToggleGroupItem key={t.value} value={t.value} aria-label={t.label}>
-            {t.label}
-          </ToggleGroupItem>
-        ))}
-      </ToggleGroup>
-
-      {loading ? (
-        <div className="grid gap-3">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-24 w-full rounded-lg" />
+          type="single"
+          value={tab}
+          onValueChange={(value) => value && setTab(value as SecurityTab)}
+          variant="outline"
+          className="flex-wrap justify-start"
+        >
+          {TABS.map((t) => (
+            <ToggleGroupItem key={t.value} value={t.value} aria-label={t.label}>
+              {t.label}
+            </ToggleGroupItem>
           ))}
-        </div>
-      ) : tab === "overview" ? (
-        <Card className="min-w-0 border-border bg-card p-4">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="text-[14px] font-medium text-foreground">Événements récents</p>
-            <Button type="button" size="sm" variant="secondary" onClick={() => setTab("audit")}>
-              Voir tout le journal
-            </Button>
+        </ToggleGroup>
+
+        {loading ? (
+          <div className="grid gap-3">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-24 w-full rounded-lg" />
+            ))}
           </div>
-          {recent.length === 0 ? (
-            <EmptyState
-              icon={ScrollText}
-              title="Aucun événement de sécurité"
-              description="Le journal se remplira dès qu'un incident ou une validation sera enregistré."
-            />
-          ) : (
-            <ul className="mt-4 flex flex-col gap-2">
-              {recent.map((event) => (
-                <SecurityEventItem key={event.id} event={event} compact />
-              ))}
-            </ul>
-          )}
-        </Card>
-      ) : tab === "access" ? (
-        <div className="flex min-w-0 flex-col gap-4">
-          <MembersAccessTable rows={members} />
-          <div className="grid min-w-0 gap-4 @4xl:grid-cols-2">
-            <AgentPermissionsTable rows={agentPerms} />
-            <IntegrationPermissionsTable rows={integrationPerms} />
+        ) : tab === "overview" ? (
+          <Card className="min-w-0 border-border bg-card p-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="text-[14px] font-medium text-foreground">Événements récents</p>
+              <Button type="button" size="sm" variant="secondary" onClick={() => setTab("audit")}>
+                Voir tout le journal
+              </Button>
+            </div>
+            {recent.length === 0 ? (
+              <EmptyState
+                icon={ScrollText}
+                title="Aucun événement de sécurité"
+                description="Le journal se remplira dès qu'un incident ou une validation sera enregistré."
+              />
+            ) : (
+              <ul className="mt-4 flex flex-col gap-2">
+                {recent.map((event) => (
+                  <SecurityEventItem key={event.id} event={event} compact />
+                ))}
+              </ul>
+            )}
+          </Card>
+        ) : tab === "access" ? (
+          <div className="flex min-w-0 flex-col gap-4">
+            <MembersAccessTable rows={members} />
+            <div className="grid min-w-0 gap-4 @4xl:grid-cols-2">
+              <AgentPermissionsTable rows={agentPerms} />
+              <IntegrationPermissionsTable rows={integrationPerms} />
+            </div>
           </div>
-        </div>
-      ) : tab === "audit" ? (
-        <AuditLog events={events} />
-      ) : (
-        <PoliciesSection />
-      )}
+        ) : tab === "audit" ? (
+          <AuditLog events={events} />
+        ) : (
+          <PoliciesSection />
+        )}
       </section>
     </>
   );

@@ -177,5 +177,7 @@ export function nextDueInvoice(): Invoice {
 }
 
 export function currentPlan(): BillingPlan {
-  return billingPlansMock.find((p) => p.isCurrent) ?? billingPlansMock[billingPlansMock.length - 1]!;
+  return (
+    billingPlansMock.find((p) => p.isCurrent) ?? billingPlansMock[billingPlansMock.length - 1]!
+  );
 }

@@ -119,14 +119,8 @@ function Page() {
   const byAgent = useMemo(() => averageConfidenceByAgent(), []);
   const byStage = useMemo(() => pipelineValueByStage(), []);
   const byIntegration = useMemo(() => integrationsByStatus(), []);
-  const completedByWeek = useMemo(
-    () => missionsCompletedByWeek(selected.weeks),
-    [selected.weeks],
-  );
-  const successByDay = useMemo(
-    () => workflowSuccessRateByDay(selected.days),
-    [selected.days],
-  );
+  const completedByWeek = useMemo(() => missionsCompletedByWeek(selected.weeks), [selected.weeks]);
+  const successByDay = useMemo(() => workflowSuccessRateByDay(selected.days), [selected.days]);
 
   const chartState = (data: unknown[]) =>
     state === "loading" ? "loading" : data.length === 0 ? "empty" : "success";
@@ -186,9 +180,7 @@ function Page() {
       </section>
 
       <section className="col-span-12 flex flex-wrap items-center gap-3">
-        <span className="text-[12px] text-muted-foreground">
-          Période (graphiques temporels) :
-        </span>
+        <span className="text-[12px] text-muted-foreground">Période (graphiques temporels) :</span>
         <ToggleGroup
           type="single"
           value={period}
@@ -279,12 +271,7 @@ function Page() {
                 <LineChart data={successByDay} margin={{ top: 8, right: 8, left: 0 }}>
                   <CartesianGrid stroke="var(--color-border)" vertical={false} />
                   <XAxis dataKey="day" interval="preserveStartEnd" {...AXIS} />
-                  <YAxis
-                    domain={[0, 100]}
-                    tickFormatter={percentFormat}
-                    width={52}
-                    {...AXIS}
-                  />
+                  <YAxis domain={[0, 100]} tickFormatter={percentFormat} width={52} {...AXIS} />
                   <Tooltip
                     contentStyle={CHART_TOOLTIP_STYLE}
                     formatter={(value: number) => percentFormat(value)}

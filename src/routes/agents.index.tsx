@@ -72,10 +72,7 @@ function Page() {
   useContextPanelContent(
     () =>
       selected ? (
-        <AgentSummaryPanel
-          agent={selected}
-          missionCount={missionsOfAgent(selected.id).length}
-        />
+        <AgentSummaryPanel agent={selected} missionCount={missionsOfAgent(selected.id).length} />
       ) : null,
     [selected?.id],
   );

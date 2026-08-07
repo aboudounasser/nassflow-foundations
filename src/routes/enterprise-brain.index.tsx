@@ -9,10 +9,7 @@ import {
   KnowledgeOverviewSkeleton,
 } from "@/components/knowledge/knowledge-overview";
 import { KnowledgeSummaryPanel } from "@/components/knowledge/knowledge-summary-panel";
-import {
-  KnowledgeToolbar,
-  type KnowledgeFilters,
-} from "@/components/knowledge/knowledge-toolbar";
+import { KnowledgeToolbar, type KnowledgeFilters } from "@/components/knowledge/knowledge-toolbar";
 import { useContextPanel, useContextPanelContent } from "@/components/layout/context-panel";
 import { ModulePage } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";

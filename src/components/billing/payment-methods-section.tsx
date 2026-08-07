@@ -79,12 +79,7 @@ export function PaymentMethodsSection() {
                       Définir par défaut
                     </Button>
                   )}
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => setTarget(method)}
-                  >
+                  <Button type="button" size="sm" variant="ghost" onClick={() => setTarget(method)}>
                     Supprimer
                   </Button>
                 </div>

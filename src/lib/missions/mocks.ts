@@ -415,7 +415,12 @@ export const missionsDetailMock: MissionDetail[] = [
     owner: "Responsable Support",
     agents: [AG["support"]!],
     steps: [
-      { id: "s1", title: "Cartographier les motifs de tickets", status: "pending", agentId: "a-support" },
+      {
+        id: "s1",
+        title: "Cartographier les motifs de tickets",
+        status: "pending",
+        agentId: "a-support",
+      },
       { id: "s2", title: "Définir les règles de tri", status: "pending", agentId: "a-support" },
       { id: "s3", title: "Activer le tri automatique", status: "pending", agentId: "a-ops" },
     ],

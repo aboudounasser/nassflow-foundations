@@ -16,12 +16,7 @@ import {
   CONTACT_TYPE,
   CONTACT_TYPE_ORDER,
 } from "@/lib/crm/meta";
-import type {
-  ContactSortKey,
-  ContactStatus,
-  ContactType,
-  CrmView,
-} from "@/lib/crm/types";
+import type { ContactSortKey, ContactStatus, ContactType, CrmView } from "@/lib/crm/types";
 
 export interface ContactFilters {
   search: string;

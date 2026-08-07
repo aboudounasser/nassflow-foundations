@@ -49,10 +49,7 @@ export function WorkflowRunList({
             const meta = RUN_STATUS[run.status];
             const RunIcon = meta.icon;
             return (
-              <li
-                key={run.id}
-                className="space-y-2 rounded-lg border border-border bg-card p-3"
-              >
+              <li key={run.id} className="space-y-2 rounded-lg border border-border bg-card p-3">
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge variant={meta.variant}>
                     <RunIcon aria-hidden="true" />

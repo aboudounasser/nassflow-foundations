@@ -52,59 +52,62 @@ export function PlansSection() {
           const ctaType = planCta(plan, current);
           const cta = CTA[ctaType];
           return (
-          <Card
-            key={plan.id}
-            className={cn(
-              "flex min-w-0 flex-col border-border bg-card p-5",
-              (plan.isCurrent || plan.isRecommended) && "border-primary",
-            )}
-          >
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <p className="text-[16px] font-medium text-foreground">{plan.name}</p>
-              {plan.isCurrent ? (
-                <Badge variant="primary">Plan actuel</Badge>
-              ) : plan.isRecommended ? (
-                <Badge variant="primary">Recommandé</Badge>
-              ) : null}
-            </div>
-            <p className="mt-1 text-[12px] text-muted-foreground">{plan.tagline}</p>
-            <p className="mt-3 text-[24px] font-bold tabular-nums text-foreground">
-              {formatPlanPrice(plan)}
-              {showsMonthlySuffix(plan) ? (
-                <span className="text-[12px] font-normal text-muted-foreground"> / mois</span>
-              ) : null}
-            </p>
-            <p className="mt-2 text-[12px] text-muted-foreground">
-              {plan.limits.aiCalls.toLocaleString("fr-FR")} appels IA · {plan.limits.seats}{" "}
-              {plan.limits.seats > 1 ? "sièges" : "siège"}
-            </p>
-            <ul className="mt-4 flex flex-1 flex-col gap-2">
-              {plan.features.map((feature) => (
-                <li key={feature} className="flex items-start gap-2 text-[12px] text-muted-foreground">
-                  <Check className="mt-0.5 size-3.5 shrink-0 text-primary" aria-hidden="true" />
-                  {feature}
-                </li>
-              ))}
-            </ul>
-            <Button
-              type="button"
-              className="mt-5 w-full"
-              variant={cta.variant}
-              disabled={ctaType === "current"}
-              onClick={() =>
-                ctaType === "contact_sales"
-                  ? toast("Demande de contact envoyée (mock)")
-                  : setTarget(plan)
-              }
+            <Card
+              key={plan.id}
+              className={cn(
+                "flex min-w-0 flex-col border-border bg-card p-5",
+                (plan.isCurrent || plan.isRecommended) && "border-primary",
+              )}
             >
-              {cta.label}
-            </Button>
-            <p className="mt-2 min-h-[16px] text-center text-[11px] text-muted-foreground">
-              {plan.trialDays !== null
-                ? `${plan.trialDays} jours d'essai, sans carte bancaire`
-                : null}
-            </p>
-          </Card>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="text-[16px] font-medium text-foreground">{plan.name}</p>
+                {plan.isCurrent ? (
+                  <Badge variant="primary">Plan actuel</Badge>
+                ) : plan.isRecommended ? (
+                  <Badge variant="primary">Recommandé</Badge>
+                ) : null}
+              </div>
+              <p className="mt-1 text-[12px] text-muted-foreground">{plan.tagline}</p>
+              <p className="mt-3 text-[24px] font-bold tabular-nums text-foreground">
+                {formatPlanPrice(plan)}
+                {showsMonthlySuffix(plan) ? (
+                  <span className="text-[12px] font-normal text-muted-foreground"> / mois</span>
+                ) : null}
+              </p>
+              <p className="mt-2 text-[12px] text-muted-foreground">
+                {plan.limits.aiCalls.toLocaleString("fr-FR")} appels IA · {plan.limits.seats}{" "}
+                {plan.limits.seats > 1 ? "sièges" : "siège"}
+              </p>
+              <ul className="mt-4 flex flex-1 flex-col gap-2">
+                {plan.features.map((feature) => (
+                  <li
+                    key={feature}
+                    className="flex items-start gap-2 text-[12px] text-muted-foreground"
+                  >
+                    <Check className="mt-0.5 size-3.5 shrink-0 text-primary" aria-hidden="true" />
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+              <Button
+                type="button"
+                className="mt-5 w-full"
+                variant={cta.variant}
+                disabled={ctaType === "current"}
+                onClick={() =>
+                  ctaType === "contact_sales"
+                    ? toast("Demande de contact envoyée (mock)")
+                    : setTarget(plan)
+                }
+              >
+                {cta.label}
+              </Button>
+              <p className="mt-2 min-h-[16px] text-center text-[11px] text-muted-foreground">
+                {plan.trialDays !== null
+                  ? `${plan.trialDays} jours d'essai, sans carte bancaire`
+                  : null}
+              </p>
+            </Card>
           );
         })}
       </div>
@@ -112,8 +115,8 @@ export function PlansSection() {
       <Card className="mt-6 border-border bg-card p-5">
         <p className="text-[14px] font-medium text-foreground">Résilier l'abonnement</p>
         <p className="mt-2 text-[12px] text-muted-foreground">
-          L'accès à NASSFLOW OS resterait actif jusqu'à la fin de la période facturée en cours.
-          Les données de l'organisation seraient conservées 90 jours avant suppression définitive.
+          L'accès à NASSFLOW OS resterait actif jusqu'à la fin de la période facturée en cours. Les
+          données de l'organisation seraient conservées 90 jours avant suppression définitive.
         </p>
         <Button
           type="button"
@@ -131,8 +134,8 @@ export function PlansSection() {
           <AlertDialogHeader>
             <AlertDialogTitle>Résilier l'abonnement ?</AlertDialogTitle>
             <AlertDialogDescription>
-              L'abonnement prendrait fin à l'issue de la période facturée en cours. Cette action
-              est simulée à ce stade et ne modifie aucune donnée.
+              L'abonnement prendrait fin à l'issue de la période facturée en cours. Cette action est
+              simulée à ce stade et ne modifie aucune donnée.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

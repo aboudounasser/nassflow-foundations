@@ -34,9 +34,7 @@ function NodeCard({ node, indented = false }: { node: WorkflowNode; indented?: b
  * branches if/else en simple retrait avec bordure gauche colorée (aucun SVG).
  */
 export function WorkflowSequence({ nodes }: { nodes: WorkflowNode[] }) {
-  const branchIds = new Set(
-    nodes.flatMap((n) => n.branches?.flatMap((b) => b.nodeIds) ?? []),
-  );
+  const branchIds = new Set(nodes.flatMap((n) => n.branches?.flatMap((b) => b.nodeIds) ?? []));
   const mainNodes = nodes.filter((n) => !branchIds.has(n.id));
   const byId = new Map(nodes.map((n) => [n.id, n]));
 

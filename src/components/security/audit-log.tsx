@@ -11,7 +11,11 @@ import {
   EVENT_SOURCE,
   EVENT_SOURCE_ORDER,
 } from "@/lib/security/meta";
-import type { SecurityEvent, SecurityEventSeverity, SecurityEventSource } from "@/lib/security/types";
+import type {
+  SecurityEvent,
+  SecurityEventSeverity,
+  SecurityEventSource,
+} from "@/lib/security/types";
 
 /** Journal d'audit complet avec filtres sévérité + source (multi-sélection). */
 export function AuditLog({ events }: { events: SecurityEvent[] }) {

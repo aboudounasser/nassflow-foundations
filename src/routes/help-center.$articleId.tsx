@@ -85,10 +85,7 @@ function Page() {
             </div>
           </div>
           {article.moduleLink ? (
-            <Button
-              size="sm"
-              onClick={() => navigate({ to: article.moduleLink! })}
-            >
+            <Button size="sm" onClick={() => navigate({ to: article.moduleLink! })}>
               <ExternalLink />
               Ouvrir le module
             </Button>

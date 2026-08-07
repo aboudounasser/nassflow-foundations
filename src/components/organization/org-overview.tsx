@@ -4,7 +4,15 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { CompanyProfile, Department, OrgMember } from "@/lib/organization/types";
 
-function StatCard({ icon: Icon, value, label }: { icon: LucideIcon; value: string; label: string }) {
+function StatCard({
+  icon: Icon,
+  value,
+  label,
+}: {
+  icon: LucideIcon;
+  value: string;
+  label: string;
+}) {
   return (
     <Card className="flex items-center gap-3 border-border bg-surface p-4">
       <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-border bg-card">

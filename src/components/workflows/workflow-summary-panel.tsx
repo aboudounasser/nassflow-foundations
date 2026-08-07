@@ -64,9 +64,7 @@ export function WorkflowSummaryPanel({ workflow }: { workflow: Workflow }) {
           ) : null}
           <div className="col-span-2">
             <dt className="text-[12px] text-muted-foreground">Missions liées</dt>
-            <dd className="tabular-nums text-foreground">
-              {workflow.relatedMissionIds.length}
-            </dd>
+            <dd className="tabular-nums text-foreground">{workflow.relatedMissionIds.length}</dd>
           </div>
         </dl>
       </div>

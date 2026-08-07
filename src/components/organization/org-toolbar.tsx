@@ -16,12 +16,7 @@ import {
   MEMBER_STATUS,
   MEMBER_STATUS_ORDER,
 } from "@/lib/organization/meta";
-import type {
-  MemberRole,
-  MemberSortKey,
-  MemberStatus,
-  OrgView,
-} from "@/lib/organization/types";
+import type { MemberRole, MemberSortKey, MemberStatus, OrgView } from "@/lib/organization/types";
 
 export interface MemberFilters {
   search: string;

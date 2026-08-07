@@ -1,4 +1,10 @@
-import { Activity, CirclePlay, Percent, Workflow as WorkflowIcon, type LucideIcon } from "lucide-react";
+import {
+  Activity,
+  CirclePlay,
+  Percent,
+  Workflow as WorkflowIcon,
+  type LucideIcon,
+} from "lucide-react";
 
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -6,7 +12,15 @@ import { NOW_REFERENCE } from "@/lib/workflows/meta";
 import { runsLast24h } from "@/lib/workflows/mocks";
 import type { Workflow } from "@/lib/workflows/types";
 
-function StatCard({ icon: Icon, value, label }: { icon: LucideIcon; value: string; label: string }) {
+function StatCard({
+  icon: Icon,
+  value,
+  label,
+}: {
+  icon: LucideIcon;
+  value: string;
+  label: string;
+}) {
   return (
     <Card className="flex items-center gap-3 border-border bg-surface p-4">
       <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-border bg-card">

@@ -33,44 +33,48 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <ContextPanelProvider requestOpen={requestOpen}>
-    <div className="flex h-screen flex-col overflow-hidden bg-background">
-      <TopBar onOpenMenu={() => setMenuOpen(true)} onOpenContext={() => setContextOpen(true)} />
+      <div className="flex h-screen flex-col overflow-hidden bg-background">
+        <TopBar onOpenMenu={() => setMenuOpen(true)} onOpenContext={() => setContextOpen(true)} />
 
-      <div className="flex min-h-0 flex-1">
-        <div
-          className={cn(
-            "hidden shrink-0 transition-[width] duration-200 ease-out lg:block",
-            collapsed ? "w-20" : "w-[280px]",
-          )}
-        >
-          <SidebarNav collapsed={collapsed} onToggle={() => setCollapsed((v) => !v)} />
-        </div>
-
-        <main className="min-w-0 flex-1 overflow-y-auto">
-          <div className="mx-auto grid w-full max-w-[1440px] grid-cols-12 gap-6 p-6 md:p-8">
-            {children}
+        <div className="flex min-h-0 flex-1">
+          <div
+            className={cn(
+              "hidden shrink-0 transition-[width] duration-200 ease-out lg:block",
+              collapsed ? "w-20" : "w-[280px]",
+            )}
+          >
+            <SidebarNav collapsed={collapsed} onToggle={() => setCollapsed((v) => !v)} />
           </div>
-        </main>
 
-        <div className="hidden w-[360px] shrink-0 xl:block">
-          <ContextPanelContent />
+          <main className="min-w-0 flex-1 overflow-y-auto">
+            <div className="mx-auto grid w-full max-w-[1440px] grid-cols-12 gap-6 p-6 md:p-8">
+              {children}
+            </div>
+          </main>
+
+          <div className="hidden w-[360px] shrink-0 xl:block">
+            <ContextPanelContent />
+          </div>
         </div>
+
+        <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+          <SheetContent side="left" className="w-[280px] border-sidebar-border bg-sidebar p-0">
+            <SheetTitle className="sr-only">Navigation</SheetTitle>
+            <SidebarNav
+              collapsed={false}
+              showToggle={false}
+              onNavigate={() => setMenuOpen(false)}
+            />
+          </SheetContent>
+        </Sheet>
+
+        <Sheet open={contextOpen} onOpenChange={setContextOpen}>
+          <SheetContent side="right" className="w-full border-border bg-surface p-0 sm:w-[360px]">
+            <SheetTitle className="sr-only">Panneau contextuel</SheetTitle>
+            <ContextPanelContent />
+          </SheetContent>
+        </Sheet>
       </div>
-
-      <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
-        <SheetContent side="left" className="w-[280px] border-sidebar-border bg-sidebar p-0">
-          <SheetTitle className="sr-only">Navigation</SheetTitle>
-          <SidebarNav collapsed={false} showToggle={false} onNavigate={() => setMenuOpen(false)} />
-        </SheetContent>
-      </Sheet>
-
-      <Sheet open={contextOpen} onOpenChange={setContextOpen}>
-        <SheetContent side="right" className="w-full border-border bg-surface p-0 sm:w-[360px]">
-          <SheetTitle className="sr-only">Panneau contextuel</SheetTitle>
-          <ContextPanelContent />
-        </SheetContent>
-      </Sheet>
-    </div>
     </ContextPanelProvider>
   );
 }

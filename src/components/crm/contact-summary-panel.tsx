@@ -32,9 +32,7 @@ export function ContactSummaryPanel({
       <div className="flex-1 space-y-5 p-6">
         <div className="flex items-start gap-3">
           <Avatar className="size-12 shrink-0">
-            <AvatarFallback className="text-[13px]">
-              {contactInitials(contact.name)}
-            </AvatarFallback>
+            <AvatarFallback className="text-[13px]">{contactInitials(contact.name)}</AvatarFallback>
           </Avatar>
           <div className="min-w-0">
             <h3 className="text-[16px] font-medium text-foreground">{contact.name}</h3>

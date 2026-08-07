@@ -1,4 +1,12 @@
-import { Building2, Percent, TrendingUp, UserCheck, Users, Wallet, type LucideIcon } from "lucide-react";
+import {
+  Building2,
+  Percent,
+  TrendingUp,
+  UserCheck,
+  Users,
+  Wallet,
+  type LucideIcon,
+} from "lucide-react";
 
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -72,7 +80,11 @@ export function PipelineOverview({ deals }: { deals: Deal[] }) {
     <div className="@container">
       <div className="grid grid-cols-2 gap-4 @2xl:grid-cols-4">
         <StatCard icon={Wallet} value={formatEuroCompact(total)} label="Pipeline actif" />
-        <StatCard icon={TrendingUp} value={formatEuroCompact(Math.round(weighted))} label="Valeur pondérée" />
+        <StatCard
+          icon={TrendingUp}
+          value={formatEuroCompact(Math.round(weighted))}
+          label="Valeur pondérée"
+        />
         <StatCard icon={UserCheck} value={formatEuroCompact(won)} label="Signé (gagné)" />
         <StatCard icon={Users} value={String(active.length)} label="Deals en cours" />
       </div>
