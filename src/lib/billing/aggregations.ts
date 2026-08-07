@@ -6,7 +6,7 @@
 import { agentsDetailMock } from "@/lib/agents/mocks";
 import { referenceDate } from "@/lib/insights/aggregations";
 import { missionsDetailMock } from "@/lib/missions/mocks";
-import type { BillingPlan } from "./types";
+import type { BillingPlan, PlanCta, PlanTier } from "./types";
 
 const DAY_MS = 86_400_000;
 
@@ -67,6 +67,24 @@ export function formatPlanPrice(plan: BillingPlan): string {
 /** Le suffixe "/ mois" ne s'affiche que pour un prix chiffré. */
 export function showsMonthlySuffix(plan: BillingPlan): boolean {
   return !plan.isFree && plan.pricePerMonth !== null;
+}
+
+const TIER_RANK: Record<PlanTier, number> = {
+  free: 0,
+  starter: 1,
+  business: 2,
+  enterprise: 3,
+};
+
+/**
+ * Le CTA d'un plan dépend TOUJOURS du plan courant.
+ * Un même plan est une montée ou une descente en gamme selon le
+ * contexte : cette valeur ne doit jamais être figée dans les données.
+ */
+export function planCta(plan: BillingPlan, current: BillingPlan): PlanCta {
+  if (plan.isCurrent) return "current";
+  if (plan.pricePerMonth === null) return "contact_sales";
+  return TIER_RANK[plan.tier] > TIER_RANK[current.tier] ? "upgrade" : "downgrade";
 }
 
 export function consumptionByMission(): {

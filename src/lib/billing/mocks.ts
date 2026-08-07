@@ -12,7 +12,6 @@ export const billingPlansMock: BillingPlan[] = [
     isFree: true,
     isRecommended: false,
     isCurrent: false,
-    ctaType: "downgrade",
     limits: { agents: 1, missionsPerMonth: 3, aiCalls: 500, seats: 1 },
     features: [
       "1 agent IA",
@@ -30,7 +29,6 @@ export const billingPlansMock: BillingPlan[] = [
     trialDays: 14,
     isFree: false,
     isRecommended: false,
-    ctaType: "downgrade",
     limits: { agents: 3, missionsPerMonth: 50, aiCalls: 5_000, seats: 5 },
     features: [
       "3 agents IA",
@@ -49,7 +47,6 @@ export const billingPlansMock: BillingPlan[] = [
     trialDays: 14,
     isFree: false,
     isRecommended: true,
-    ctaType: "downgrade",
     limits: { agents: 7, missionsPerMonth: 500, aiCalls: 40_000, seats: 25 },
     features: [
       "7 agents IA",
@@ -69,7 +66,6 @@ export const billingPlansMock: BillingPlan[] = [
     trialDays: null,
     isFree: false,
     isRecommended: false,
-    ctaType: "current",
     limits: { agents: null, missionsPerMonth: null, aiCalls: 150_000, seats: 100 },
     features: [
       "Agents IA illimités",
