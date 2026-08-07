@@ -4,6 +4,7 @@ import { ArrowUpRight, Lock } from "lucide-react";
 import { SettingRow, SettingsCard } from "@/components/settings/settings-rows";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useCompanyProfile } from "@/lib/organization/queries";
 import {
   DENSITY_LABEL,
