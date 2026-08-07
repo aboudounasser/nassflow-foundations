@@ -4,14 +4,15 @@ import { useMemo, useState } from "react";
 
 import { AgentCard, AgentCardSkeletonGrid } from "@/components/agents/agent-card";
 import { AgentSummaryPanel } from "@/components/agents/agent-summary-panel";
-import { AgentToolbar, type AgentFilters } from "@/components/agents/agent-toolbar";
 import { AgentsOverview, AgentsOverviewSkeleton } from "@/components/agents/agents-overview";
+import { GRID_LIST_VIEWS, ModuleToolbar } from "@/components/common/module-toolbar";
 import { WidgetShell } from "@/components/dashboard/widget-shell";
 import { useContextPanel, useContextPanelContent } from "@/components/layout/context-panel";
 import { ModulePage } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { agentsDetailMock, missionsOfAgent } from "@/lib/agents/mocks";
-import type { AgentDetail, AgentView } from "@/lib/agents/types";
+import { AGENT_FILTER_DESCRIPTORS } from "@/lib/agents/meta";
+import type { AgentDetail, AgentFilters, AgentView } from "@/lib/agents/types";
 import { missionsDetailMock } from "@/lib/missions/mocks";
 
 const DESCRIPTION =
@@ -97,13 +98,19 @@ function Page() {
       </section>
 
       <section className="col-span-12 min-w-0">
-        <AgentToolbar
+        <ModuleToolbar
           filters={filters}
           onChange={setFilters}
-          view={view}
-          onViewChange={setView}
           onReset={() => setFilters(DEFAULT_FILTERS)}
+          searchKey="search"
+          searchPlaceholder="Rechercher un agent, un rôle, un domaine…"
+          searchAriaLabel="Rechercher un agent"
+          descriptors={AGENT_FILTER_DESCRIPTORS}
+          views={GRID_LIST_VIEWS}
+          view={view}
+          onViewChange={(v) => setView(v as AgentView)}
           resultCount={agents.length}
+          resultLabel={(n) => `${n} agent${n > 1 ? "s" : ""}`}
         />
       </section>
 
