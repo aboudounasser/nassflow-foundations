@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Bell, ChevronDown, Menu, PanelRight } from "lucide-react";
+import { Bell, Check, ChevronDown, Menu, PanelRight } from "lucide-react";
 import { toast } from "sonner";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -14,8 +14,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { currentUserMock } from "@/lib/account/mocks";
 import { LaunchCenter } from "@/components/layout/launch-center";
+import { useSession } from "@/components/providers/session-provider";
 
 export function TopBar({
   onOpenMenu,
@@ -24,6 +24,8 @@ export function TopBar({
   onOpenMenu: () => void;
   onOpenContext: () => void;
 }) {
+  const { session, organizations, switchOrganization } = useSession();
+
   return (
     <header className="flex h-[72px] shrink-0 items-center gap-4 border-b border-border bg-surface px-4 md:px-6">
       <Button
@@ -46,16 +48,26 @@ export function TopBar({
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="secondary" className="hidden md:inline-flex">
-            Acme Industries
+          <Button
+            variant="secondary"
+            className="hidden md:inline-flex"
+            aria-label="Changer d'organisation"
+          >
+            {session.organization.name}
             <ChevronDown className="size-4" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-56">
-          <DropdownMenuLabel>Workspaces</DropdownMenuLabel>
+          <DropdownMenuLabel>Organisations</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>Acme Industries</DropdownMenuItem>
-          <DropdownMenuItem>Nassflow Labs</DropdownMenuItem>
+          {organizations.map((o) => (
+            <DropdownMenuItem key={o.id} onClick={() => switchOrganization(o.id)}>
+              {o.name}
+              {o.id === session.organization.id ? (
+                <Check className="ml-auto size-4" aria-hidden="true" />
+              ) : null}
+            </DropdownMenuItem>
+          ))}
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -99,15 +111,15 @@ export function TopBar({
             <Button variant="ghost" size="icon" aria-label="Menu utilisateur">
               <Avatar className="size-8">
                 <AvatarFallback className="bg-card text-[12px] text-foreground">
-                  {currentUserMock.initials}
+                  {session.initials}
                 </AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuLabel>{currentUserMock.name}</DropdownMenuLabel>
+            <DropdownMenuLabel>{session.name}</DropdownMenuLabel>
             <DropdownMenuLabel className="pt-0 font-normal text-muted-foreground">
-              {currentUserMock.email}
+              {session.email}
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem disabled title="Bientôt disponible">
