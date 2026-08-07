@@ -1,6 +1,13 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Clock, ExternalLink, LifeBuoy, ThumbsDown, ThumbsUp } from "lucide-react";
-import { useMemo } from "react";
+import {
+  ArrowLeft,
+  Clock,
+  ExternalLink,
+  LifeBuoy,
+  ThumbsDown,
+  ThumbsUp,
+  TriangleAlert,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { EmptyState } from "@/components/common/empty-state";
@@ -9,8 +16,9 @@ import { useContextPanelContent } from "@/components/layout/context-panel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 import { formatHelpDate } from "@/lib/help/meta";
-import { helpArticleById, helpArticlesByIds } from "@/lib/help/mocks";
+import { useHelpArticle } from "@/lib/help/queries";
 
 const DESCRIPTION =
   "Article du Help Center NASSFLOW OS : comment utiliser la plateforme et ses modules.";
@@ -31,18 +39,44 @@ export const Route = createFileRoute("/help-center/$articleId")({
 
 function Page() {
   const { articleId } = Route.useParams();
-  const article = helpArticleById(articleId);
   const navigate = useNavigate();
-
-  const related = useMemo(
-    () => (article ? helpArticlesByIds(article.relatedArticleIds) : []),
-    [articleId],
-  );
+  const articleQuery = useHelpArticle(articleId);
+  const article = articleQuery.data?.article ?? null;
+  const related = articleQuery.data?.related ?? [];
 
   useContextPanelContent(
     () => (article ? <HelpArticlePanel article={article} /> : null),
     [article?.id],
   );
+
+  if (articleQuery.isError) {
+    return (
+      <section className="col-span-12 min-w-0">
+        <EmptyState
+          icon={TriangleAlert}
+          title="Impossible de charger cet article"
+          description="L'article n'a pas pu être récupéré. Vérifiez votre connexion puis réessayez."
+        />
+        <div className="flex justify-center">
+          <Button type="button" size="sm" onClick={() => void articleQuery.refetch()}>
+            Réessayer
+          </Button>
+        </div>
+      </section>
+    );
+  }
+
+  if (articleQuery.isPending) {
+    return (
+      <section className="col-span-12 min-w-0">
+        <div className="space-y-3">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Skeleton key={i} className="h-16 w-full rounded-lg" />
+          ))}
+        </div>
+      </section>
+    );
+  }
 
   if (!article) {
     return (
