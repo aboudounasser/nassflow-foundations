@@ -38,6 +38,9 @@ export const Route = createFileRoute("/security-center")({
 
 const TABS: { value: SecurityTab; label: string }[] = [
   { value: "overview", label: "Vue d'ensemble" },
+  { value: "access", label: "Accès & Permissions" },
+  { value: "audit", label: "Journal d'audit" },
+  { value: "policies", label: "Politiques" },
 ];
 
 const EMPTY_OVERVIEW: SecurityOverview = {
@@ -48,11 +51,6 @@ const EMPTY_OVERVIEW: SecurityOverview = {
   integrationsInError: 0,
   totalEvents: 0,
 };
-  { value: "overview", label: "Vue d'ensemble" },
-  { value: "access", label: "Accès & Permissions" },
-  { value: "audit", label: "Journal d'audit" },
-  { value: "policies", label: "Politiques" },
-];
 
 function Page() {
   const [tab, setTab] = useState<SecurityTab>("overview");
