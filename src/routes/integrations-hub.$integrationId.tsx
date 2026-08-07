@@ -69,9 +69,7 @@ function Page() {
 
   useContextPanelContent(
     () =>
-      integration ? (
-        <IntegrationSummaryPanel integration={integration} usages={usages} />
-      ) : null,
+      integration ? <IntegrationSummaryPanel integration={integration} usages={usages} /> : null,
     [integration?.id, usages],
   );
 

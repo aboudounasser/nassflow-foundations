@@ -12,7 +12,11 @@ export interface MissionsListData {
 }
 
 export async function getMissions(_scope: Scope): Promise<MissionsListData> {
-  return delay({ missions: missionsDetailMock, agents: missionAgents, blueprints: missionBlueprints });
+  return delay({
+    missions: missionsDetailMock,
+    agents: missionAgents,
+    blueprints: missionBlueprints,
+  });
 }
 
 /** Agrégat de la vue détail : inclut toutes les missions (dépendances croisées). */
