@@ -100,9 +100,7 @@ function Page() {
       return <DealSummaryPanel deal={selectedDeal} contact={contact} />;
     }
     if (!selectedContact || !selectedItem) return null;
-    return (
-      <ContactSummaryPanel contact={selectedContact} dealCount={selectedItem.deals.length} />
-    );
+    return <ContactSummaryPanel contact={selectedContact} dealCount={selectedItem.deals.length} />;
   }, [tab, selectedContact?.id, selectedDeal?.id]);
 
   const handleSelectContact = (contact: Contact) => {
@@ -115,8 +113,13 @@ function Page() {
     requestOpen();
   };
 
-  const contactsWidgetState =
-    isError ? "error" : isPending ? "loading" : contacts.length === 0 ? "empty" : "success";
+  const contactsWidgetState = isError
+    ? "error"
+    : isPending
+      ? "loading"
+      : contacts.length === 0
+        ? "empty"
+        : "success";
 
   if (isError) {
     return (

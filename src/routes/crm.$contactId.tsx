@@ -180,120 +180,108 @@ function Page() {
       </section>
 
       <section className="col-span-12 min-w-0">
-        {state === "loading" ? (
-          <DetailSkeleton />
-        ) : (
-          <div className="space-y-6 rounded-xl border border-border bg-surface p-6">
-            <div className="space-y-2">
-              <h2 className="text-[14px] font-medium text-foreground">Informations de contact</h2>
-              <Card className="grid gap-3 border-border bg-card p-4 @2xl:grid-cols-2">
-                <div className="min-w-0">
-                  <p className="text-[12px] text-muted-foreground">E-mail</p>
-                  <p className="truncate text-[14px] text-foreground">{contact.email}</p>
-                </div>
-                <div className="min-w-0">
-                  <p className="text-[12px] text-muted-foreground">Téléphone</p>
-                  <p className="truncate text-[14px] text-foreground">{contact.phone}</p>
-                </div>
-              </Card>
-            </div>
-
-            <Separator />
-
-            <div className="space-y-2">
-              <h2 className="text-[14px] font-medium text-foreground">Opportunités associées</h2>
-              {deals.length === 0 ? (
-                <p className="text-[14px] text-muted-foreground">
-                  Aucune opportunité rattachée à ce contact.
-                </p>
-              ) : (
-                <div className="grid grid-cols-1 gap-3 @2xl:grid-cols-2">
-                  {deals.map((deal) => (
-                    <DealCard key={deal.id} deal={deal} contact={contact} />
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <Separator />
-
-            <div className="space-y-2">
-              <h2 className="text-[14px] font-medium text-foreground">Journal d'activités</h2>
-              {activities.length === 0 ? (
-                <p className="text-[14px] text-muted-foreground">Aucune activité enregistrée.</p>
-              ) : (
-                <ol className="space-y-3">
-                  {activities.map((activity) => {
-                    const meta = ACTIVITY_TYPE[activity.type];
-                    const ActivityIcon = meta.icon;
-                    return (
-                      <li key={activity.id} className="flex gap-3">
-                        <span className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-border bg-card">
-                          <ActivityIcon
-                            className="size-4 text-muted-foreground"
-                            aria-hidden="true"
-                          />
-                        </span>
-                        <div className="min-w-0 space-y-1">
-                          <p className="text-[14px] leading-6 text-foreground">
-                            {activity.summary}
-                          </p>
-                          <p className="text-[12px] text-muted-foreground">
-                            {meta.label} · {activity.actor} ·{" "}
-                            {formatCrmDateTime(activity.timestamp)}
-                          </p>
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ol>
-              )}
-            </div>
-
-            {mission ? (
-              <>
-                <Separator />
-                <div className="space-y-2">
-                  <h2 className="text-[14px] font-medium text-foreground">Mission liée</h2>
-                  <MissionSummaryCard
-                    mission={mission}
-                    onSelect={() =>
-                      navigate({ to: "/missions/$missionId", params: { missionId: mission.id } })
-                    }
-                  />
-                </div>
-              </>
-            ) : null}
-
-            {agent ? (
-              <>
-                <Separator />
-                <div className="space-y-2">
-                  <h2 className="text-[14px] font-medium text-foreground">Agent assigné</h2>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      navigate({ to: "/agents/$agentId", params: { agentId: agent.id } })
-                    }
-                    className="flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-left transition-colors duration-150 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  >
-                    <Avatar className="size-8">
-                      <AvatarFallback className="text-[10px]">{agent.avatar}</AvatarFallback>
-                    </Avatar>
-                    <span className="min-w-0">
-                      <span className="block truncate text-[14px] text-foreground">
-                        {agent.name}
-                      </span>
-                      <span className="block truncate text-[12px] text-muted-foreground">
-                        {agent.role}
-                      </span>
-                    </span>
-                  </button>
-                </div>
-              </>
-            ) : null}
+        <div className="space-y-6 rounded-xl border border-border bg-surface p-6">
+          <div className="space-y-2">
+            <h2 className="text-[14px] font-medium text-foreground">Informations de contact</h2>
+            <Card className="grid gap-3 border-border bg-card p-4 @2xl:grid-cols-2">
+              <div className="min-w-0">
+                <p className="text-[12px] text-muted-foreground">E-mail</p>
+                <p className="truncate text-[14px] text-foreground">{contact.email}</p>
+              </div>
+              <div className="min-w-0">
+                <p className="text-[12px] text-muted-foreground">Téléphone</p>
+                <p className="truncate text-[14px] text-foreground">{contact.phone}</p>
+              </div>
+            </Card>
           </div>
-        )}
+
+          <Separator />
+
+          <div className="space-y-2">
+            <h2 className="text-[14px] font-medium text-foreground">Opportunités associées</h2>
+            {deals.length === 0 ? (
+              <p className="text-[14px] text-muted-foreground">
+                Aucune opportunité rattachée à ce contact.
+              </p>
+            ) : (
+              <div className="grid grid-cols-1 gap-3 @2xl:grid-cols-2">
+                {deals.map((deal) => (
+                  <DealCard key={deal.id} deal={deal} contact={contact} />
+                ))}
+              </div>
+            )}
+          </div>
+
+          <Separator />
+
+          <div className="space-y-2">
+            <h2 className="text-[14px] font-medium text-foreground">Journal d'activités</h2>
+            {activities.length === 0 ? (
+              <p className="text-[14px] text-muted-foreground">Aucune activité enregistrée.</p>
+            ) : (
+              <ol className="space-y-3">
+                {activities.map((activity) => {
+                  const meta = ACTIVITY_TYPE[activity.type];
+                  const ActivityIcon = meta.icon;
+                  return (
+                    <li key={activity.id} className="flex gap-3">
+                      <span className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-border bg-card">
+                        <ActivityIcon className="size-4 text-muted-foreground" aria-hidden="true" />
+                      </span>
+                      <div className="min-w-0 space-y-1">
+                        <p className="text-[14px] leading-6 text-foreground">{activity.summary}</p>
+                        <p className="text-[12px] text-muted-foreground">
+                          {meta.label} · {activity.actor} · {formatCrmDateTime(activity.timestamp)}
+                        </p>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ol>
+            )}
+          </div>
+
+          {mission ? (
+            <>
+              <Separator />
+              <div className="space-y-2">
+                <h2 className="text-[14px] font-medium text-foreground">Mission liée</h2>
+                <MissionSummaryCard
+                  mission={mission}
+                  onSelect={() =>
+                    navigate({ to: "/missions/$missionId", params: { missionId: mission.id } })
+                  }
+                />
+              </div>
+            </>
+          ) : null}
+
+          {agent ? (
+            <>
+              <Separator />
+              <div className="space-y-2">
+                <h2 className="text-[14px] font-medium text-foreground">Agent assigné</h2>
+                <button
+                  type="button"
+                  onClick={() =>
+                    navigate({ to: "/agents/$agentId", params: { agentId: agent.id } })
+                  }
+                  className="flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-left transition-colors duration-150 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <Avatar className="size-8">
+                    <AvatarFallback className="text-[10px]">{agent.avatar}</AvatarFallback>
+                  </Avatar>
+                  <span className="min-w-0">
+                    <span className="block truncate text-[14px] text-foreground">{agent.name}</span>
+                    <span className="block truncate text-[12px] text-muted-foreground">
+                      {agent.role}
+                    </span>
+                  </span>
+                </button>
+              </div>
+            </>
+          ) : null}
+        </div>
       </section>
     </>
   );
