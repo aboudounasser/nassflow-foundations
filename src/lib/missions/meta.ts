@@ -15,7 +15,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-import type { FilterDescriptor, ViewDescriptor } from "@/components/common/module-toolbar";
+import type { FilterDescriptor, ViewDescriptor } from "@/lib/toolbar/types";
 import { PRIORITY_BADGE } from "@/lib/dashboard/meta";
 import type { Mission, Priority } from "@/lib/dashboard/types";
 import type { MissionAgent, MissionStatus, MissionStepStatus } from "./types";

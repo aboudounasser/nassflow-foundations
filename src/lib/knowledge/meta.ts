@@ -1,7 +1,7 @@
 import { BookOpen, ClipboardList, FileText, HelpCircle } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-import type { FilterDescriptor } from "@/components/common/module-toolbar";
+import type { FilterDescriptor } from "@/lib/toolbar/types";
 import type { KnowledgeStatus, KnowledgeType } from "./types";
 
 type BadgeVariant = "neutral" | "primary" | "success" | "warning" | "destructive" | "info";
