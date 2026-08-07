@@ -1,16 +1,18 @@
 /** Service Layer du module Missions. */
-import { missionAgents, missionsDetailMock } from "@/lib/missions/mocks";
-import type { MissionAgent, MissionDetail } from "@/lib/missions/types";
+import { missionAgents, missionBlueprints, missionsDetailMock } from "@/lib/missions/mocks";
+import type { MissionAgent, MissionBlueprint, MissionDetail } from "@/lib/missions/types";
 import type { Scope } from "@/lib/tenancy/types";
 import { delay } from "@/services/latency";
 
 export interface MissionsListData {
   missions: MissionDetail[];
   agents: MissionAgent[];
+  /** Modèles proposés par le Mission Builder. */
+  blueprints: MissionBlueprint[];
 }
 
 export async function getMissions(_scope: Scope): Promise<MissionsListData> {
-  return delay({ missions: missionsDetailMock, agents: missionAgents });
+  return delay({ missions: missionsDetailMock, agents: missionAgents, blueprints: missionBlueprints });
 }
 
 /** Agrégat de la vue détail : inclut toutes les missions (dépendances croisées). */

@@ -193,7 +193,12 @@ function Page() {
         </WidgetShell>
       </section>
 
-      <MissionBuilderDialog open={dialogOpen} onOpenChange={handleDialogChange} agents={agents} />
+      <MissionBuilderDialog
+        open={dialogOpen}
+        onOpenChange={handleDialogChange}
+        agents={agents}
+        blueprints={missionsQuery.data?.blueprints ?? []}
+      />
     </>
   );
 }
