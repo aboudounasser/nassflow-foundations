@@ -2,7 +2,11 @@ import { useQueryClient } from "@tanstack/react-query";
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
 
 import { organizationRootKey } from "@/lib/tenancy/keys";
-import { defaultOrganization, organizationsMock, sessionForOrganization } from "@/lib/tenancy/mocks";
+import {
+  defaultOrganization,
+  organizationsMock,
+  sessionForOrganization,
+} from "@/lib/tenancy/mocks";
 import type { Organization, Scope, Session } from "@/lib/tenancy/types";
 
 interface SessionApi {
