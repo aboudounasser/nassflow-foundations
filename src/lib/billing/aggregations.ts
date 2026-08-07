@@ -57,6 +57,18 @@ export function consumptionByAgent(): {
     .sort((a, b) => b.cost - a.cost);
 }
 
+/** Prix affiché d'un plan : "Gratuit", "Sur devis" ou "1 890 €". */
+export function formatPlanPrice(plan: BillingPlan): string {
+  if (plan.isFree) return "Gratuit";
+  if (plan.pricePerMonth === null) return "Sur devis";
+  return formatEuro(plan.pricePerMonth, 0);
+}
+
+/** Le suffixe "/ mois" ne s'affiche que pour un prix chiffré. */
+export function showsMonthlySuffix(plan: BillingPlan): boolean {
+  return !plan.isFree && plan.pricePerMonth !== null;
+}
+
 export function consumptionByMission(): {
   missionId: string;
   title: string;
