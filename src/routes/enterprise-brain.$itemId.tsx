@@ -159,69 +159,63 @@ function Page() {
       </section>
 
       <section className="col-span-12 min-w-0">
-        {state === "loading" ? (
-          <DetailSkeleton />
-        ) : (
-          <div className="space-y-6 rounded-xl border border-border bg-surface p-6">
-            <p className="max-w-[72ch] text-[14px] leading-6 text-muted-foreground">
-              {item.summary}
-            </p>
+        <div className="space-y-6 rounded-xl border border-border bg-surface p-6">
+          <p className="max-w-[72ch] text-[14px] leading-6 text-muted-foreground">{item.summary}</p>
 
-            <Separator />
+          <Separator />
 
-            <article className="max-w-[72ch] space-y-4">
-              {item.content.split("\n\n").map((paragraph, i) => (
-                <p key={i} className="whitespace-pre-line text-[15px] leading-7 text-foreground">
-                  {paragraph}
-                </p>
-              ))}
-            </article>
+          <article className="max-w-[72ch] space-y-4">
+            {item.content.split("\n\n").map((paragraph, i) => (
+              <p key={i} className="whitespace-pre-line text-[15px] leading-7 text-foreground">
+                {paragraph}
+              </p>
+            ))}
+          </article>
 
-            <div className="flex flex-wrap gap-1">
-              {item.tags.map((tag) => (
-                <Badge key={tag}>#{tag}</Badge>
-              ))}
-            </div>
-
-            <Separator />
-
-            <div className="space-y-2">
-              <h2 className="text-[14px] font-medium text-foreground">
-                Agents utilisant cette connaissance
-              </h2>
-              {agents.length === 0 ? (
-                <p className="text-[14px] text-muted-foreground">
-                  Aucun agent ne référence ce document pour le moment.
-                </p>
-              ) : (
-                <div className="flex flex-wrap gap-2">
-                  {agents.map((agent) => (
-                    <button
-                      key={agent.id}
-                      type="button"
-                      onClick={() =>
-                        navigate({ to: "/agents/$agentId", params: { agentId: agent.id } })
-                      }
-                      className="flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-left transition-colors duration-150 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                    >
-                      <Avatar className="size-8">
-                        <AvatarFallback className="text-[10px]">{agent.avatar}</AvatarFallback>
-                      </Avatar>
-                      <span className="min-w-0">
-                        <span className="block truncate text-[14px] text-foreground">
-                          {agent.name}
-                        </span>
-                        <span className="block truncate text-[12px] text-muted-foreground">
-                          {agent.role}
-                        </span>
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+          <div className="flex flex-wrap gap-1">
+            {item.tags.map((tag) => (
+              <Badge key={tag}>#{tag}</Badge>
+            ))}
           </div>
-        )}
+
+          <Separator />
+
+          <div className="space-y-2">
+            <h2 className="text-[14px] font-medium text-foreground">
+              Agents utilisant cette connaissance
+            </h2>
+            {agents.length === 0 ? (
+              <p className="text-[14px] text-muted-foreground">
+                Aucun agent ne référence ce document pour le moment.
+              </p>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {agents.map((agent) => (
+                  <button
+                    key={agent.id}
+                    type="button"
+                    onClick={() =>
+                      navigate({ to: "/agents/$agentId", params: { agentId: agent.id } })
+                    }
+                    className="flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-left transition-colors duration-150 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    <Avatar className="size-8">
+                      <AvatarFallback className="text-[10px]">{agent.avatar}</AvatarFallback>
+                    </Avatar>
+                    <span className="min-w-0">
+                      <span className="block truncate text-[14px] text-foreground">
+                        {agent.name}
+                      </span>
+                      <span className="block truncate text-[12px] text-muted-foreground">
+                        {agent.role}
+                      </span>
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
       </section>
     </>
   );

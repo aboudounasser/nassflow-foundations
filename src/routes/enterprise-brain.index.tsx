@@ -99,7 +99,10 @@ function Page() {
   useContextPanelContent(
     () =>
       selected ? (
-        <KnowledgeSummaryPanel item={selected} agentCount={(agentsByItem[selected.id] ?? []).length} />
+        <KnowledgeSummaryPanel
+          item={selected}
+          agentCount={(agentsByItem[selected.id] ?? []).length}
+        />
       ) : null,
     [selected?.id],
   );
