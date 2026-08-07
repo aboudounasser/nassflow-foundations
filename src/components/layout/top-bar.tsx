@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { currentUserMock } from "@/lib/account/mocks";
+import { LaunchCenter } from "@/components/layout/launch-center";
 
 export function TopBar({
   onOpenMenu,
@@ -57,6 +58,8 @@ export function TopBar({
           <DropdownMenuItem>Nassflow Labs</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <LaunchCenter />
 
       <div className="mx-auto hidden w-full max-w-[520px] lg:block">
         <SearchInput placeholder="Rechercher... (⌘K)" aria-label="Recherche universelle" />

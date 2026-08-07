@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Plus, Target } from "lucide-react";
 import { useMemo, useState } from "react";
 
@@ -32,6 +32,9 @@ export const Route = createFileRoute("/missions/")({
       { property: "og:description", content: DESCRIPTION },
     ],
   }),
+  validateSearch: (search: Record<string, unknown>): { new?: boolean } => ({
+    new: search["new"] === true || search["new"] === "true" ? true : undefined,
+  }),
   component: Page,
 });
 
@@ -47,7 +50,15 @@ function Page() {
   const [filters, setFilters] = useState<MissionFilters>(DEFAULT_FILTERS);
   const [view, setView] = useState<MissionView>("list");
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const { new: openBuilder } = Route.useSearch();
+  const [dialogOpen, setDialogOpen] = useState(openBuilder === true);
+  const navigate = useNavigate();
+  const handleDialogChange = (open: boolean) => {
+    setDialogOpen(open);
+    if (!open && openBuilder) {
+      void navigate({ to: "/missions", search: {}, replace: true });
+    }
+  };
   // État du module : loading / empty / error / success (mock statique).
   const [state] = useState<"loading" | "error" | "success">("success");
   const { requestOpen } = useContextPanel();
@@ -156,7 +167,7 @@ function Page() {
         </WidgetShell>
       </section>
 
-      <MissionBuilderDialog open={dialogOpen} onOpenChange={setDialogOpen} agents={agents} />
+      <MissionBuilderDialog open={dialogOpen} onOpenChange={handleDialogChange} agents={agents} />
     </>
   );
 }
