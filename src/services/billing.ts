@@ -13,15 +13,7 @@ import type {
 import { referenceDate } from "@/lib/insights/aggregations";
 import { missionsDetailMock } from "@/lib/missions/mocks";
 import type { Scope } from "@/lib/tenancy/types";
-
-/**
- * Latence simulée. Rend isPending réel et permet de valider les états
- * de chargement. À supprimer quand les appels réseau seront réels.
- */
-const MOCK_LATENCY_MS = 250;
-function delay<T>(value: T): Promise<T> {
-  return new Promise((resolve) => setTimeout(() => resolve(value), MOCK_LATENCY_MS));
-}
+import { delay } from "@/services/latency";
 
 const DAY_MS = 86_400_000;
 
