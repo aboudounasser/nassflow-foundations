@@ -74,9 +74,7 @@ function missionsCompletedByWeek(weeks = 6): { week: string; count: number }[] {
   }));
 }
 
-function workflowSuccessRateByDay(
-  days = 8,
-): { day: string; successRate: number; total: number }[] {
+function workflowSuccessRateByDay(days = 8): { day: string; successRate: number; total: number }[] {
   const ref = referenceDate();
   const buckets = new Map<string, { success: number; total: number }>();
   for (let i = days - 1; i >= 0; i--) {

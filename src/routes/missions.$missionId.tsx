@@ -1,5 +1,13 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { ArrowLeft, Copy, History, ListTree, PlayCircle, Target, TriangleAlert } from "lucide-react";
+import {
+  ArrowLeft,
+  Copy,
+  History,
+  ListTree,
+  PlayCircle,
+  Target,
+  TriangleAlert,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -181,11 +189,7 @@ function Page() {
           emptyTitle="Aucune étape définie pour cette mission"
           skeleton={<OrchestrationSkeleton />}
         >
-          <OrchestrationDiagram
-            mission={mission}
-            agents={agents}
-            activeStepId={activeStepId}
-          />
+          <OrchestrationDiagram mission={mission} agents={agents} activeStepId={activeStepId} />
         </WidgetShell>
       </section>
 
