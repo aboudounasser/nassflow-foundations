@@ -1,4 +1,4 @@
-import { ArrowUpDown, ChevronDown, LayoutGrid, List, RotateCcw, Search } from "lucide-react";
+import { ArrowUpDown, LayoutGrid, List, RotateCcw, Search } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -159,13 +159,12 @@ export function ModuleToolbar<F extends object>({
           return (
             <DropdownMenu key={d.key}>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" aria-label={d.ariaLabel}>
+                <Button variant="secondary" aria-label={d.ariaLabel}>
                   {d.buttonLabel}
                   {selected.length > 0 ? ` (${selected.length})` : ""}
-                  <ChevronDown className="size-4" aria-hidden="true" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start">
+              <DropdownMenuContent align="start" className="w-56">
                 {d.options.map((o) => (
                   <DropdownMenuCheckboxItem
                     key={o.value}
