@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Brain } from "lucide-react";
+import { Brain, TriangleAlert } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import { EmptyState } from "@/components/common/empty-state";
 import { GRID_LIST_VIEWS, ModuleToolbar } from "@/components/common/module-toolbar";
 import { WidgetShell } from "@/components/dashboard/widget-shell";
 import { KnowledgeCard, KnowledgeCardSkeletonGrid } from "@/components/knowledge/knowledge-card";
@@ -13,8 +14,9 @@ import { KnowledgeSummaryPanel } from "@/components/knowledge/knowledge-summary-
 import { useContextPanel, useContextPanelContent } from "@/components/layout/context-panel";
 import { ModulePage } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { KNOWLEDGE_TYPE_ORDER, knowledgeFilterDescriptors } from "@/lib/knowledge/meta";
-import { agentsUsingKnowledge, knowledgeCategories, knowledgeMock } from "@/lib/knowledge/mocks";
+import { useKnowledge } from "@/lib/knowledge/queries";
 import type {
   KnowledgeFilters,
   KnowledgeItem,
@@ -51,19 +53,22 @@ function Page() {
   const [filters, setFilters] = useState<KnowledgeFilters>(DEFAULT_FILTERS);
   const [view, setView] = useState<KnowledgeView>("grid");
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  // État du module : loading / error / success (mock statique).
-  const [state] = useState<"loading" | "error" | "success">("success");
   const { requestOpen } = useContextPanel();
 
-  const categories = useMemo(() => knowledgeCategories(), []);
+  const knowledgeQuery = useKnowledge();
+  const data = knowledgeQuery.data;
+
+  const allItems = useMemo(() => data?.items ?? [], [data]);
+  const categories = useMemo(() => data?.categories ?? [], [data]);
+  const agentsByItem = data?.agentsByItem ?? {};
 
   const typeCounts = useMemo(() => {
     const counts = {} as Record<KnowledgeType, number>;
     for (const type of KNOWLEDGE_TYPE_ORDER) {
-      counts[type] = knowledgeMock.filter((i) => i.type === type).length;
+      counts[type] = allItems.filter((i) => i.type === type).length;
     }
     return counts;
-  }, []);
+  }, [allItems]);
 
   const descriptors = useMemo(
     () => knowledgeFilterDescriptors(categories, typeCounts),
@@ -72,7 +77,7 @@ function Page() {
 
   const items = useMemo(() => {
     const query = filters.search.trim().toLowerCase();
-    return knowledgeMock
+    return allItems
       .filter((item) => {
         if (
           query &&
@@ -87,17 +92,14 @@ function Page() {
         return true;
       })
       .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
-  }, [filters]);
+  }, [filters, allItems]);
 
   const selected = items.find((i) => i.id === selectedId) ?? null;
 
   useContextPanelContent(
     () =>
       selected ? (
-        <KnowledgeSummaryPanel
-          item={selected}
-          agentCount={agentsUsingKnowledge(selected.id).length}
-        />
+        <KnowledgeSummaryPanel item={selected} agentCount={(agentsByItem[selected.id] ?? []).length} />
       ) : null,
     [selected?.id],
   );
@@ -107,17 +109,42 @@ function Page() {
     requestOpen();
   };
 
-  const widgetState = state === "success" ? (items.length === 0 ? "empty" : "success") : state;
+  const widgetState = knowledgeQuery.isError
+    ? "error"
+    : knowledgeQuery.isPending
+      ? "loading"
+      : items.length === 0
+        ? "empty"
+        : "success";
+
+  if (knowledgeQuery.isError) {
+    return (
+      <section className="col-span-12 min-w-0">
+        <Card className="border-border bg-card p-4">
+          <EmptyState
+            icon={TriangleAlert}
+            title="Impossible de charger l'Enterprise Brain"
+            description="Les connaissances n'ont pas pu être récupérées. Vérifiez votre connexion puis réessayez."
+          />
+          <div className="flex justify-center">
+            <Button type="button" size="sm" onClick={() => void knowledgeQuery.refetch()}>
+              Réessayer
+            </Button>
+          </div>
+        </Card>
+      </section>
+    );
+  }
 
   return (
     <>
       <ModulePage title="Enterprise Brain" description={DESCRIPTION} />
 
       <section className="col-span-12 min-w-0">
-        {state === "loading" ? (
+        {knowledgeQuery.isPending ? (
           <KnowledgeOverviewSkeleton />
         ) : (
-          <KnowledgeOverview items={knowledgeMock} />
+          <KnowledgeOverview items={allItems} />
         )}
       </section>
 
@@ -152,7 +179,7 @@ function Page() {
                 : "border-border bg-surface text-muted-foreground hover:bg-accent",
             )}
           >
-            Toutes ({knowledgeMock.length})
+            Toutes ({allItems.length})
           </button>
           {categories.map((c) => (
             <button
