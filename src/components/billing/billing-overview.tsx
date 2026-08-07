@@ -70,18 +70,15 @@ export function BillingOverviewBanner({
         <Tile value={formatEuro(totalCost)} label="Coût consommé (période)" />
         <Tile value={totalAiCalls.toLocaleString("fr-FR")} label="Appels IA consommés" />
         <Tile value={formatPlanPrice(plan)} label="Abonnement mensuel" />
-        <Tile
-          value={DATE_FMT.format(new Date(nextInvoice.dueAt))}
-          label="Prochaine échéance"
-        />
+        <Tile value={DATE_FMT.format(new Date(nextInvoice.dueAt))} label="Prochaine échéance" />
       </div>
 
       <div className="mt-5">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <p className="text-[12px] text-muted-foreground">Quota d'appels IA inclus</p>
           <p className="text-[12px] tabular-nums text-muted-foreground">
-            {totalAiCalls.toLocaleString("fr-FR")} / {plan.limits.aiCalls.toLocaleString("fr-FR")}{" "}
-            ({quotaPct} %)
+            {totalAiCalls.toLocaleString("fr-FR")} / {plan.limits.aiCalls.toLocaleString("fr-FR")} (
+            {quotaPct} %)
           </p>
         </div>
         <Progress value={quotaPct} className="mt-2" />

@@ -338,7 +338,8 @@ export const integrationsMock: Integration[] = [
     id: "int-whatsapp-business",
     name: "WhatsApp Business",
     category: "Communication",
-    description: "Messagerie client mobile : notifications transactionnelles et support conversationnel.",
+    description:
+      "Messagerie client mobile : notifications transactionnelles et support conversationnel.",
     status: "not_installed",
     permissions: [
       { scope: "Lecture des conversations", granted: false },

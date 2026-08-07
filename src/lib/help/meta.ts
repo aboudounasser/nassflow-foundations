@@ -15,22 +15,15 @@ export const ARTICLE_CATEGORY_ORDER: ArticleCategory[] = [
   "Compte & organisation",
 ];
 
-export const TICKET_STATUS: Record<
-  SupportTicketStatus,
-  { label: string; variant: BadgeVariant }
-> = {
-  open: { label: "Ouvert", variant: "info" },
-  pending: { label: "En attente", variant: "warning" },
-  resolved: { label: "Résolu", variant: "success" },
-  closed: { label: "Clôturé", variant: "neutral" },
-};
+export const TICKET_STATUS: Record<SupportTicketStatus, { label: string; variant: BadgeVariant }> =
+  {
+    open: { label: "Ouvert", variant: "info" },
+    pending: { label: "En attente", variant: "warning" },
+    resolved: { label: "Résolu", variant: "success" },
+    closed: { label: "Clôturé", variant: "neutral" },
+  };
 
-export const TICKET_STATUS_ORDER: SupportTicketStatus[] = [
-  "open",
-  "pending",
-  "resolved",
-  "closed",
-];
+export const TICKET_STATUS_ORDER: SupportTicketStatus[] = ["open", "pending", "resolved", "closed"];
 
 export const TICKET_PRIORITY: Record<
   SupportTicketPriority,

@@ -80,9 +80,7 @@ function Page() {
 
   useContextPanelContent(
     () =>
-      selected ? (
-        <MissionDetailPanel mission={selected} allMissions={missionsDetailMock} />
-      ) : null,
+      selected ? <MissionDetailPanel mission={selected} allMissions={missionsDetailMock} /> : null,
     [selected?.id],
   );
 
@@ -91,8 +89,7 @@ function Page() {
     requestOpen();
   };
 
-  const widgetState =
-    state === "success" ? (missions.length === 0 ? "empty" : "success") : state;
+  const widgetState = state === "success" ? (missions.length === 0 ? "empty" : "success") : state;
 
   return (
     <>
@@ -146,11 +143,7 @@ function Page() {
         </WidgetShell>
       </section>
 
-      <MissionBuilderDialog
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-        agents={missionAgents}
-      />
+      <MissionBuilderDialog open={dialogOpen} onOpenChange={setDialogOpen} agents={missionAgents} />
     </>
   );
 }

@@ -28,11 +28,7 @@ import {
   formatOrgDate,
   formatSeniority,
 } from "@/lib/organization/meta";
-import {
-  agentsInDepartment,
-  directReports,
-  orgMemberById,
-} from "@/lib/organization/mocks";
+import { agentsInDepartment, directReports, orgMemberById } from "@/lib/organization/mocks";
 import type { OrgMember } from "@/lib/organization/types";
 
 const DESCRIPTION =
@@ -66,9 +62,7 @@ function MemberLinkCard({ member }: { member: OrgMember }) {
   return (
     <button
       type="button"
-      onClick={() =>
-        navigate({ to: "/organization/$memberId", params: { memberId: member.id } })
-      }
+      onClick={() => navigate({ to: "/organization/$memberId", params: { memberId: member.id } })}
       className="flex w-full cursor-pointer items-center gap-3 rounded-lg border border-border bg-card px-3 py-2 text-left transition-colors duration-150 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
       <Avatar className="size-9 shrink-0">

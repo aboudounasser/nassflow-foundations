@@ -67,8 +67,8 @@ export function SecurityOverviewBanner({
               Security Overview
             </p>
             <p className="mt-1 text-[12px] leading-4 text-muted-foreground">
-              Score dérivé des intégrations en erreur, des comptes suspendus et des erreurs
-              agents récentes.
+              Score dérivé des intégrations en erreur, des comptes suspendus et des erreurs agents
+              récentes.
             </p>
           </div>
         </div>

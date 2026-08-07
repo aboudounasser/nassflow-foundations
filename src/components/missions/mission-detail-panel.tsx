@@ -1,11 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import {
-  Archive,
-  Link2,
-  Maximize2,
-  PauseCircle,
-  Users,
-} from "lucide-react";
+import { Archive, Link2, Maximize2, PauseCircle, Users } from "lucide-react";
 import { toast } from "sonner";
 
 import { PRIORITY_BADGE } from "@/components/dashboard/decision-item-card";

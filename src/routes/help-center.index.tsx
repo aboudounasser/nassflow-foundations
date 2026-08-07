@@ -115,8 +115,7 @@ function Page() {
     requestOpen();
   };
 
-  const widgetState =
-    state === "success" ? (articles.length === 0 ? "empty" : "success") : state;
+  const widgetState = state === "success" ? (articles.length === 0 ? "empty" : "success") : state;
 
   return (
     <>
@@ -124,7 +123,10 @@ function Page() {
 
       <section className="col-span-12 min-w-0">
         <div className="rounded-xl border border-border bg-surface p-6">
-          <label htmlFor="help-search" className="text-[12px] uppercase tracking-wide text-muted-foreground">
+          <label
+            htmlFor="help-search"
+            className="text-[12px] uppercase tracking-wide text-muted-foreground"
+          >
             Recherche
           </label>
           <div className="relative mt-2">

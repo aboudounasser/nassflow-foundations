@@ -490,9 +490,7 @@ export function helpArticleById(id: string): HelpArticle | undefined {
 }
 
 export function helpArticlesByIds(ids: string[]): HelpArticle[] {
-  return ids
-    .map((id) => helpArticleById(id))
-    .filter((a): a is HelpArticle => Boolean(a));
+  return ids.map((id) => helpArticleById(id)).filter((a): a is HelpArticle => Boolean(a));
 }
 
 export function helpCategoryCounts(): { category: HelpArticle["category"]; count: number }[] {

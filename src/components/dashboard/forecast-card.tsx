@@ -109,7 +109,8 @@ export function ForecastCard({
       <p className="text-[12px] text-muted-foreground">
         Intervalle de confiance : {compact(forecast.confidenceInterval[0])} –{" "}
         {compact(forecast.confidenceInterval[1])} · horizon{" "}
-        {new Date(forecast.predictionDate).toLocaleDateString("fr-FR", { timeZone: "Europe/Paris",
+        {new Date(forecast.predictionDate).toLocaleDateString("fr-FR", {
+          timeZone: "Europe/Paris",
           month: "long",
           year: "numeric",
         })}

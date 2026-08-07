@@ -116,8 +116,7 @@ function computeLayers(steps: MissionStep[]): MissionStep[][] {
         : index > 0
           ? [steps[index - 1]!.id]
           : [];
-    const level =
-      deps.length === 0 ? 0 : Math.max(...deps.map((d) => (depth.get(d) ?? 0) + 1), 0);
+    const level = deps.length === 0 ? 0 : Math.max(...deps.map((d) => (depth.get(d) ?? 0) + 1), 0);
     depth.set(step.id, level);
   });
   const max = Math.max(0, ...[...depth.values()]);
@@ -274,8 +273,7 @@ export function EnrichedTimeline({
     activeRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
   }, [activeKey]);
 
-  const visible =
-    filters.length === 0 ? events : events.filter((e) => filters.includes(e.type));
+  const visible = filters.length === 0 ? events : events.filter((e) => filters.includes(e.type));
 
   return (
     <div className="space-y-4">

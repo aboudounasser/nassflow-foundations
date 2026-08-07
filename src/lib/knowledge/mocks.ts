@@ -269,8 +269,7 @@ L'agent Finance prépare les états et signale les anomalies ; la validation fin
     id: "kb-wiki-roadmap-produit",
     type: "wiki",
     title: "Roadmap produit — jalons internes",
-    summary:
-      "Jalons de développement de la plateforme et principes de priorisation des chantiers.",
+    summary: "Jalons de développement de la plateforme et principes de priorisation des chantiers.",
     content: `Principes de priorisation : impact client mesurable, dette technique maîtrisée, cohérence avec les objectifs annuels.
 
 Jalons :

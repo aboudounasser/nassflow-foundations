@@ -5,7 +5,13 @@ import { useMemo, useState } from "react";
 import { EmptyState } from "@/components/common/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { LOG_RESULT, LOG_TYPE, LOG_TYPE_ORDER, formatAgentActivity, formatDuration } from "@/lib/agents/meta";
+import {
+  LOG_RESULT,
+  LOG_TYPE,
+  LOG_TYPE_ORDER,
+  formatAgentActivity,
+  formatDuration,
+} from "@/lib/agents/meta";
 import type { AgentLogEntry, AgentLogType } from "@/lib/agents/types";
 
 /** Onglet « Logs » — timeline filtrable des actions de l'agent. */

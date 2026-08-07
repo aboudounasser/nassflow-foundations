@@ -1,9 +1,4 @@
-import {
-  CircleCheck,
-  MailCheck,
-  PauseCircle,
-  type LucideIcon,
-} from "lucide-react";
+import { CircleCheck, MailCheck, PauseCircle, type LucideIcon } from "lucide-react";
 
 import type { MemberRole, MemberStatus } from "./types";
 
@@ -17,13 +12,7 @@ export const MEMBER_ROLE: Record<MemberRole, { label: string; variant: BadgeVari
   viewer: { label: "Lecture seule", variant: "neutral" },
 };
 
-export const MEMBER_ROLE_ORDER: MemberRole[] = [
-  "owner",
-  "admin",
-  "manager",
-  "member",
-  "viewer",
-];
+export const MEMBER_ROLE_ORDER: MemberRole[] = ["owner", "admin", "manager", "member", "viewer"];
 
 export const MEMBER_STATUS: Record<
   MemberStatus,

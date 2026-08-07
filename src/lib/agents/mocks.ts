@@ -255,7 +255,13 @@ const agentsBase: AgentBase[] = [
         accessLevel: "read",
         status: "connected",
       },
-      { id: "t-fin-2", name: "Qonto", category: "Banque", accessLevel: "read", status: "connected" },
+      {
+        id: "t-fin-2",
+        name: "Qonto",
+        category: "Banque",
+        accessLevel: "read",
+        status: "connected",
+      },
       {
         id: "t-fin-3",
         name: "Google Sheets",
@@ -439,7 +445,13 @@ const agentsBase: AgentBase[] = [
       },
     ],
     tools: [
-      { id: "t-ops-1", name: "Jira", category: "Projet", accessLevel: "write", status: "connected" },
+      {
+        id: "t-ops-1",
+        name: "Jira",
+        category: "Projet",
+        accessLevel: "write",
+        status: "connected",
+      },
       {
         id: "t-ops-2",
         name: "Google Drive",

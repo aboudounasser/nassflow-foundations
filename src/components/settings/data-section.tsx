@@ -72,7 +72,9 @@ export function DataSection() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Annuler</AlertDialogCancel>
-            <AlertDialogAction onClick={() => toast("Suppression totale simulée — aucune donnée effacée")}>
+            <AlertDialogAction
+              onClick={() => toast("Suppression totale simulée — aucune donnée effacée")}
+            >
               Supprimer
             </AlertDialogAction>
           </AlertDialogFooter>

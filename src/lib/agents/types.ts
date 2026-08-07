@@ -33,13 +33,7 @@ export interface AgentKpi {
 export type AgentStatus = "active" | "paused" | "error" | "maintenance";
 
 export type AgentDomain =
-  | "Direction"
-  | "Commercial"
-  | "Marketing"
-  | "Finance"
-  | "RH"
-  | "Support"
-  | "Opérations";
+  "Direction" | "Commercial" | "Marketing" | "Finance" | "RH" | "Support" | "Opérations";
 
 export type MemoryLevel = "working" | "long_term" | "shared" | "enterprise_brain";
 

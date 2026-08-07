@@ -17,11 +17,7 @@ import {
   KNOWLEDGE_TYPE,
   KNOWLEDGE_TYPE_ORDER,
 } from "@/lib/knowledge/meta";
-import type {
-  KnowledgeStatus,
-  KnowledgeType,
-  KnowledgeView,
-} from "@/lib/knowledge/types";
+import type { KnowledgeStatus, KnowledgeType, KnowledgeView } from "@/lib/knowledge/types";
 import { cn } from "@/lib/utils";
 
 export interface KnowledgeFilters {

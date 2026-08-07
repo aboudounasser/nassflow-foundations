@@ -6,11 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/common/empty-state";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ARCHIVE_STATUSES, KANBAN_COLUMNS, MISSION_STATUS } from "@/lib/missions/meta";
 import { cn } from "@/lib/utils";
 import type { MissionDetail } from "@/lib/missions/types";

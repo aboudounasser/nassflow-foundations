@@ -48,7 +48,10 @@ export function ApiSection() {
               <li key={key.id} className="rounded-lg border border-border bg-surface p-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex min-w-0 items-center gap-2">
-                    <KeyRound className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+                    <KeyRound
+                      className="size-4 shrink-0 text-muted-foreground"
+                      aria-hidden="true"
+                    />
                     <span className="truncate text-[14px] text-foreground">{key.label}</span>
                   </div>
                   <Badge variant={revoked ? "neutral" : "success"}>
@@ -82,12 +85,7 @@ export function ApiSection() {
                     Copier
                   </Button>
                   {revoked ? null : (
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => setTarget(key)}
-                    >
+                    <Button type="button" size="sm" variant="ghost" onClick={() => setTarget(key)}>
                       Révoquer
                     </Button>
                   )}

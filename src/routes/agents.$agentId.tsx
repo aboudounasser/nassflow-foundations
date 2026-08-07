@@ -176,7 +176,11 @@ function Page() {
               <PlayCircle />
               Redémarrer
             </Button>
-            <Button variant="ghost" size="sm" onClick={() => toast(`${agent.name} dupliqué (mock)`)}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => toast(`${agent.name} dupliqué (mock)`)}
+            >
               <Copy />
               Dupliquer
             </Button>
@@ -295,10 +299,7 @@ function Page() {
             <TabsContent value="capabilities">
               <ul className="space-y-3">
                 {agent.capabilities.map((cap) => (
-                  <li
-                    key={cap.id}
-                    className="rounded-lg border border-border bg-surface p-4"
-                  >
+                  <li key={cap.id} className="rounded-lg border border-border bg-surface p-4">
                     <p className="text-[14px] font-medium text-foreground">{cap.label}</p>
                     <p className="mt-1 text-[14px] leading-6 text-muted-foreground">
                       {cap.description}

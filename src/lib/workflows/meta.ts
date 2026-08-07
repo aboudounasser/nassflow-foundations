@@ -14,13 +14,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-import type {
-  NodeType,
-  TriggerKind,
-  WorkflowRun,
-  WorkflowStatus,
-  WorkflowVariable,
-} from "./types";
+import type { NodeType, TriggerKind, WorkflowRun, WorkflowStatus, WorkflowVariable } from "./types";
 
 type BadgeVariant = "neutral" | "primary" | "success" | "warning" | "destructive" | "info";
 

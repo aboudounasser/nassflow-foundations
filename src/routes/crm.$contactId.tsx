@@ -62,8 +62,7 @@ function Page() {
   const agent = crmAgentById(contact?.agentId ?? null);
 
   useContextPanelContent(
-    () =>
-      contact ? <ContactSummaryPanel contact={contact} dealCount={deals.length} /> : null,
+    () => (contact ? <ContactSummaryPanel contact={contact} dealCount={deals.length} /> : null),
     [contact?.id, deals.length],
   );
 

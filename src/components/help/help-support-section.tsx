@@ -7,7 +7,12 @@ import { EmptyState } from "@/components/common/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { TICKET_PRIORITY, TICKET_STATUS, TICKET_STATUS_ORDER, formatHelpDate } from "@/lib/help/meta";
+import {
+  TICKET_PRIORITY,
+  TICKET_STATUS,
+  TICKET_STATUS_ORDER,
+  formatHelpDate,
+} from "@/lib/help/meta";
 import { supportTicketsMock } from "@/lib/help/mocks";
 import type { SupportTicketStatus } from "@/lib/help/types";
 import { cn } from "@/lib/utils";
@@ -33,10 +38,7 @@ export function HelpSupportSection() {
           </div>
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
-          <Button
-            size="sm"
-            onClick={() => toast.success("Ticket de support créé (mock)")}
-          >
+          <Button size="sm" onClick={() => toast.success("Ticket de support créé (mock)")}>
             <Ticket />
             Ouvrir un ticket
           </Button>

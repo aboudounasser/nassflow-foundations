@@ -6,19 +6,13 @@ import { WidgetShell } from "@/components/dashboard/widget-shell";
 import { useContextPanel, useContextPanelContent } from "@/components/layout/context-panel";
 import { ModulePage } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
-import {
-  WorkflowCard,
-  WorkflowCardSkeletonGrid,
-} from "@/components/workflows/workflow-card";
+import { WorkflowCard, WorkflowCardSkeletonGrid } from "@/components/workflows/workflow-card";
 import {
   WorkflowOverview,
   WorkflowOverviewSkeleton,
 } from "@/components/workflows/workflow-overview";
 import { WorkflowSummaryPanel } from "@/components/workflows/workflow-summary-panel";
-import {
-  WorkflowToolbar,
-  type WorkflowFilters,
-} from "@/components/workflows/workflow-toolbar";
+import { WorkflowToolbar, type WorkflowFilters } from "@/components/workflows/workflow-toolbar";
 import { workflowsMock } from "@/lib/workflows/mocks";
 import type { Workflow, WorkflowView } from "@/lib/workflows/types";
 
@@ -89,8 +83,7 @@ function Page() {
     requestOpen();
   };
 
-  const widgetState =
-    state === "success" ? (workflows.length === 0 ? "empty" : "success") : state;
+  const widgetState = state === "success" ? (workflows.length === 0 ? "empty" : "success") : state;
 
   return (
     <>

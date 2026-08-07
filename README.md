@@ -1,8 +1,8 @@
 # NASSFLOW Foundations
 
-Je construis NASSFLOW OS, un AI Operating System pour entreprises (pas un CRM, pas un chatbot, pas un simple outil SaaS). 
+Je construis NASSFLOW OS, un AI Operating System pour entreprises (pas un CRM, pas un chatbot, pas un simple outil SaaS).
 
-Cette première génération ne doit contenir AUCUNE logique métier, AUCUNE donnée, AUCUN écran fonctionnel. 
+Cette première génération ne doit contenir AUCUNE logique métier, AUCUNE donnée, AUCUN écran fonctionnel.
 
 Objectif unique : poser le Design System officiel et le Master Layout qui serviront de fondation à toute la plateforme.
 
@@ -14,7 +14,7 @@ Objectif unique : poser le Design System officiel et le Master Layout qui servir
 
 STYLE GÉNÉRAL
 
-Interface sombre par défaut (dark mode prioritaire), inspirée de Linear, OpenAI Platform, Apple et Notion. 
+Interface sombre par défaut (dark mode prioritaire), inspirée de Linear, OpenAI Platform, Apple et Notion.
 
 Minimaliste, élégante, rapide, lisible, jamais spectaculaire. Le design ne doit jamais attirer l'attention sur lui-même.
 
@@ -86,7 +86,7 @@ COMPOSANTS (hauteur standard)
 
 ANIMATIONS
 
-Durée 150–200ms uniquement. Types autorisés : Fade, Slide, Scale, Collapse, Expand. 
+Durée 150–200ms uniquement. Types autorisés : Fade, Slide, Scale, Collapse, Expand.
 
 Aucune animation décorative — uniquement pour confirmer une action, guider l'utilisateur, ou fluidifier une transition.
 
@@ -142,17 +142,17 @@ Structure obligatoire, identique sur toutes les futures pages :
 
 ┌─────────────────────────────────────────────┐
 
-│                  TOP BAR                     │
+│ TOP BAR │
 
 ├───────────┬───────────────────┬─────────────┤
 
-│           │                   │             │
+│ │ │ │
 
-│  SIDEBAR  │   MAIN CONTENT    │ CONTEXT     │
+│ SIDEBAR │ MAIN CONTENT │ CONTEXT │
 
-│           │                   │ PANEL       │
+│ │ │ PANEL │
 
-│           │                   │             │
+│ │ │ │
 
 └───────────┴───────────────────┴─────────────┘
 
@@ -202,7 +202,7 @@ Liste de navigation verticale, dans cet ordre exact (utiliser des icônes Lucide
 
 13. Help Center
 
-Chaque item : icône + label, état actif visuellement distinct (fond légèrement contrasté + texte en couleur primaire), état hover discret. 
+Chaque item : icône + label, état actif visuellement distinct (fond légèrement contrasté + texte en couleur primaire), état hover discret.
 
 Bouton de réduction/expansion en bas de la sidebar.
 

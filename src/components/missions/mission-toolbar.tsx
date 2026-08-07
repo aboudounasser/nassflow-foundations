@@ -17,7 +17,12 @@ import {
 } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { MISSION_STATUS } from "@/lib/missions/meta";
-import type { MissionAgent, MissionSortKey, MissionStatus, MissionView } from "@/lib/missions/types";
+import type {
+  MissionAgent,
+  MissionSortKey,
+  MissionStatus,
+  MissionView,
+} from "@/lib/missions/types";
 import { PRIORITY_BADGE } from "@/components/dashboard/decision-item-card";
 import type { Priority } from "@/lib/dashboard/types";
 
@@ -124,10 +129,7 @@ export function MissionToolbar({
           </SelectContent>
         </Select>
 
-        <Select
-          value={filters.agentId}
-          onValueChange={(v) => onChange({ ...filters, agentId: v })}
-        >
+        <Select value={filters.agentId} onValueChange={(v) => onChange({ ...filters, agentId: v })}>
           <SelectTrigger className="w-[170px]" aria-label="Filtrer par agent">
             <SelectValue placeholder="Agent" />
           </SelectTrigger>

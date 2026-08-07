@@ -258,8 +258,7 @@ export function MissionBuilderDialog({
     close();
   };
 
-  const agentName = (id: string | null) =>
-    agents.find((a) => a.id === id)?.name ?? "Non assigné";
+  const agentName = (id: string | null) => agents.find((a) => a.id === id)?.name ?? "Non assigné";
 
   return (
     <Dialog open={open} onOpenChange={(next) => (next ? onOpenChange(true) : requestClose())}>
@@ -280,8 +279,18 @@ export function MissionBuilderDialog({
               <div className="grid gap-3 sm:grid-cols-2">
                 {(
                   [
-                    { id: "scratch", label: "Partir de zéro", icon: Sparkles, hint: "Mission vierge, tout à définir" },
-                    { id: "template", label: "Utiliser un modèle", icon: LayoutTemplate, hint: "Pré-remplir depuis un blueprint" },
+                    {
+                      id: "scratch",
+                      label: "Partir de zéro",
+                      icon: Sparkles,
+                      hint: "Mission vierge, tout à définir",
+                    },
+                    {
+                      id: "template",
+                      label: "Utiliser un modèle",
+                      icon: LayoutTemplate,
+                      hint: "Pré-remplir depuis un blueprint",
+                    },
                   ] as const
                 ).map((option) => {
                   const Icon = option.icon;
@@ -302,7 +311,9 @@ export function MissionBuilderDialog({
                           : "border-border bg-surface hover:bg-card",
                       )}
                     >
-                      <Icon className={cn("size-5", active ? "text-primary" : "text-muted-foreground")} />
+                      <Icon
+                        className={cn("size-5", active ? "text-primary" : "text-muted-foreground")}
+                      />
                       <span className="text-[14px] text-foreground">{option.label}</span>
                       <span className="text-[12px] text-muted-foreground">{option.hint}</span>
                     </button>
@@ -453,7 +464,9 @@ export function MissionBuilderDialog({
                       }
                       className={cn(
                         "flex w-full items-start gap-3 rounded-xl border p-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                        active ? "border-primary bg-primary/10" : "border-border bg-surface hover:bg-card",
+                        active
+                          ? "border-primary bg-primary/10"
+                          : "border-border bg-surface hover:bg-card",
                       )}
                     >
                       <Avatar className="size-9">
@@ -461,7 +474,9 @@ export function MissionBuilderDialog({
                       </Avatar>
                       <span className="min-w-0 flex-1">
                         <span className="block text-[14px] text-foreground">{agent.name}</span>
-                        <span className="block text-[12px] text-muted-foreground">{agent.role}</span>
+                        <span className="block text-[12px] text-muted-foreground">
+                          {agent.role}
+                        </span>
                         {agent.tools?.length ? (
                           <span className="mt-2 flex flex-wrap gap-1">
                             {agent.tools.map((tool) => (
@@ -473,7 +488,9 @@ export function MissionBuilderDialog({
                       <span
                         className={cn(
                           "mt-1 flex size-5 shrink-0 items-center justify-center rounded-md border",
-                          active ? "border-primary bg-primary text-primary-foreground" : "border-border",
+                          active
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : "border-border",
                         )}
                         aria-hidden="true"
                       >
@@ -491,7 +508,10 @@ export function MissionBuilderDialog({
               <FieldGroup title="Étapes d'exécution">
                 <ul className="space-y-2">
                   {draft.steps.map((s, index) => (
-                    <li key={s.id} className="space-y-3 rounded-xl border border-border bg-surface p-3">
+                    <li
+                      key={s.id}
+                      className="space-y-3 rounded-xl border border-border bg-surface p-3"
+                    >
                       <div className="flex items-center gap-2">
                         <span className="text-[12px] tabular-nums text-muted-foreground">
                           {index + 1}.
@@ -624,13 +644,13 @@ export function MissionBuilderDialog({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {(
-                      Object.keys(VALIDATION_LABEL) as MissionDraft["validationThreshold"][]
-                    ).map((v) => (
-                      <SelectItem key={v} value={v}>
-                        {VALIDATION_LABEL[v]}
-                      </SelectItem>
-                    ))}
+                    {(Object.keys(VALIDATION_LABEL) as MissionDraft["validationThreshold"][]).map(
+                      (v) => (
+                        <SelectItem key={v} value={v}>
+                          {VALIDATION_LABEL[v]}
+                        </SelectItem>
+                      ),
+                    )}
                   </SelectContent>
                 </Select>
               </FieldGroup>

@@ -51,10 +51,7 @@ export const DEAL_STAGE_ORDER: DealStage[] = [
 /** Étapes considérées comme « pipeline actif ». */
 export const ACTIVE_STAGES: DealStage[] = ["qualification", "proposal", "negotiation"];
 
-export const ACTIVITY_TYPE: Record<
-  CrmActivity["type"],
-  { label: string; icon: LucideIcon }
-> = {
+export const ACTIVITY_TYPE: Record<CrmActivity["type"], { label: string; icon: LucideIcon }> = {
   email: { label: "E-mail", icon: Mail },
   call: { label: "Appel", icon: Phone },
   meeting: { label: "Réunion", icon: Users },

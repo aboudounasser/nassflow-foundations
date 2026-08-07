@@ -115,7 +115,10 @@ export function securityEventFeed(): SecurityEvent[] {
         timestamp: entry.timestamp,
         source: "mission_history",
         severity,
-        title: entry.type === "error" ? `Incident mission — ${mission.title}` : `Validation mission — ${mission.title}`,
+        title:
+          entry.type === "error"
+            ? `Incident mission — ${mission.title}`
+            : `Validation mission — ${mission.title}`,
         description: entry.event,
         actor: entry.actor,
         linkTo: entry.agentId
@@ -155,9 +158,7 @@ export function securityEventFeed(): SecurityEvent[] {
     });
   }
 
-  return events.sort(
-    (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
-  );
+  return events.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 }
 
 /** Événements critiques sur les 7 derniers jours (référence = dernier événement des mocks). */
@@ -183,9 +184,8 @@ export function securityPostureScore(): number {
   const recentAgentErrors = agentsDetailMock.reduce(
     (acc, agent) =>
       acc +
-      agent.logs.filter(
-        (l) => l.type === "error" && new Date(l.timestamp).getTime() >= since,
-      ).length,
+      agent.logs.filter((l) => l.type === "error" && new Date(l.timestamp).getTime() >= since)
+        .length,
     0,
   );
   const score = 100 - integrationErrors * 6 - suspended * 4 - recentAgentErrors * 3;

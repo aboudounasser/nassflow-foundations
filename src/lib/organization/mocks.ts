@@ -32,8 +32,7 @@ export const departmentsMock: Department[] = [
   {
     id: "d-marketing",
     name: "Marketing",
-    description:
-      "Marque, contenu et campagnes multicanal, orchestrés avec le Marketing Agent.",
+    description: "Marque, contenu et campagnes multicanal, orchestrés avec le Marketing Agent.",
     leadMemberId: "u-lea",
   },
   {
@@ -46,8 +45,7 @@ export const departmentsMock: Department[] = [
   {
     id: "d-rh",
     name: "RH",
-    description:
-      "Recrutement, onboarding et culture interne, assistés par le HR Agent.",
+    description: "Recrutement, onboarding et culture interne, assistés par le HR Agent.",
     leadMemberId: "u-sofia",
   },
   {

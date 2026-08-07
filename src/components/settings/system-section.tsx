@@ -34,7 +34,10 @@ export function SystemSection() {
         }
       >
         <div className="flex items-start gap-3 rounded-lg border border-border bg-surface p-3">
-          <ShieldCheck className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+          <ShieldCheck
+            className="mt-0.5 size-4 shrink-0 text-muted-foreground"
+            aria-hidden="true"
+          />
           <p className="text-[12px] leading-4 text-muted-foreground">
             L'authentification à deux facteurs, la politique de mot de passe, la durée de session,
             les adresses IP autorisées et la rétention des journaux d'audit sont configurées dans le

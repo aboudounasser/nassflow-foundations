@@ -5,10 +5,7 @@ import { useMemo, useState } from "react";
 import { WidgetShell } from "@/components/dashboard/widget-shell";
 import { useContextPanel, useContextPanelContent } from "@/components/layout/context-panel";
 import { ModulePage } from "@/components/layout/page-header";
-import {
-  DepartmentCard,
-  DepartmentSkeletonGrid,
-} from "@/components/organization/department-card";
+import { DepartmentCard, DepartmentSkeletonGrid } from "@/components/organization/department-card";
 import {
   OrgMemberCard,
   OrgMemberCardSkeletonGrid,
@@ -83,9 +80,7 @@ function Page() {
       if (filters.sort === "joinedAt")
         return new Date(b.joinedAt).getTime() - new Date(a.joinedAt).getTime();
       if (filters.sort === "department")
-        return (
-          a.department.localeCompare(b.department, "fr") || a.name.localeCompare(b.name, "fr")
-        );
+        return a.department.localeCompare(b.department, "fr") || a.name.localeCompare(b.name, "fr");
       return a.name.localeCompare(b.name, "fr");
     });
   }, [filters]);
@@ -110,8 +105,7 @@ function Page() {
     requestOpen();
   };
 
-  const directoryState =
-    state === "success" ? (members.length === 0 ? "empty" : "success") : state;
+  const directoryState = state === "success" ? (members.length === 0 ? "empty" : "success") : state;
   const departmentsState =
     state === "success" ? (departmentsMock.length === 0 ? "empty" : "success") : state;
 
