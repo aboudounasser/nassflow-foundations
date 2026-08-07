@@ -43,9 +43,9 @@ export function LaunchCenter() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button className="hidden md:inline-flex">
-          <Plus />
-          Lancer
+        <Button aria-label="Launch Center — lancer une nouvelle action">
+          <Plus aria-hidden="true" />
+          <span className="hidden md:inline">Lancer</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-72">
