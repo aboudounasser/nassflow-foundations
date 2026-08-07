@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Plug } from "lucide-react";
+import { Plug, TriangleAlert } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import { EmptyState } from "@/components/common/empty-state";
 import { WidgetShell } from "@/components/dashboard/widget-shell";
 import {
   IntegrationCard,
@@ -16,8 +17,9 @@ import { GRID_LIST_VIEWS, ModuleToolbar } from "@/components/common/module-toolb
 import { useContextPanel, useContextPanelContent } from "@/components/layout/context-panel";
 import { ModulePage } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { INTEGRATION_FILTER_DESCRIPTORS, INTEGRATION_STATUS_ORDER } from "@/lib/integrations/meta";
-import { integrationsMock } from "@/lib/integrations/mocks";
+import { useIntegrations } from "@/lib/integrations/queries";
 import type { Integration, IntegrationFilters, IntegrationView } from "@/lib/integrations/types";
 
 const DESCRIPTION =
@@ -48,13 +50,14 @@ function Page() {
   const [filters, setFilters] = useState<IntegrationFilters>(DEFAULT_FILTERS);
   const [view, setView] = useState<IntegrationView>("grid");
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  // État du module : loading / error / success (mock statique).
-  const [state] = useState<"loading" | "error" | "success">("success");
   const { requestOpen } = useContextPanel();
+
+  const integrationsQuery = useIntegrations();
+  const allIntegrations = useMemo(() => integrationsQuery.data ?? [], [integrationsQuery.data]);
 
   const integrations = useMemo(() => {
     const query = filters.search.trim().toLowerCase();
-    const list = integrationsMock.filter((i) => {
+    const list = allIntegrations.filter((i) => {
       if (
         query &&
         !i.name.toLowerCase().includes(query) &&
@@ -66,7 +69,7 @@ function Page() {
       return true;
     });
 
-    return list.sort((a, b) => {
+    return [...list].sort((a, b) => {
       if (filters.sort === "status") {
         const diff =
           INTEGRATION_STATUS_ORDER.indexOf(a.status) - INTEGRATION_STATUS_ORDER.indexOf(b.status);
@@ -79,9 +82,9 @@ function Page() {
       }
       return a.name.localeCompare(b.name, "fr");
     });
-  }, [filters]);
+  }, [filters, allIntegrations]);
 
-  const selected = integrationsMock.find((i) => i.id === selectedId) ?? null;
+  const selected = allIntegrations.find((i) => i.id === selectedId) ?? null;
 
   useContextPanelContent(
     () => (selected ? <IntegrationSummaryPanel integration={selected} /> : null),
@@ -93,18 +96,42 @@ function Page() {
     requestOpen();
   };
 
-  const widgetState =
-    state === "success" ? (integrations.length === 0 ? "empty" : "success") : state;
+  const widgetState = integrationsQuery.isError
+    ? "error"
+    : integrationsQuery.isPending
+      ? "loading"
+      : integrations.length === 0
+        ? "empty"
+        : "success";
+
+  if (integrationsQuery.isError) {
+    return (
+      <section className="col-span-12 min-w-0">
+        <Card className="border-border bg-card p-4">
+          <EmptyState
+            icon={TriangleAlert}
+            title="Impossible de charger l'Integrations Hub"
+            description="Le catalogue d'intégrations n'a pas pu être récupéré. Vérifiez votre connexion puis réessayez."
+          />
+          <div className="flex justify-center">
+            <Button type="button" size="sm" onClick={() => void integrationsQuery.refetch()}>
+              Réessayer
+            </Button>
+          </div>
+        </Card>
+      </section>
+    );
+  }
 
   return (
     <>
       <ModulePage title="Integrations Hub" description={DESCRIPTION} />
 
       <section className="col-span-12 min-w-0">
-        {state === "loading" ? (
+        {integrationsQuery.isPending ? (
           <IntegrationOverviewSkeleton />
         ) : (
-          <IntegrationOverview integrations={integrationsMock} />
+          <IntegrationOverview integrations={allIntegrations} />
         )}
       </section>
 

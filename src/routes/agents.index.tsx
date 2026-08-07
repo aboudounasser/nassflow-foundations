@@ -1,19 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Bot } from "lucide-react";
+import { Bot, TriangleAlert } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { AgentCard, AgentCardSkeletonGrid } from "@/components/agents/agent-card";
 import { AgentSummaryPanel } from "@/components/agents/agent-summary-panel";
 import { AgentsOverview, AgentsOverviewSkeleton } from "@/components/agents/agents-overview";
 import { GRID_LIST_VIEWS, ModuleToolbar } from "@/components/common/module-toolbar";
+import { EmptyState } from "@/components/common/empty-state";
 import { WidgetShell } from "@/components/dashboard/widget-shell";
 import { useContextPanel, useContextPanelContent } from "@/components/layout/context-panel";
 import { ModulePage } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
-import { agentsDetailMock, missionsOfAgent } from "@/lib/agents/mocks";
+import { Card } from "@/components/ui/card";
 import { AGENT_FILTER_DESCRIPTORS } from "@/lib/agents/meta";
+import { useAgents } from "@/lib/agents/queries";
 import type { AgentDetail, AgentFilters, AgentView } from "@/lib/agents/types";
-import { missionsDetailMock } from "@/lib/missions/mocks";
 
 const DESCRIPTION =
   "Pilotez la workforce IA de NASSFLOW OS : rôles, capacités, outils, permissions et missions de chaque collaborateur IA.";
@@ -41,13 +42,14 @@ function Page() {
   const [filters, setFilters] = useState<AgentFilters>(DEFAULT_FILTERS);
   const [view, setView] = useState<AgentView>("grid");
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  // État du module : loading / error / success (mock statique).
-  const [state] = useState<"loading" | "error" | "success">("success");
   const { requestOpen } = useContextPanel();
+
+  const agentsQuery = useAgents();
+  const items = useMemo(() => agentsQuery.data?.items ?? [], [agentsQuery.data]);
 
   const agents = useMemo(() => {
     const query = filters.search.trim().toLowerCase();
-    const filtered = agentsDetailMock.filter((agent) => {
+    const filtered = items.filter(({ agent }) => {
       if (
         query &&
         !agent.name.toLowerCase().includes(query) &&
@@ -61,21 +63,21 @@ function Page() {
     });
 
     return [...filtered].sort((a, b) => {
-      if (filters.sort === "confidence") return b.confidenceScore - a.confidenceScore;
+      if (filters.sort === "confidence") return b.agent.confidenceScore - a.agent.confidenceScore;
       if (filters.sort === "activity")
-        return new Date(b.lastActivity).getTime() - new Date(a.lastActivity).getTime();
-      return a.name.localeCompare(b.name, "fr");
+        return new Date(b.agent.lastActivity).getTime() - new Date(a.agent.lastActivity).getTime();
+      return a.agent.name.localeCompare(b.agent.name, "fr");
     });
-  }, [filters]);
+  }, [filters, items]);
 
-  const selected = agents.find((a) => a.id === selectedId) ?? null;
+  const selected = agents.find((a) => a.agent.id === selectedId) ?? null;
 
   useContextPanelContent(
     () =>
       selected ? (
-        <AgentSummaryPanel agent={selected} missionCount={missionsOfAgent(selected.id).length} />
+        <AgentSummaryPanel agent={selected.agent} missionCount={selected.missionCount} />
       ) : null,
-    [selected?.id],
+    [selected?.agent.id],
   );
 
   const handleSelect = (agent: AgentDetail) => {
@@ -83,17 +85,45 @@ function Page() {
     requestOpen();
   };
 
-  const widgetState = state === "success" ? (agents.length === 0 ? "empty" : "success") : state;
+  const widgetState = agentsQuery.isError
+    ? "error"
+    : agentsQuery.isPending
+      ? "loading"
+      : agents.length === 0
+        ? "empty"
+        : "success";
+
+  if (agentsQuery.isError) {
+    return (
+      <section className="col-span-12 min-w-0">
+        <Card className="border-border bg-card p-4">
+          <EmptyState
+            icon={TriangleAlert}
+            title="Impossible de charger l'AI Workforce"
+            description="Les agents n'ont pas pu être récupérés. Vérifiez votre connexion puis réessayez."
+          />
+          <div className="flex justify-center">
+            <Button type="button" size="sm" onClick={() => void agentsQuery.refetch()}>
+              Réessayer
+            </Button>
+          </div>
+        </Card>
+      </section>
+    );
+  }
 
   return (
     <>
       <ModulePage title="AI Workforce" description={DESCRIPTION} />
 
       <section className="col-span-12 min-w-0">
-        {state === "loading" ? (
+        {agentsQuery.isPending || !agentsQuery.data ? (
           <AgentsOverviewSkeleton />
         ) : (
-          <AgentsOverview agents={agentsDetailMock} missions={missionsDetailMock} />
+          <AgentsOverview
+            agents={items.map((i) => i.agent)}
+            runningMissions={agentsQuery.data.runningMissions}
+          />
         )}
       </section>
 
@@ -136,13 +166,13 @@ function Page() {
                 : "flex flex-col gap-3"
             }
           >
-            {agents.map((agent) => (
+            {agents.map(({ agent, missionCount }) => (
               <AgentCard
                 key={agent.id}
                 agent={agent}
                 selected={agent.id === selectedId}
                 compact={view === "list"}
-                missionCount={missionsOfAgent(agent.id).length}
+                missionCount={missionCount}
                 onSelect={handleSelect}
               />
             ))}

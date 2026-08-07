@@ -8,8 +8,6 @@ import {
 
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { NOW_REFERENCE } from "@/lib/workflows/meta";
-import { runsLast24h } from "@/lib/workflows/mocks";
 import type { Workflow } from "@/lib/workflows/types";
 
 function StatCard({
@@ -48,14 +46,19 @@ export function WorkflowOverviewSkeleton() {
   );
 }
 
-export function WorkflowOverview({ workflows }: { workflows: Workflow[] }) {
+export function WorkflowOverview({
+  workflows,
+  runsLast24h,
+}: {
+  workflows: Workflow[];
+  runsLast24h: number;
+}) {
   const active = workflows.filter((w) => w.status === "active").length;
   const rated = workflows.filter((w) => w.runs.length > 0);
   const avgSuccess =
     rated.length > 0
       ? Math.round(rated.reduce((sum, w) => sum + w.successRate, 0) / rated.length)
       : 0;
-  const last24h = runsLast24h(workflows, NOW_REFERENCE);
 
   return (
     <div className="@container">
@@ -63,7 +66,7 @@ export function WorkflowOverview({ workflows }: { workflows: Workflow[] }) {
         <StatCard icon={WorkflowIcon} value={String(workflows.length)} label="Workflows" />
         <StatCard icon={CirclePlay} value={String(active)} label="Actifs" />
         <StatCard icon={Percent} value={`${avgSuccess}%`} label="Taux de réussite moyen" />
-        <StatCard icon={Activity} value={String(last24h)} label="Exécutions 24h" />
+        <StatCard icon={Activity} value={String(runsLast24h)} label="Exécutions 24h" />
       </div>
     </div>
   );
