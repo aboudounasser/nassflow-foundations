@@ -88,6 +88,9 @@ function Page() {
 
   const selected = orgMembersMock.find((m) => m.id === selectedId) ?? null;
 
+  const departments = useMemo(() => departmentsMock.map((d) => d.name), []);
+  const descriptors = useMemo(() => memberFilterDescriptors(departments), [departments]);
+
   useContextPanelContent(
     () =>
       selected ? (
