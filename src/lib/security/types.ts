@@ -1,4 +1,5 @@
 /** Modèle du module Security Center — politiques mockées en lecture seule. */
+import type { MemberRole, MemberStatus } from "@/lib/organization/types";
 
 export type SecurityEventSeverity = "info" | "warning" | "critical";
 
