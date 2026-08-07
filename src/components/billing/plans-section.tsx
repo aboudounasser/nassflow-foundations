@@ -34,7 +34,7 @@ export function PlansSection() {
   const { data: plans, isPending } = useBillingPlans();
 
   const current = plans?.find((p) => p.isCurrent) ?? plans?.at(-1);
-  const targetCta = target ? planCta(target, current) : null;
+  const targetCta = target && current ? planCta(target, current) : null;
   const isDowngrade = targetCta === "downgrade";
 
   const agentsLabel =
