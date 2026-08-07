@@ -9,7 +9,6 @@ import {
   formatSyncRelative,
   integrationInitials,
 } from "@/lib/integrations/meta";
-import { agentsUsingIntegration } from "@/lib/integrations/mocks";
 import type { Integration } from "@/lib/integrations/types";
 import { cn } from "@/lib/utils";
 
@@ -25,18 +24,19 @@ export function IntegrationCardSkeletonGrid({ count = 6 }: { count?: number }) {
 
 export function IntegrationCard({
   integration,
+  agentCount,
   selected = false,
   compact = false,
   onSelect,
 }: {
   integration: Integration;
+  agentCount: number;
   selected?: boolean;
   compact?: boolean;
   onSelect?: (integration: Integration) => void;
 }) {
   const status = INTEGRATION_STATUS[integration.status];
   const StatusIcon = status.icon;
-  const agentCount = agentsUsingIntegration(integration.name).length;
   const notInstalled = integration.status === "not_installed";
 
   return (
