@@ -68,8 +68,7 @@ function Page() {
   const allMembers = useMemo(() => membersQuery.data ?? [], [membersQuery.data]);
   const departmentsData = departmentsQuery.data;
 
-  const isPending =
-    companyQuery.isPending || departmentsQuery.isPending || membersQuery.isPending;
+  const isPending = companyQuery.isPending || departmentsQuery.isPending || membersQuery.isPending;
   const isError =
     companyQuery.isError ||
     departmentsQuery.isError ||
@@ -111,10 +110,7 @@ function Page() {
   const selected = allMembers.find((m) => m.id === selectedId) ?? null;
   const selectedDetail = selectedQuery.data ?? null;
 
-  const departments = useMemo(
-    () => (departmentsData ?? []).map((d) => d.name),
-    [departmentsData],
-  );
+  const departments = useMemo(() => (departmentsData ?? []).map((d) => d.name), [departmentsData]);
   const descriptors = useMemo(() => memberFilterDescriptors(departments), [departments]);
 
   useContextPanelContent(

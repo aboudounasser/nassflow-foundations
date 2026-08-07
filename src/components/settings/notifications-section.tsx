@@ -12,11 +12,7 @@ const CHANNELS = [
   { key: "slack", label: "Slack" },
 ] as const;
 
-export function NotificationsSection({
-  notifications,
-}: {
-  notifications: NotificationSetting[];
-}) {
+export function NotificationsSection({ notifications }: { notifications: NotificationSetting[] }) {
   return (
     <SettingsCard
       title="Notifications"

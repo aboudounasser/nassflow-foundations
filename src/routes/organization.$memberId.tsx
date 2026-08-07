@@ -211,7 +211,7 @@ function Page() {
       </section>
 
       <section className="col-span-12 min-w-0">
-        {(
+        {
           <div className="space-y-6 rounded-xl border border-border bg-surface p-6">
             <div className="space-y-2">
               <h2 className="text-[14px] font-medium text-foreground">Informations</h2>
@@ -306,7 +306,7 @@ function Page() {
               )}
             </div>
           </div>
-        )}
+        }
       </section>
 
       <AlertDialog open={confirmRemove} onOpenChange={setConfirmRemove}>

@@ -84,11 +84,7 @@ export function MembersAccessTable({ rows }: { rows: AccessMatrixRow[] }) {
   );
 }
 
-export function AgentPermissionsTable({
-  rows,
-}: {
-  rows: AgentPermissionsRow[];
-}) {
+export function AgentPermissionsTable({ rows }: { rows: AgentPermissionsRow[] }) {
   const navigate = useNavigate();
   return (
     <Section
@@ -127,11 +123,7 @@ export function AgentPermissionsTable({
   );
 }
 
-export function IntegrationPermissionsTable({
-  rows,
-}: {
-  rows: IntegrationPermissionsRow[];
-}) {
+export function IntegrationPermissionsTable({ rows }: { rows: IntegrationPermissionsRow[] }) {
   const navigate = useNavigate();
   return (
     <Section
