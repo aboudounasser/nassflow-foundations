@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { KanbanSquare, Users } from "lucide-react";
+import { KanbanSquare, TriangleAlert, Users } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import { EmptyState } from "@/components/common/empty-state";
 import { WidgetShell } from "@/components/dashboard/widget-shell";
 import { ContactCard, ContactCardSkeletonGrid } from "@/components/crm/contact-card";
 import { ContactSummaryPanel, DealSummaryPanel } from "@/components/crm/contact-summary-panel";
@@ -11,9 +12,10 @@ import { PipelineKanban, PipelineSkeleton } from "@/components/crm/pipeline-view
 import { useContextPanel, useContextPanelContent } from "@/components/layout/context-panel";
 import { ModulePage } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { CONTACT_FILTER_DESCRIPTORS } from "@/lib/crm/meta";
-import { contactsMock, dealsMock, dealsOfContact } from "@/lib/crm/mocks";
+import { useContacts, useDeals } from "@/lib/crm/queries";
 import type { Contact, ContactFilters, CrmTab, CrmView, Deal } from "@/lib/crm/types";
 
 const DESCRIPTION =
@@ -46,13 +48,26 @@ function Page() {
   const [view, setView] = useState<CrmView>("grid");
   const [selectedContactId, setSelectedContactId] = useState<string | null>(null);
   const [selectedDealId, setSelectedDealId] = useState<string | null>(null);
-  // État du module : loading / error / success (mock statique).
-  const [state] = useState<"loading" | "error" | "success">("success");
   const { requestOpen } = useContextPanel();
+
+  const contactsQuery = useContacts();
+  const dealsQuery = useDeals();
+
+  const items = useMemo(() => contactsQuery.data ?? [], [contactsQuery.data]);
+  const allContacts = useMemo(() => items.map((i) => i.contact), [items]);
+  const allDeals = useMemo(() => dealsQuery.data ?? [], [dealsQuery.data]);
+
+  const isPending = contactsQuery.isPending || dealsQuery.isPending;
+  const isError = contactsQuery.isError || dealsQuery.isError;
+
+  const retry = () => {
+    if (contactsQuery.isError) void contactsQuery.refetch();
+    if (dealsQuery.isError) void dealsQuery.refetch();
+  };
 
   const contacts = useMemo(() => {
     const query = filters.search.trim().toLowerCase();
-    const list = contactsMock.filter((c) => {
+    const list = items.filter(({ contact: c }) => {
       if (
         query &&
         !c.name.toLowerCase().includes(query) &&
@@ -65,28 +80,28 @@ function Page() {
       return true;
     });
 
-    return list.sort((a, b) => {
-      if (filters.sort === "name") return a.name.localeCompare(b.name, "fr");
-      if (filters.sort === "value") return (b.value ?? 0) - (a.value ?? 0);
-      return new Date(b.lastContactAt).getTime() - new Date(a.lastContactAt).getTime();
+    return [...list].sort((a, b) => {
+      if (filters.sort === "name") return a.contact.name.localeCompare(b.contact.name, "fr");
+      if (filters.sort === "value") return (b.contact.value ?? 0) - (a.contact.value ?? 0);
+      return (
+        new Date(b.contact.lastContactAt).getTime() - new Date(a.contact.lastContactAt).getTime()
+      );
     });
-  }, [filters]);
+  }, [filters, items]);
 
-  const selectedContact = contactsMock.find((c) => c.id === selectedContactId) ?? null;
-  const selectedDeal = dealsMock.find((d) => d.id === selectedDealId) ?? null;
+  const selectedItem = items.find((i) => i.contact.id === selectedContactId) ?? null;
+  const selectedContact = selectedItem?.contact ?? null;
+  const selectedDeal = allDeals.find((d) => d.id === selectedDealId) ?? null;
 
   useContextPanelContent(() => {
     if (tab === "pipeline") {
       if (!selectedDeal) return null;
-      const contact = contactsMock.find((c) => c.id === selectedDeal.contactId) ?? null;
+      const contact = allContacts.find((c) => c.id === selectedDeal.contactId) ?? null;
       return <DealSummaryPanel deal={selectedDeal} contact={contact} />;
     }
-    if (!selectedContact) return null;
+    if (!selectedContact || !selectedItem) return null;
     return (
-      <ContactSummaryPanel
-        contact={selectedContact}
-        dealCount={dealsOfContact(selectedContact.id).length}
-      />
+      <ContactSummaryPanel contact={selectedContact} dealCount={selectedItem.deals.length} />
     );
   }, [tab, selectedContact?.id, selectedDeal?.id]);
 
@@ -101,7 +116,26 @@ function Page() {
   };
 
   const contactsWidgetState =
-    state === "success" ? (contacts.length === 0 ? "empty" : "success") : state;
+    isError ? "error" : isPending ? "loading" : contacts.length === 0 ? "empty" : "success";
+
+  if (isError) {
+    return (
+      <section className="col-span-12 min-w-0">
+        <Card className="border-border bg-card p-4">
+          <EmptyState
+            icon={TriangleAlert}
+            title="Impossible de charger le CRM"
+            description="Les contacts et opportunités n'ont pas pu être récupérés. Vérifiez votre connexion puis réessayez."
+          />
+          <div className="flex justify-center">
+            <Button type="button" size="sm" onClick={retry}>
+              Réessayer
+            </Button>
+          </div>
+        </Card>
+      </section>
+    );
+  }
 
   return (
     <>
@@ -128,10 +162,10 @@ function Page() {
       {tab === "contacts" ? (
         <>
           <section className="col-span-12 min-w-0">
-            {state === "loading" ? (
+            {isPending ? (
               <CrmOverviewSkeleton />
             ) : (
-              <CrmOverview contacts={contactsMock} deals={dealsMock} />
+              <CrmOverview contacts={allContacts} deals={allDeals} />
             )}
           </section>
 
@@ -174,7 +208,7 @@ function Page() {
                     : "flex flex-col gap-3"
                 }
               >
-                {contacts.map((contact) => (
+                {contacts.map(({ contact }) => (
                   <ContactCard
                     key={contact.id}
                     contact={contact}
@@ -190,22 +224,22 @@ function Page() {
       ) : (
         <>
           <section className="col-span-12 min-w-0">
-            {state === "loading" ? <CrmOverviewSkeleton /> : <PipelineOverview deals={dealsMock} />}
+            {isPending ? <CrmOverviewSkeleton /> : <PipelineOverview deals={allDeals} />}
           </section>
 
           <section className="col-span-12 min-w-0">
             <WidgetShell
               title="Pipeline commercial"
               icon={KanbanSquare}
-              state={state === "success" && dealsMock.length === 0 ? "empty" : state}
+              state={isPending ? "loading" : allDeals.length === 0 ? "empty" : "success"}
               showMenu={false}
               emptyIcon={KanbanSquare}
               emptyTitle="Aucune opportunité dans le pipeline"
               skeleton={<PipelineSkeleton />}
             >
               <PipelineKanban
-                deals={dealsMock}
-                contacts={contactsMock}
+                deals={allDeals}
+                contacts={allContacts}
                 selectedId={selectedDealId}
                 onSelect={handleSelectDeal}
               />
