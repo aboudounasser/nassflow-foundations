@@ -32,13 +32,13 @@ export function BillingOverviewBanner({
   nextInvoice,
   loading = false,
 }: {
-  plan: BillingPlan;
-  totalCost: number;
-  totalAiCalls: number;
-  nextInvoice: Invoice;
+  plan?: BillingPlan;
+  totalCost?: number;
+  totalAiCalls?: number;
+  nextInvoice?: Invoice;
   loading?: boolean;
 }) {
-  if (loading) {
+  if (loading || !plan || !nextInvoice || totalCost === undefined || totalAiCalls === undefined) {
     return (
       <Card className="border-border bg-card p-6">
         <div className="flex flex-col gap-6">
