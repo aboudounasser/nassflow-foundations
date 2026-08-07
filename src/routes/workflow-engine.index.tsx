@@ -1,11 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Workflow as WorkflowIcon } from "lucide-react";
+import { TriangleAlert, Workflow as WorkflowIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import { EmptyState } from "@/components/common/empty-state";
 import { WidgetShell } from "@/components/dashboard/widget-shell";
 import { useContextPanel, useContextPanelContent } from "@/components/layout/context-panel";
 import { ModulePage } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { WorkflowCard, WorkflowCardSkeletonGrid } from "@/components/workflows/workflow-card";
 import {
   WorkflowOverview,
@@ -14,7 +16,7 @@ import {
 import { WorkflowSummaryPanel } from "@/components/workflows/workflow-summary-panel";
 import { GRID_LIST_VIEWS, ModuleToolbar } from "@/components/common/module-toolbar";
 import { WORKFLOW_FILTER_DESCRIPTORS } from "@/lib/workflows/meta";
-import { workflowsMock } from "@/lib/workflows/mocks";
+import { useWorkflows } from "@/lib/workflows/queries";
 import type { Workflow, WorkflowFilters, WorkflowView } from "@/lib/workflows/types";
 
 const DESCRIPTION =
@@ -45,13 +47,17 @@ function Page() {
   const [filters, setFilters] = useState<WorkflowFilters>(DEFAULT_FILTERS);
   const [view, setView] = useState<WorkflowView>("grid");
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  // État du module : loading / error / success (mock statique).
-  const [state] = useState<"loading" | "error" | "success">("success");
   const { requestOpen } = useContextPanel();
+
+  const workflowsQuery = useWorkflows();
+  const allWorkflows = useMemo(
+    () => workflowsQuery.data?.workflows ?? [],
+    [workflowsQuery.data],
+  );
 
   const workflows = useMemo(() => {
     const query = filters.search.trim().toLowerCase();
-    const list = workflowsMock.filter((w) => {
+    const list = allWorkflows.filter((w) => {
       if (
         query &&
         !w.name.toLowerCase().includes(query) &&
@@ -63,16 +69,16 @@ function Page() {
       return true;
     });
 
-    return list.sort((a, b) => {
+    return [...list].sort((a, b) => {
       if (filters.sort === "name") return a.name.localeCompare(b.name, "fr");
       if (filters.sort === "successRate") return b.successRate - a.successRate;
       const at = a.lastRunAt ? new Date(a.lastRunAt).getTime() : 0;
       const bt = b.lastRunAt ? new Date(b.lastRunAt).getTime() : 0;
       return bt - at;
     });
-  }, [filters]);
+  }, [filters, allWorkflows]);
 
-  const selected = workflowsMock.find((w) => w.id === selectedId) ?? null;
+  const selected = allWorkflows.find((w) => w.id === selectedId) ?? null;
 
   useContextPanelContent(
     () => (selected ? <WorkflowSummaryPanel workflow={selected} /> : null),
@@ -84,17 +90,45 @@ function Page() {
     requestOpen();
   };
 
-  const widgetState = state === "success" ? (workflows.length === 0 ? "empty" : "success") : state;
+  const widgetState = workflowsQuery.isError
+    ? "error"
+    : workflowsQuery.isPending
+      ? "loading"
+      : workflows.length === 0
+        ? "empty"
+        : "success";
+
+  if (workflowsQuery.isError) {
+    return (
+      <section className="col-span-12 min-w-0">
+        <Card className="border-border bg-card p-4">
+          <EmptyState
+            icon={TriangleAlert}
+            title="Impossible de charger le Workflow Engine"
+            description="Les workflows n'ont pas pu être récupérés. Vérifiez votre connexion puis réessayez."
+          />
+          <div className="flex justify-center">
+            <Button type="button" size="sm" onClick={() => void workflowsQuery.refetch()}>
+              Réessayer
+            </Button>
+          </div>
+        </Card>
+      </section>
+    );
+  }
 
   return (
     <>
       <ModulePage title="Workflow Engine" description={DESCRIPTION} />
 
       <section className="col-span-12 min-w-0">
-        {state === "loading" ? (
+        {workflowsQuery.isPending || !workflowsQuery.data ? (
           <WorkflowOverviewSkeleton />
         ) : (
-          <WorkflowOverview workflows={workflowsMock} />
+          <WorkflowOverview
+            workflows={allWorkflows}
+            runsLast24h={workflowsQuery.data.runsLast24h}
+          />
         )}
       </section>
 
