@@ -12,16 +12,13 @@ import {
   IntegrationOverviewSkeleton,
 } from "@/components/integrations/integration-overview";
 import { IntegrationSummaryPanel } from "@/components/integrations/integration-summary-panel";
-import {
-  IntegrationToolbar,
-  type IntegrationFilters,
-} from "@/components/integrations/integration-toolbar";
+import { GRID_LIST_VIEWS, ModuleToolbar } from "@/components/common/module-toolbar";
 import { useContextPanel, useContextPanelContent } from "@/components/layout/context-panel";
 import { ModulePage } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
-import { INTEGRATION_STATUS_ORDER } from "@/lib/integrations/meta";
+import { INTEGRATION_FILTER_DESCRIPTORS, INTEGRATION_STATUS_ORDER } from "@/lib/integrations/meta";
 import { integrationsMock } from "@/lib/integrations/mocks";
-import type { Integration, IntegrationView } from "@/lib/integrations/types";
+import type { Integration, IntegrationFilters, IntegrationView } from "@/lib/integrations/types";
 
 const DESCRIPTION =
   "Le catalogue d'intégrations de NASSFLOW OS : outils connectés aux agents, permissions, synchronisation et connexions disponibles.";
@@ -112,13 +109,19 @@ function Page() {
       </section>
 
       <section className="col-span-12 min-w-0">
-        <IntegrationToolbar
+        <ModuleToolbar
           filters={filters}
           onChange={setFilters}
-          view={view}
-          onViewChange={setView}
           onReset={() => setFilters(DEFAULT_FILTERS)}
+          searchKey="search"
+          searchPlaceholder="Rechercher une intégration, une description…"
+          searchAriaLabel="Rechercher une intégration"
+          descriptors={INTEGRATION_FILTER_DESCRIPTORS}
+          views={GRID_LIST_VIEWS}
+          view={view}
+          onViewChange={(v) => setView(v as IntegrationView)}
           resultCount={integrations.length}
+          resultLabel={(n) => `${n} intégration${n > 1 ? "s" : ""}`}
         />
       </section>
 

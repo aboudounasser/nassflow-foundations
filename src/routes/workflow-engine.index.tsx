@@ -12,9 +12,10 @@ import {
   WorkflowOverviewSkeleton,
 } from "@/components/workflows/workflow-overview";
 import { WorkflowSummaryPanel } from "@/components/workflows/workflow-summary-panel";
-import { WorkflowToolbar, type WorkflowFilters } from "@/components/workflows/workflow-toolbar";
+import { GRID_LIST_VIEWS, ModuleToolbar } from "@/components/common/module-toolbar";
+import { WORKFLOW_FILTER_DESCRIPTORS } from "@/lib/workflows/meta";
 import { workflowsMock } from "@/lib/workflows/mocks";
-import type { Workflow, WorkflowView } from "@/lib/workflows/types";
+import type { Workflow, WorkflowFilters, WorkflowView } from "@/lib/workflows/types";
 
 const DESCRIPTION =
   "Le moteur technique de NASSFLOW OS : déclencheurs, conditions, actions et boucles qui exécutent les missions.";
@@ -98,13 +99,19 @@ function Page() {
       </section>
 
       <section className="col-span-12 min-w-0">
-        <WorkflowToolbar
+        <ModuleToolbar
           filters={filters}
           onChange={setFilters}
-          view={view}
-          onViewChange={setView}
           onReset={() => setFilters(DEFAULT_FILTERS)}
+          searchKey="search"
+          searchPlaceholder="Rechercher un workflow, une description…"
+          searchAriaLabel="Rechercher un workflow"
+          descriptors={WORKFLOW_FILTER_DESCRIPTORS}
+          views={GRID_LIST_VIEWS}
+          view={view}
+          onViewChange={(v) => setView(v as WorkflowView)}
           resultCount={workflows.length}
+          resultLabel={(n) => `${n} workflow${n > 1 ? "s" : ""}`}
         />
       </section>
 

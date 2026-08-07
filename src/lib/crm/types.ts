@@ -52,3 +52,10 @@ export interface Deal {
 export type CrmTab = "contacts" | "pipeline";
 export type CrmView = "grid" | "list";
 export type ContactSortKey = "lastContact" | "value" | "name";
+
+export interface ContactFilters {
+  search: string;
+  type: ContactType | "all";
+  status: ContactStatus | "all";
+  sort: ContactSortKey;
+}

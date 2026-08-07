@@ -1,6 +1,7 @@
 import { Mail, MessageSquare, Phone, Users, type LucideIcon } from "lucide-react";
 
 import type { ContactStatus, ContactType, CrmActivity, DealStage } from "./types";
+import type { FilterDescriptor } from "@/components/common/module-toolbar";
 
 type BadgeVariant = "neutral" | "primary" | "success" | "warning" | "destructive" | "info";
 
@@ -115,3 +116,35 @@ export function contactInitials(name: string): string {
     .map((part) => part[0]?.toUpperCase() ?? "")
     .join("");
 }
+
+export const CONTACT_FILTER_DESCRIPTORS: FilterDescriptor[] = [
+  {
+    kind: "select",
+    key: "type",
+    ariaLabel: "Filtrer par type",
+    placeholder: "Type",
+    allLabel: "Tous les types",
+    width: "w-[160px]",
+    options: CONTACT_TYPE_ORDER.map((t) => ({ value: t, label: CONTACT_TYPE[t].plural })),
+  },
+  {
+    kind: "select",
+    key: "status",
+    ariaLabel: "Filtrer par statut",
+    placeholder: "Statut",
+    allLabel: "Tous les statuts",
+    width: "w-[180px]",
+    options: CONTACT_STATUS_ORDER.map((s) => ({ value: s, label: CONTACT_STATUS[s].label })),
+  },
+  {
+    kind: "sort",
+    key: "sort",
+    ariaLabel: "Trier les contacts",
+    width: "w-[180px]",
+    options: [
+      { value: "lastContact", label: "Dernier contact" },
+      { value: "value", label: "Valeur" },
+      { value: "name", label: "Nom" },
+    ],
+  },
+];

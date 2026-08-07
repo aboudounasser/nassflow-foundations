@@ -6,14 +6,15 @@ import { WidgetShell } from "@/components/dashboard/widget-shell";
 import { ContactCard, ContactCardSkeletonGrid } from "@/components/crm/contact-card";
 import { ContactSummaryPanel, DealSummaryPanel } from "@/components/crm/contact-summary-panel";
 import { CrmOverview, CrmOverviewSkeleton, PipelineOverview } from "@/components/crm/crm-overview";
-import { CrmToolbar, type ContactFilters } from "@/components/crm/crm-toolbar";
+import { GRID_LIST_VIEWS, ModuleToolbar } from "@/components/common/module-toolbar";
 import { PipelineKanban, PipelineSkeleton } from "@/components/crm/pipeline-view";
 import { useContextPanel, useContextPanelContent } from "@/components/layout/context-panel";
 import { ModulePage } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { CONTACT_FILTER_DESCRIPTORS } from "@/lib/crm/meta";
 import { contactsMock, dealsMock, dealsOfContact } from "@/lib/crm/mocks";
-import type { Contact, CrmTab, CrmView, Deal } from "@/lib/crm/types";
+import type { Contact, ContactFilters, CrmTab, CrmView, Deal } from "@/lib/crm/types";
 
 const DESCRIPTION =
   "Le CRM piloté par l'IA de NASSFLOW OS : contacts unifiés prospects/clients et pipeline d'opportunités orchestré par le Sales Agent.";
@@ -135,13 +136,19 @@ function Page() {
           </section>
 
           <section className="col-span-12 min-w-0">
-            <CrmToolbar
+            <ModuleToolbar
               filters={filters}
               onChange={setFilters}
-              view={view}
-              onViewChange={setView}
               onReset={() => setFilters(DEFAULT_FILTERS)}
+              searchKey="search"
+              searchPlaceholder="Rechercher un nom, une entreprise, un e-mail…"
+              searchAriaLabel="Rechercher un contact"
+              descriptors={CONTACT_FILTER_DESCRIPTORS}
+              views={GRID_LIST_VIEWS}
+              view={view}
+              onViewChange={(v) => setView(v as CrmView)}
               resultCount={contacts.length}
+              resultLabel={(n) => `${n} contact${n > 1 ? "s" : ""}`}
             />
           </section>
 
