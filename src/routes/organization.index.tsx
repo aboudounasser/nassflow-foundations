@@ -19,12 +19,12 @@ import { Card } from "@/components/ui/card";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { memberFilterDescriptors } from "@/lib/organization/meta";
 import {
-  agentsInDepartment,
-  directReports,
-  membersInDepartment,
-  orgMemberById,
-} from "@/lib/organization/mocks";
-import { useCompanyProfile, useDepartments, useOrgMembers } from "@/lib/organization/queries";
+  useCompanyProfile,
+  useDepartmentSummaries,
+  useDepartments,
+  useOrgMember,
+  useOrgMembers,
+} from "@/lib/organization/queries";
 import type { MemberFilters, OrgMember, OrgTab, OrgView } from "@/lib/organization/types";
 
 const DESCRIPTION =
@@ -62,6 +62,8 @@ function Page() {
   const companyQuery = useCompanyProfile();
   const departmentsQuery = useDepartments();
   const membersQuery = useOrgMembers();
+  const departmentSummariesQuery = useDepartmentSummaries();
+  const selectedQuery = useOrgMember(selectedId ?? "");
 
   const allMembers = useMemo(() => membersQuery.data ?? [], [membersQuery.data]);
   const departmentsData = departmentsQuery.data;
@@ -102,6 +104,7 @@ function Page() {
   }, [filters, allMembers]);
 
   const selected = allMembers.find((m) => m.id === selectedId) ?? null;
+  const selectedDetail = selectedQuery.data ?? null;
 
   const departments = useMemo(
     () => (departmentsData ?? []).map((d) => d.name),
@@ -111,15 +114,15 @@ function Page() {
 
   useContextPanelContent(
     () =>
-      selected ? (
+      selected && selectedDetail ? (
         <OrgMemberSummaryPanel
           member={selected}
-          manager={orgMemberById(selected.managerId)}
-          reportCount={directReports(selected.id).length}
-          agentCount={agentsInDepartment(selected.department).length}
+          manager={allMembers.find((m) => m.id === selected.managerId) ?? null}
+          reportCount={selectedDetail.directReports.length}
+          agentCount={selectedDetail.departmentAgents.length}
         />
       ) : null,
-    [selected?.id],
+    [selected?.id, selectedDetail],
   );
 
   const handleSelect = (member: OrgMember) => {
@@ -136,9 +139,9 @@ function Page() {
         : "success";
   const departmentsState = isError
     ? "error"
-    : isPending
+    : isPending || departmentSummariesQuery.isPending
       ? "loading"
-      : (departmentsData ?? []).length === 0
+      : (departmentSummariesQuery.data ?? []).length === 0
         ? "empty"
         : "success";
 
@@ -262,13 +265,13 @@ function Page() {
             skeleton={<DepartmentSkeletonGrid />}
           >
             <div className="grid grid-cols-1 gap-4 @2xl:grid-cols-2 @5xl:grid-cols-3">
-              {(departmentsData ?? []).map((department) => (
+              {(departmentSummariesQuery.data ?? []).map((summary) => (
                 <DepartmentCard
-                  key={department.id}
-                  department={department}
-                  lead={orgMemberById(department.leadMemberId)}
-                  members={membersInDepartment(department.name)}
-                  agents={agentsInDepartment(department.name)}
+                  key={summary.department.id}
+                  department={summary.department}
+                  lead={summary.lead}
+                  members={summary.members}
+                  agents={summary.agents}
                   onSelect={(d) => {
                     setFilters({ ...DEFAULT_FILTERS, department: d.name });
                     setTab("directory");
