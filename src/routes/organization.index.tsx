@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Building2, Users } from "lucide-react";
+import { Building2, TriangleAlert, Users } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import { EmptyState } from "@/components/common/empty-state";
 import { WidgetShell } from "@/components/dashboard/widget-shell";
 import { useContextPanel, useContextPanelContent } from "@/components/layout/context-panel";
 import { ModulePage } from "@/components/layout/page-header";
@@ -14,17 +15,16 @@ import { OrgMemberSummaryPanel } from "@/components/organization/org-member-summ
 import { OrgOverview, OrgOverviewSkeleton } from "@/components/organization/org-overview";
 import { GRID_LIST_VIEWS, ModuleToolbar } from "@/components/common/module-toolbar";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { memberFilterDescriptors } from "@/lib/organization/meta";
 import {
-  agentsInDepartment,
-  companyProfileMock,
-  departmentsMock,
-  directReports,
-  membersInDepartment,
-  orgMemberById,
-  orgMembersMock,
-} from "@/lib/organization/mocks";
+  useCompanyProfile,
+  useDepartmentSummaries,
+  useDepartments,
+  useOrgMember,
+  useOrgMembers,
+} from "@/lib/organization/queries";
 import type { MemberFilters, OrgMember, OrgTab, OrgView } from "@/lib/organization/types";
 
 const DESCRIPTION =
@@ -57,13 +57,34 @@ function Page() {
   const [filters, setFilters] = useState<MemberFilters>(DEFAULT_FILTERS);
   const [view, setView] = useState<OrgView>("grid");
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  // État du module : loading / error / success (mock statique).
-  const [state] = useState<"loading" | "error" | "success">("success");
   const { requestOpen } = useContextPanel();
+
+  const companyQuery = useCompanyProfile();
+  const departmentsQuery = useDepartments();
+  const membersQuery = useOrgMembers();
+  const departmentSummariesQuery = useDepartmentSummaries();
+  const selectedQuery = useOrgMember(selectedId ?? "");
+
+  const allMembers = useMemo(() => membersQuery.data ?? [], [membersQuery.data]);
+  const departmentsData = departmentsQuery.data;
+
+  const isPending = companyQuery.isPending || departmentsQuery.isPending || membersQuery.isPending;
+  const isError =
+    companyQuery.isError ||
+    departmentsQuery.isError ||
+    membersQuery.isError ||
+    departmentSummariesQuery.isError;
+
+  const retry = () => {
+    if (companyQuery.isError) void companyQuery.refetch();
+    if (departmentsQuery.isError) void departmentsQuery.refetch();
+    if (membersQuery.isError) void membersQuery.refetch();
+    if (departmentSummariesQuery.isError) void departmentSummariesQuery.refetch();
+  };
 
   const members = useMemo(() => {
     const query = filters.search.trim().toLowerCase();
-    const list = orgMembersMock.filter((m) => {
+    const list = allMembers.filter((m) => {
       if (
         query &&
         !m.name.toLowerCase().includes(query) &&
@@ -84,24 +105,25 @@ function Page() {
         return a.department.localeCompare(b.department, "fr") || a.name.localeCompare(b.name, "fr");
       return a.name.localeCompare(b.name, "fr");
     });
-  }, [filters]);
+  }, [filters, allMembers]);
 
-  const selected = orgMembersMock.find((m) => m.id === selectedId) ?? null;
+  const selected = allMembers.find((m) => m.id === selectedId) ?? null;
+  const selectedDetail = selectedQuery.data ?? null;
 
-  const departments = useMemo(() => departmentsMock.map((d) => d.name), []);
+  const departments = useMemo(() => (departmentsData ?? []).map((d) => d.name), [departmentsData]);
   const descriptors = useMemo(() => memberFilterDescriptors(departments), [departments]);
 
   useContextPanelContent(
     () =>
-      selected ? (
+      selected && selectedDetail ? (
         <OrgMemberSummaryPanel
           member={selected}
-          manager={orgMemberById(selected.managerId)}
-          reportCount={directReports(selected.id).length}
-          agentCount={agentsInDepartment(selected.department).length}
+          manager={allMembers.find((m) => m.id === selected.managerId) ?? null}
+          reportCount={selectedDetail.directReports.length}
+          agentCount={selectedDetail.departmentAgents.length}
         />
       ) : null,
-    [selected?.id],
+    [selected?.id, selectedDetail],
   );
 
   const handleSelect = (member: OrgMember) => {
@@ -109,9 +131,39 @@ function Page() {
     requestOpen();
   };
 
-  const directoryState = state === "success" ? (members.length === 0 ? "empty" : "success") : state;
-  const departmentsState =
-    state === "success" ? (departmentsMock.length === 0 ? "empty" : "success") : state;
+  const directoryState = isError
+    ? "error"
+    : isPending
+      ? "loading"
+      : members.length === 0
+        ? "empty"
+        : "success";
+  const departmentsState = isError
+    ? "error"
+    : isPending || departmentSummariesQuery.isPending
+      ? "loading"
+      : (departmentSummariesQuery.data ?? []).length === 0
+        ? "empty"
+        : "success";
+
+  if (isError) {
+    return (
+      <section className="col-span-12 min-w-0">
+        <Card className="border-border bg-card p-4">
+          <EmptyState
+            icon={TriangleAlert}
+            title="Impossible de charger l'organisation"
+            description="Les données de l'organisation n'ont pas pu être récupérées. Vérifiez votre connexion puis réessayez."
+          />
+          <div className="flex justify-center">
+            <Button type="button" size="sm" onClick={retry}>
+              Réessayer
+            </Button>
+          </div>
+        </Card>
+      </section>
+    );
+  }
 
   return (
     <>
@@ -138,13 +190,13 @@ function Page() {
       {tab === "directory" ? (
         <>
           <section className="col-span-12 min-w-0">
-            {state === "loading" ? (
+            {isPending || !companyQuery.data ? (
               <OrgOverviewSkeleton />
             ) : (
               <OrgOverview
-                company={companyProfileMock}
-                members={orgMembersMock}
-                departments={departmentsMock}
+                company={companyQuery.data}
+                members={allMembers}
+                departments={departmentsData ?? []}
               />
             )}
           </section>
@@ -214,13 +266,13 @@ function Page() {
             skeleton={<DepartmentSkeletonGrid />}
           >
             <div className="grid grid-cols-1 gap-4 @2xl:grid-cols-2 @5xl:grid-cols-3">
-              {departmentsMock.map((department) => (
+              {(departmentSummariesQuery.data ?? []).map((summary) => (
                 <DepartmentCard
-                  key={department.id}
-                  department={department}
-                  lead={orgMemberById(department.leadMemberId)}
-                  members={membersInDepartment(department.name)}
-                  agents={agentsInDepartment(department.name)}
+                  key={summary.department.id}
+                  department={summary.department}
+                  lead={summary.lead}
+                  members={summary.members}
+                  agents={summary.agents}
                   onSelect={(d) => {
                     setFilters({ ...DEFAULT_FILTERS, department: d.name });
                     setTab("directory");

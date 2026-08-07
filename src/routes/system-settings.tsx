@@ -1,14 +1,19 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { TriangleAlert } from "lucide-react";
 
+import { EmptyState } from "@/components/common/empty-state";
 import { AiSection } from "@/components/settings/ai-section";
 import { ApiSection } from "@/components/settings/api-section";
 import { DataSection } from "@/components/settings/data-section";
 import { GeneralSection } from "@/components/settings/general-section";
 import { NotificationsSection } from "@/components/settings/notifications-section";
 import { SystemSection } from "@/components/settings/system-section";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { useSettings } from "@/lib/settings/queries";
 import type { SettingsTab } from "@/lib/settings/types";
 
 const DESCRIPTION =
@@ -39,8 +44,8 @@ const TABS: { value: SettingsTab; label: string }[] = [
 
 function Page() {
   const [tab, setTab] = useState<SettingsTab>("general");
-  const [state] = useState<"loading" | "success">("success");
-  const loading = state === "loading";
+  const settingsQuery = useSettings();
+  const data = settingsQuery.data;
 
   return (
     <>
@@ -64,24 +69,37 @@ function Page() {
           ))}
         </ToggleGroup>
 
-        {loading ? (
+        {settingsQuery.isError ? (
+          <Card className="border-border bg-card p-4">
+            <EmptyState
+              icon={TriangleAlert}
+              title="Impossible de charger les réglages"
+              description="Les réglages système n'ont pas pu être récupérés. Vérifiez votre connexion puis réessayez."
+            />
+            <div className="flex justify-center">
+              <Button type="button" size="sm" onClick={() => void settingsQuery.refetch()}>
+                Réessayer
+              </Button>
+            </div>
+          </Card>
+        ) : !data ? (
           <div className="grid gap-3">
             {Array.from({ length: 4 }).map((_, i) => (
               <Skeleton key={i} className="h-24 w-full rounded-lg" />
             ))}
           </div>
         ) : tab === "general" ? (
-          <GeneralSection />
+          <GeneralSection display={data.display} />
         ) : tab === "ai" ? (
-          <AiSection />
+          <AiSection ai={data.ai} />
         ) : tab === "notifications" ? (
-          <NotificationsSection />
+          <NotificationsSection notifications={data.notifications} />
         ) : tab === "data" ? (
-          <DataSection />
+          <DataSection data={data.data} />
         ) : tab === "api" ? (
-          <ApiSection />
+          <ApiSection apiKeys={data.apiKeys} />
         ) : (
-          <SystemSection />
+          <SystemSection system={data.system} />
         )}
       </section>
     </>

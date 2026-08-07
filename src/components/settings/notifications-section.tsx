@@ -4,7 +4,7 @@ import { SettingsCard } from "@/components/settings/settings-rows";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { READ_ONLY_NOTICE } from "@/lib/settings/meta";
-import { notificationSettingsMock } from "@/lib/settings/mocks";
+import type { NotificationSetting } from "@/lib/settings/types";
 
 const CHANNELS = [
   { key: "inApp", label: "In-app" },
@@ -12,7 +12,7 @@ const CHANNELS = [
   { key: "slack", label: "Slack" },
 ] as const;
 
-export function NotificationsSection() {
+export function NotificationsSection({ notifications }: { notifications: NotificationSetting[] }) {
   return (
     <SettingsCard
       title="Notifications"
@@ -24,7 +24,7 @@ export function NotificationsSection() {
       }
     >
       <ul className="mt-2 flex flex-col gap-3">
-        {notificationSettingsMock.map((n) => (
+        {notifications.map((n) => (
           <li
             key={n.id}
             className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-3 @3xl:flex-row @3xl:items-center @3xl:justify-between"

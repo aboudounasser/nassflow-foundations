@@ -15,11 +15,11 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { formatSettingsDate } from "@/lib/settings/meta";
-import { dataSettingsMock } from "@/lib/settings/mocks";
+import type { DataSettings } from "@/lib/settings/types";
 
-export function DataSection() {
+export function DataSection({ data }: { data: DataSettings }) {
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const d = dataSettingsMock;
+  const d = data;
 
   return (
     <>

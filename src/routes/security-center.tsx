@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ScrollText } from "lucide-react";
-import { useMemo, useState } from "react";
+import { ScrollText, TriangleAlert } from "lucide-react";
+import { useState } from "react";
 
 import { EmptyState } from "@/components/common/empty-state";
 import {
@@ -16,14 +16,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import {
-  accessMatrix,
-  agentPermissionsSummary,
-  integrationPermissionsSummary,
-  securityEventFeed,
-  securityOverview,
-} from "@/lib/security/aggregations";
-import type { SecurityTab } from "@/lib/security/types";
+import { useSecurity } from "@/lib/security/queries";
+import type { SecurityOverview, SecurityTab } from "@/lib/security/types";
 
 const DESCRIPTION =
   "Vue de sécurité cross-module de NASSFLOW OS : posture, accès, permissions, journal d'audit et politiques.";
@@ -49,18 +43,22 @@ const TABS: { value: SecurityTab; label: string }[] = [
   { value: "policies", label: "Politiques" },
 ];
 
+const EMPTY_OVERVIEW: SecurityOverview = {
+  score: 0,
+  criticalLast7Days: 0,
+  activeMembers: 0,
+  suspendedMembers: 0,
+  integrationsInError: 0,
+  totalEvents: 0,
+};
+
 function Page() {
   const [tab, setTab] = useState<SecurityTab>("overview");
-  // État du module : loading / success (mocks statiques).
-  const [state] = useState<"loading" | "success">("success");
-  const loading = state === "loading";
+  const securityQuery = useSecurity();
+  const loading = securityQuery.isPending;
+  const data = securityQuery.data;
 
-  const overview = useMemo(() => securityOverview(), []);
-  const events = useMemo(() => securityEventFeed(), []);
-  const members = useMemo(() => accessMatrix(), []);
-  const agentPerms = useMemo(() => agentPermissionsSummary(), []);
-  const integrationPerms = useMemo(() => integrationPermissionsSummary(), []);
-
+  const events = data?.events ?? [];
   const recent = events.slice(0, 5);
 
   return (
@@ -71,7 +69,25 @@ function Page() {
       </section>
 
       <section className="col-span-12 @container min-w-0">
-        <SecurityOverviewBanner data={overview} loading={loading} />
+        {securityQuery.isError ? (
+          <Card className="border-border bg-card p-4">
+            <EmptyState
+              icon={TriangleAlert}
+              title="Impossible de charger le Security Center"
+              description="Les données de sécurité n'ont pas pu être récupérées. Vérifiez votre connexion puis réessayez."
+            />
+            <div className="flex justify-center">
+              <Button type="button" size="sm" onClick={() => void securityQuery.refetch()}>
+                Réessayer
+              </Button>
+            </div>
+          </Card>
+        ) : (
+          <SecurityOverviewBanner
+            data={data?.overview ?? EMPTY_OVERVIEW}
+            loading={loading || !data}
+          />
+        )}
       </section>
 
       <section className="col-span-12 @container flex min-w-0 flex-col gap-4">
@@ -89,7 +105,7 @@ function Page() {
           ))}
         </ToggleGroup>
 
-        {loading ? (
+        {securityQuery.isError ? null : loading || !data ? (
           <div className="grid gap-3">
             {Array.from({ length: 4 }).map((_, i) => (
               <Skeleton key={i} className="h-24 w-full rounded-lg" />
@@ -119,16 +135,16 @@ function Page() {
           </Card>
         ) : tab === "access" ? (
           <div className="flex min-w-0 flex-col gap-4">
-            <MembersAccessTable rows={members} />
+            <MembersAccessTable rows={data.accessMatrix} />
             <div className="grid min-w-0 gap-4 @4xl:grid-cols-2">
-              <AgentPermissionsTable rows={agentPerms} />
-              <IntegrationPermissionsTable rows={integrationPerms} />
+              <AgentPermissionsTable rows={data.agentPermissions} />
+              <IntegrationPermissionsTable rows={data.integrationPermissions} />
             </div>
           </div>
         ) : tab === "audit" ? (
           <AuditLog events={events} />
         ) : (
-          <PoliciesSection />
+          <PoliciesSection policies={data.policies} />
         )}
       </section>
     </>

@@ -2,10 +2,10 @@ import { Lock } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { securityPoliciesMock } from "@/lib/security/mocks";
+import type { SecurityPolicy } from "@/lib/security/types";
 
 /** Politiques de sécurité — lecture seule. */
-export function PoliciesSection() {
+export function PoliciesSection({ policies }: { policies: SecurityPolicy[] }) {
   return (
     <Card className="min-w-0 border-border bg-card p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -17,7 +17,7 @@ export function PoliciesSection() {
       </div>
 
       <ul className="mt-4 grid gap-3 @3xl:grid-cols-2">
-        {securityPoliciesMock.map((policy) => (
+        {policies.map((policy) => (
           <li key={policy.id} className="rounded-lg border border-border bg-surface p-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <p className="text-[14px] text-foreground">{policy.label}</p>

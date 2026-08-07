@@ -16,10 +16,9 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatSettingsDate } from "@/lib/settings/meta";
-import { apiKeysMock } from "@/lib/settings/mocks";
 import type { ApiKey } from "@/lib/settings/types";
 
-export function ApiSection() {
+export function ApiSection({ apiKeys }: { apiKeys: ApiKey[] }) {
   const [target, setTarget] = useState<ApiKey | null>(null);
 
   return (
@@ -42,7 +41,7 @@ export function ApiSection() {
           Les clés ne sont jamais affichées en clair : seule une version masquée est conservée.
         </p>
         <ul className="mt-3 flex flex-col gap-3">
-          {apiKeysMock.map((key) => {
+          {apiKeys.map((key) => {
             const revoked = key.status === "revoked";
             return (
               <li key={key.id} className="rounded-lg border border-border bg-surface p-3">

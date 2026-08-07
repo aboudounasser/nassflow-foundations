@@ -2,7 +2,7 @@ import { ShieldCheck } from "lucide-react";
 
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { securityOverview } from "@/lib/security/aggregations";
+import type { SecurityOverview } from "@/lib/security/types";
 
 function ScoreRing({ score }: { score: number }) {
   const angle = Math.round((score / 100) * 360);
@@ -38,7 +38,7 @@ export function SecurityOverviewBanner({
   data,
   loading = false,
 }: {
-  data: ReturnType<typeof securityOverview>;
+  data: SecurityOverview;
   loading?: boolean;
 }) {
   if (loading) {

@@ -1,5 +1,13 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Bot, PauseCircle, ShieldCheck, UserMinus, Users } from "lucide-react";
+import {
+  ArrowLeft,
+  Bot,
+  PauseCircle,
+  ShieldCheck,
+  TriangleAlert,
+  UserMinus,
+  Users,
+} from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -28,7 +36,7 @@ import {
   formatOrgDate,
   formatSeniority,
 } from "@/lib/organization/meta";
-import { agentsInDepartment, directReports, orgMemberById } from "@/lib/organization/mocks";
+import { useOrgMember } from "@/lib/organization/queries";
 import type { OrgMember } from "@/lib/organization/types";
 
 const DESCRIPTION =
@@ -81,15 +89,16 @@ function MemberLinkCard({ member }: { member: OrgMember }) {
 
 function Page() {
   const { memberId } = Route.useParams();
-  const member = orgMemberById(memberId);
   const navigate = useNavigate();
-  // État du module : loading / error / success (mock statique).
-  const [state] = useState<"loading" | "error" | "success">("success");
   const [confirmRemove, setConfirmRemove] = useState(false);
 
-  const manager = orgMemberById(member?.managerId ?? null);
-  const reports = member ? directReports(member.id) : [];
-  const agents = member ? agentsInDepartment(member.department) : [];
+  const memberQuery = useOrgMember(memberId);
+  const detail = memberQuery.data ?? null;
+  const member = detail?.member ?? null;
+  const managerQuery = useOrgMember(member?.managerId ?? "");
+  const manager = managerQuery.data?.member ?? null;
+  const reports = detail?.directReports ?? [];
+  const agents = detail?.departmentAgents ?? [];
 
   useContextPanelContent(
     () =>
@@ -103,6 +112,31 @@ function Page() {
       ) : null,
     [member?.id, reports.length, agents.length],
   );
+
+  if (memberQuery.isError) {
+    return (
+      <section className="col-span-12 min-w-0">
+        <EmptyState
+          icon={TriangleAlert}
+          title="Impossible de charger cette fiche"
+          description="Les informations du membre n'ont pas pu être récupérées. Vérifiez votre connexion puis réessayez."
+        />
+        <div className="flex justify-center">
+          <Button type="button" size="sm" onClick={() => void memberQuery.refetch()}>
+            Réessayer
+          </Button>
+        </div>
+      </section>
+    );
+  }
+
+  if (memberQuery.isPending) {
+    return (
+      <section className="col-span-12 min-w-0">
+        <DetailSkeleton />
+      </section>
+    );
+  }
 
   if (!member) {
     return (
@@ -177,9 +211,7 @@ function Page() {
       </section>
 
       <section className="col-span-12 min-w-0">
-        {state === "loading" ? (
-          <DetailSkeleton />
-        ) : (
+        {
           <div className="space-y-6 rounded-xl border border-border bg-surface p-6">
             <div className="space-y-2">
               <h2 className="text-[14px] font-medium text-foreground">Informations</h2>
@@ -274,7 +306,7 @@ function Page() {
               )}
             </div>
           </div>
-        )}
+        }
       </section>
 
       <AlertDialog open={confirmRemove} onOpenChange={setConfirmRemove}>

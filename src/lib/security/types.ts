@@ -1,4 +1,5 @@
 /** Modèle du module Security Center — politiques mockées en lecture seule. */
+import type { MemberRole, MemberStatus } from "@/lib/organization/types";
 
 export type SecurityEventSeverity = "info" | "warning" | "critical";
 
@@ -31,3 +32,34 @@ export interface SecurityPolicy {
 }
 
 export type SecurityTab = "overview" | "access" | "audit" | "policies";
+
+export interface SecurityOverview {
+  score: number;
+  criticalLast7Days: number;
+  activeMembers: number;
+  suspendedMembers: number;
+  integrationsInError: number;
+  totalEvents: number;
+}
+
+export interface AccessMatrixRow {
+  memberId: string;
+  memberName: string;
+  role: MemberRole;
+  department: string;
+  status: MemberStatus;
+}
+
+export interface AgentPermissionsRow {
+  agentId: string;
+  agentName: string;
+  totalPermissions: number;
+  writeOrHigher: number;
+}
+
+export interface IntegrationPermissionsRow {
+  integrationId: string;
+  integrationName: string;
+  grantedCount: number;
+  totalCount: number;
+}

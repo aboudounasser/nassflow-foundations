@@ -12,10 +12,10 @@ import {
 } from "@/components/ui/table";
 import { MEMBER_ROLE, MEMBER_STATUS } from "@/lib/organization/meta";
 import type {
-  accessMatrix,
-  agentPermissionsSummary,
-  integrationPermissionsSummary,
-} from "@/lib/security/aggregations";
+  AccessMatrixRow,
+  AgentPermissionsRow,
+  IntegrationPermissionsRow,
+} from "@/lib/security/types";
 
 function Section({
   title,
@@ -35,7 +35,7 @@ function Section({
   );
 }
 
-export function MembersAccessTable({ rows }: { rows: ReturnType<typeof accessMatrix> }) {
+export function MembersAccessTable({ rows }: { rows: AccessMatrixRow[] }) {
   const navigate = useNavigate();
   return (
     <Section
@@ -84,11 +84,7 @@ export function MembersAccessTable({ rows }: { rows: ReturnType<typeof accessMat
   );
 }
 
-export function AgentPermissionsTable({
-  rows,
-}: {
-  rows: ReturnType<typeof agentPermissionsSummary>;
-}) {
+export function AgentPermissionsTable({ rows }: { rows: AgentPermissionsRow[] }) {
   const navigate = useNavigate();
   return (
     <Section
@@ -127,11 +123,7 @@ export function AgentPermissionsTable({
   );
 }
 
-export function IntegrationPermissionsTable({
-  rows,
-}: {
-  rows: ReturnType<typeof integrationPermissionsSummary>;
-}) {
+export function IntegrationPermissionsTable({ rows }: { rows: IntegrationPermissionsRow[] }) {
   const navigate = useNavigate();
   return (
     <Section
