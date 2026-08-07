@@ -4,17 +4,10 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ItemState } from "./item-state";
-import type { Decision, Priority, WidgetState } from "@/lib/dashboard/types";
+import type { Decision, WidgetState } from "@/lib/dashboard/types";
+import { PRIORITY_BADGE } from "@/lib/dashboard/meta";
 
-export const PRIORITY_BADGE: Record<
-  Priority,
-  { label: string; variant: "neutral" | "info" | "warning" | "destructive" }
-> = {
-  low: { label: "Basse", variant: "neutral" },
-  medium: { label: "Moyenne", variant: "info" },
-  high: { label: "Haute", variant: "warning" },
-  critical: { label: "Critique", variant: "destructive" },
-};
+export { PRIORITY_BADGE } from "@/lib/dashboard/meta";
 
 export function DecisionItemCard({
   decision,
