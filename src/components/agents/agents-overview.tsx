@@ -3,9 +3,6 @@ import { Activity, Bot, Clock, Gauge, Target, type LucideIcon } from "lucide-rea
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { AgentDetail } from "@/lib/agents/types";
-import type { MissionDetail } from "@/lib/missions/types";
-
-const RUNNING: MissionDetail["status"][] = ["running", "waiting", "blocked"];
 
 function StatCard({
   icon: Icon,
