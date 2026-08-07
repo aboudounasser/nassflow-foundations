@@ -354,7 +354,7 @@ const agentsBase: AgentBase[] = [
       {
         id: "c-sup-1",
         label: "Réponse niveau 1",
-        description: "Traite les tickets récurrents à partir de la Enterprise Brain.",
+        description: "Traite les tickets récurrents à partir de l'Enterprise Brain.",
       },
       {
         id: "c-sup-2",

@@ -555,7 +555,7 @@ export const workflowsMock: Workflow[] = [
       {
         id: "wf-5-b3",
         type: "action",
-        label: "Répondre depuis la Enterprise Brain",
+        label: "Répondre depuis l'Enterprise Brain",
         description: "Réponse générée à partir de l'Enterprise Brain.",
         tool: "Enterprise Brain",
       },
