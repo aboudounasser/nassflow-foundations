@@ -16,10 +16,7 @@ import { GRID_LIST_VIEWS, ModuleToolbar } from "@/components/common/module-toolb
 import { useContextPanel, useContextPanelContent } from "@/components/layout/context-panel";
 import { ModulePage } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
-import {
-  INTEGRATION_FILTER_DESCRIPTORS,
-  INTEGRATION_STATUS_ORDER,
-} from "@/lib/integrations/meta";
+import { INTEGRATION_FILTER_DESCRIPTORS, INTEGRATION_STATUS_ORDER } from "@/lib/integrations/meta";
 import { integrationsMock } from "@/lib/integrations/mocks";
 import type { Integration, IntegrationFilters, IntegrationView } from "@/lib/integrations/types";
 

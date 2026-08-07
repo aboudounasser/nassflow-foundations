@@ -95,7 +95,10 @@ export const INTEGRATION_FILTER_DESCRIPTORS: FilterDescriptor[] = [
     placeholder: "Statut",
     allLabel: "Tous les statuts",
     width: "w-[180px]",
-    options: INTEGRATION_STATUS_ORDER.map((s) => ({ value: s, label: INTEGRATION_STATUS[s].label })),
+    options: INTEGRATION_STATUS_ORDER.map((s) => ({
+      value: s,
+      label: INTEGRATION_STATUS[s].label,
+    })),
   },
   {
     kind: "sort",
