@@ -13,16 +13,39 @@ export interface MembershipEntry {
   role: MemberRoleDb;
 }
 
+/**
+ * Les tables `profiles` et `organizations` déclarent `Insert: never` (insertion
+ * réservée au trigger et à la fonction SQL). Le typage générique de supabase-js
+ * réduit alors ces tables à `never` en lecture : on retype donc localement le
+ * résultat des `select`, sans jamais toucher au schéma.
+ */
+type QueryResult<T> = { data: T; error: { message: string } | null };
+
+async function selectProfile(userId: string) {
+  return (await supabase
+    .from("profiles")
+    .select("full_name, job_title")
+    .eq("id", userId)
+    .maybeSingle()) as unknown as QueryResult<{
+    full_name: string | null;
+    job_title: string | null;
+  } | null>;
+}
+
+async function selectMemberships() {
+  return (await supabase
+    .from("memberships")
+    .select("role, organizations(id, name)")) as unknown as QueryResult<
+    { role: MemberRoleDb; organizations: { id: string; name: string } | null }[] | null
+  >;
+}
+
 export async function getCurrentUser(): Promise<AuthUser | null> {
   const { data, error } = await supabase.auth.getUser();
   if (error || !data.user) return null;
   const user = data.user;
 
-  const { data: profile, error: profileError } = await supabase
-    .from("profiles")
-    .select("full_name, job_title")
-    .eq("id", user.id)
-    .maybeSingle();
+  const { data: profile, error: profileError } = await selectProfile(user.id);
   if (profileError) throw new Error(profileError.message);
 
   return {
@@ -34,16 +57,22 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
 }
 
 export async function getMemberships(): Promise<MembershipEntry[]> {
-  const { data, error } = await supabase.from("memberships").select("role, organizations(id, name)");
+  const { data, error } = await selectMemberships();
   if (error) throw new Error(error.message);
 
   const entries: MembershipEntry[] = [];
   for (const row of data ?? []) {
-    const org = row.organizations as unknown as { id: string; name: string } | null;
-    if (!org) continue;
-    entries.push({ organization: { id: org.id, name: org.name }, role: row.role });
+    if (!row.organizations) continue;
+    entries.push({
+      organization: { id: row.organizations.id, name: row.organizations.name },
+      role: row.role,
+    });
   }
   return entries.sort((a, b) => a.organization.name.localeCompare(b.organization.name, "fr"));
+}
+
+function originUrl(path = ""): string {
+  return typeof window === "undefined" ? "" : `${window.location.origin}${path}`;
 }
 
 export async function signIn(email: string, password: string): Promise<void> {
@@ -55,10 +84,7 @@ export async function signUp(email: string, password: string, fullName: string):
   const { error } = await supabase.auth.signUp({
     email,
     password,
-    options: {
-      data: { full_name: fullName },
-      emailRedirectTo: typeof window !== "undefined" ? window.location.origin : undefined,
-    },
+    options: { data: { full_name: fullName }, emailRedirectTo: originUrl() },
   });
   if (error) throw new Error(error.message);
 }
@@ -70,16 +96,21 @@ export async function signOut(): Promise<void> {
 
 export async function resetPassword(email: string): Promise<void> {
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: typeof window !== "undefined" ? `${window.location.origin}/reset-password` : undefined,
+    redirectTo: originUrl("/reset-password"),
   });
   if (error) throw new Error(error.message);
 }
 
 export async function createOrganization(name: string): Promise<{ id: string; name: string }> {
-  const { data, error } = await supabase.rpc("create_organization", { org_name: name });
+  const { data, error } = (await (
+    supabase.rpc as unknown as (
+      fn: string,
+      args: Record<string, unknown>,
+    ) => Promise<QueryResult<{ id: string; name: string } | null>>
+  )("create_organization", { org_name: name }));
   if (error) throw new Error(error.message);
-  const org = data as unknown as { id: string; name: string };
-  return { id: org.id, name: org.name };
+  if (!data) throw new Error("Création de l'organisation impossible.");
+  return { id: data.id, name: data.name };
 }
 
 export function onAuthChange(cb: () => void): () => void {
