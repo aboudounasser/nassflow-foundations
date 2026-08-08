@@ -13,31 +13,16 @@ export interface MembershipEntry {
   role: MemberRoleDb;
 }
 
-/**
- * Les tables `profiles` et `organizations` déclarent `Insert: never` (insertion
- * réservée au trigger et à la fonction SQL). Le typage générique de supabase-js
- * réduit alors ces tables à `never` en lecture : on retype donc localement le
- * résultat des `select`, sans jamais toucher au schéma.
- */
-type QueryResult<T> = { data: T; error: { message: string } | null };
-
 async function selectProfile(userId: string) {
-  return (await supabase
+  return await supabase
     .from("profiles")
     .select("full_name, job_title")
     .eq("id", userId)
-    .maybeSingle()) as unknown as QueryResult<{
-    full_name: string | null;
-    job_title: string | null;
-  } | null>;
+    .maybeSingle();
 }
 
 async function selectMemberships() {
-  return (await supabase
-    .from("memberships")
-    .select("role, organizations(id, name)")) as unknown as QueryResult<
-    { role: MemberRoleDb; organizations: { id: string; name: string } | null }[] | null
-  >;
+  return await supabase.from("memberships").select("role, organizations(id, name)");
 }
 
 export async function getCurrentUser(): Promise<AuthUser | null> {
@@ -102,12 +87,7 @@ export async function resetPassword(email: string): Promise<void> {
 }
 
 export async function createOrganization(name: string): Promise<{ id: string; name: string }> {
-  const { data, error } = await (
-    supabase.rpc as unknown as (
-      fn: string,
-      args: Record<string, unknown>,
-    ) => Promise<QueryResult<{ id: string; name: string } | null>>
-  )("create_organization", { org_name: name });
+  const { data, error } = await supabase.rpc("create_organization", { org_name: name });
   if (error) throw new Error(error.message);
   if (!data) throw new Error("Création de l'organisation impossible.");
   return { id: data.id, name: data.name };
