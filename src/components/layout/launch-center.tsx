@@ -55,7 +55,7 @@ export function LaunchCenter() {
           <DropdownMenuItem key={action.label} asChild>
             <Link
               to={action.to}
-              search={"search" in action ? action.search : undefined}
+              search={"search" in action ? action.search : {}}
               className="flex items-start gap-3"
             >
               <action.icon className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
