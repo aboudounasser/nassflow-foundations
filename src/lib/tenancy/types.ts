@@ -25,3 +25,10 @@ export interface Session {
   organization: Organization;
   role: MemberRole;
 }
+
+/** Initiales dérivées du nom complet, avec repli sur l'e-mail. */
+export function initialsFrom(name: string | null, email: string): string {
+  const source = name?.trim() || email;
+  const parts = source.split(/[\s@._-]+/).filter(Boolean);
+  return ((parts[0]?.[0] ?? "") + (parts[1]?.[0] ?? "")).toUpperCase() || "?";
+}

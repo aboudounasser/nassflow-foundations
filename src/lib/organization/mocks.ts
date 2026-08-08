@@ -1,12 +1,11 @@
 import { agentsDetailMock } from "@/lib/agents/mocks";
 import type { AgentDetail } from "@/lib/agents/types";
-import { defaultOrganization } from "@/lib/tenancy/mocks";
 
 import type { CompanyProfile, Department, OrgMember } from "./types";
 
 export const companyProfileMock: CompanyProfile = {
-  id: defaultOrganization.id,
-  name: defaultOrganization.name,
+  id: "org-demo",
+  name: "NASSFLOW OS",
   industry: "Logiciel B2B — AI Operating System",
   size: "11-50 employés",
   foundedYear: 2023,
