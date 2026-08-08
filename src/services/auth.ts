@@ -102,12 +102,12 @@ export async function resetPassword(email: string): Promise<void> {
 }
 
 export async function createOrganization(name: string): Promise<{ id: string; name: string }> {
-  const { data, error } = (await (
+  const { data, error } = await (
     supabase.rpc as unknown as (
       fn: string,
       args: Record<string, unknown>,
     ) => Promise<QueryResult<{ id: string; name: string } | null>>
-  )("create_organization", { org_name: name }));
+  )("create_organization", { org_name: name });
   if (error) throw new Error(error.message);
   if (!data) throw new Error("Création de l'organisation impossible.");
   return { id: data.id, name: data.name };

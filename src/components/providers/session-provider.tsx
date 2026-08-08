@@ -74,7 +74,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
       const stored = readStoredOrganizationId();
       const active =
-        entries.find((entry) => entry.organization.id === stored) ?? (entries[0] as MembershipEntry);
+        entries.find((entry) => entry.organization.id === stored) ??
+        (entries[0] as MembershipEntry);
       setOrganizationId(active.organization.id);
       storeOrganizationId(active.organization.id);
       setState("ready");

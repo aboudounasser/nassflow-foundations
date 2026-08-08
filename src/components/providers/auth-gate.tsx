@@ -57,7 +57,7 @@ export function SignInScreen() {
         <div className="flex gap-2">
           <Button
             type="button"
-            variant={mode === "signIn" ? "default" : "secondary"}
+            variant={mode === "signIn" ? "primary" : "secondary"}
             size="sm"
             onClick={() => setMode("signIn")}
           >
@@ -65,7 +65,7 @@ export function SignInScreen() {
           </Button>
           <Button
             type="button"
-            variant={mode === "signUp" ? "default" : "secondary"}
+            variant={mode === "signUp" ? "primary" : "secondary"}
             size="sm"
             onClick={() => setMode("signUp")}
           >
