@@ -1,6 +1,5 @@
 import { Link } from "@tanstack/react-router";
 import { Bell, Check, ChevronDown, Menu, PanelRight } from "lucide-react";
-import { toast } from "sonner";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -24,7 +23,7 @@ export function TopBar({
   onOpenMenu: () => void;
   onOpenContext: () => void;
 }) {
-  const { session, organizations, switchOrganization } = useSession();
+  const { session, organizations, switchOrganization, signOut } = useSession();
 
   return (
     <header className="flex h-[72px] shrink-0 items-center gap-4 border-b border-border bg-surface px-4 md:px-6">
@@ -129,7 +128,11 @@ export function TopBar({
               <Link to="/system-settings">Préférences</Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => toast("Déconnexion (mock)")}>
+            <DropdownMenuItem
+              onClick={() => {
+                void signOut();
+              }}
+            >
               Déconnexion
             </DropdownMenuItem>
           </DropdownMenuContent>
