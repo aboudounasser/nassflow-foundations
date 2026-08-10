@@ -56,10 +56,7 @@ function SignupPage() {
 
   if (sent) {
     return (
-      <AuthLayout
-        title="Vérifiez votre boîte mail"
-        description="Votre compte est presque prêt."
-      >
+      <AuthLayout title="Vérifiez votre boîte mail" description="Votre compte est presque prêt.">
         <span className="flex size-12 items-center justify-center rounded-xl border border-border">
           <MailCheck className="size-5 text-primary" aria-hidden="true" />
         </span>
