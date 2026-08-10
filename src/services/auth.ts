@@ -97,10 +97,7 @@ async function requireUserId(): Promise<string> {
   return data.user.id;
 }
 
-export async function updateProfile(input: {
-  fullName: string;
-  jobTitle: string;
-}): Promise<void> {
+export async function updateProfile(input: { fullName: string; jobTitle: string }): Promise<void> {
   const userId = await requireUserId();
   const { error } = await supabase
     .from("profiles")

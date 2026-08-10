@@ -21,8 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import * as authService from "@/services/auth";
 
-const DESCRIPTION =
-  "Gérez votre profil, votre mot de passe et vos organisations dans NASSFLOW OS.";
+const DESCRIPTION = "Gérez votre profil, votre mot de passe et vos organisations dans NASSFLOW OS.";
 
 export const Route = createFileRoute("/account")({
   head: () => ({
@@ -254,7 +253,11 @@ function OrganizationsSection({
               ) : (
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button variant="destructive" size="sm" disabled={pendingId === organization.id}>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      disabled={pendingId === organization.id}
+                    >
                       Quitter
                     </Button>
                   </AlertDialogTrigger>
