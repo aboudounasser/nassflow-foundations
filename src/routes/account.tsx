@@ -38,7 +38,7 @@ export const Route = createFileRoute("/account")({
 });
 
 function Page() {
-  const { session, organizations, refresh, switchOrganization } = useSession();
+  const { session, organizations, refresh, switchOrganization, signOut } = useSession();
 
   return (
     <>
@@ -61,7 +61,7 @@ function Page() {
           onChanged={refresh}
           onSwitch={switchOrganization}
         />
-        <DangerSection />
+        <DangerSection onDeleted={signOut} />
       </section>
     </>
   );
