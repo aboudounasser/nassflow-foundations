@@ -312,7 +312,7 @@ function OrganizationsSection({
             >
               <div className="flex min-w-0 flex-wrap items-center gap-2">
                 <p className="text-[14px] text-foreground">{organization.name}</p>
-                <Badge variant={isActive ? "primary" : "secondary"}>{organization.role}</Badge>
+                <Badge variant={isActive ? "primary" : "neutral"}>{organization.role}</Badge>
               </div>
               {isActive ? (
                 <div className="flex items-center gap-2">
