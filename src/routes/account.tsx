@@ -283,32 +283,32 @@ function OrganizationsSection({
                   <Button variant="ghost" size="sm" onClick={() => onSwitch(organization.id)}>
                     Basculer
                   </Button>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      disabled={pendingId === organization.id}
-                    >
-                      Quitter
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Quitter {organization.name} ?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Vous perdrez l&apos;accès aux données de cette organisation. Un membre
-                        pourra vous réinviter plus tard.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Annuler</AlertDialogCancel>
-                      <AlertDialogAction onClick={() => void leave(organization.id)}>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        disabled={pendingId === organization.id}
+                      >
                         Quitter
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Quitter {organization.name} ?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Vous perdrez l&apos;accès aux données de cette organisation. Un membre
+                          pourra vous réinviter plus tard.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Annuler</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => void leave(organization.id)}>
+                          Quitter
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </div>
               )}
             </div>
