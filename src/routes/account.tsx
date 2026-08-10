@@ -38,7 +38,7 @@ export const Route = createFileRoute("/account")({
 });
 
 function Page() {
-  const { session, organizations, refresh } = useSession();
+  const { session, organizations, refresh, switchOrganization } = useSession();
 
   return (
     <>
@@ -60,6 +60,7 @@ function Page() {
           activeId={session.organization.id}
           activeRole={session.role}
           onChanged={refresh}
+          onSwitch={switchOrganization}
         />
         <DangerSection />
       </section>
@@ -212,14 +213,20 @@ function OrganizationsSection({
   activeId,
   activeRole,
   onChanged,
+  onSwitch,
 }: {
   organizations: { id: string; name: string }[];
   activeId: string;
   activeRole: string;
   onChanged: () => Promise<void>;
+  onSwitch: (id: string) => void;
 }) {
   const [error, setError] = useState<string | null>(null);
   const [pendingId, setPendingId] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [name, setName] = useState("");
+  const [createPending, setCreatePending] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
 
   const leave = async (id: string) => {
     setPendingId(id);
@@ -231,6 +238,27 @@ function OrganizationsSection({
       setError(e instanceof Error ? e.message : "Départ impossible.");
     } finally {
       setPendingId(null);
+    }
+  };
+
+  const create = async () => {
+    if (createPending) return;
+    if (name.trim().length < 2) {
+      setCreateError("Le nom doit contenir au moins 2 caractères.");
+      return;
+    }
+    setCreatePending(true);
+    setCreateError(null);
+    try {
+      await authService.createOrganization(name.trim());
+      await onChanged();
+      setName("");
+      setCreating(false);
+      toast.success("Organisation créée.");
+    } catch (e) {
+      setCreateError(e instanceof Error ? e.message : "Création impossible.");
+    } finally {
+      setCreatePending(false);
     }
   };
 
@@ -251,32 +279,37 @@ function OrganizationsSection({
               {isActive ? (
                 <span className="text-[12px] text-muted-foreground">Organisation active</span>
               ) : (
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      disabled={pendingId === organization.id}
-                    >
-                      Quitter
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Quitter {organization.name} ?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Vous perdrez l&apos;accès aux données de cette organisation. Un membre
-                        pourra vous réinviter plus tard.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Annuler</AlertDialogCancel>
-                      <AlertDialogAction onClick={() => void leave(organization.id)}>
+                <div className="flex items-center gap-2">
+                  <Button variant="ghost" size="sm" onClick={() => onSwitch(organization.id)}>
+                    Basculer
+                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        disabled={pendingId === organization.id}
+                      >
                         Quitter
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Quitter {organization.name} ?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Vous perdrez l&apos;accès aux données de cette organisation. Un membre
+                          pourra vous réinviter plus tard.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Annuler</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => void leave(organization.id)}>
+                          Quitter
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
               )}
             </div>
           );
@@ -287,6 +320,46 @@ function OrganizationsSection({
             {error}
           </p>
         ) : null}
+
+        <div className="mt-2 border-t border-border pt-4">
+          {creating ? (
+            <div className="flex flex-col gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="account-new-org">Nom de l&apos;organisation</Label>
+                <Input
+                  id="account-new-org"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+              </div>
+              {createError ? (
+                <p className="text-[13px] text-destructive" role="alert">
+                  {createError}
+                </p>
+              ) : null}
+              <div className="flex justify-end gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setCreating(false);
+                    setCreateError(null);
+                    setName("");
+                  }}
+                >
+                  Annuler
+                </Button>
+                <Button size="sm" disabled={createPending} onClick={() => void create()}>
+                  {createPending ? "Un instant…" : "Créer"}
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <Button variant="secondary" size="sm" onClick={() => setCreating(true)}>
+              Créer une organisation
+            </Button>
+          )}
+        </div>
       </div>
     </SettingsCard>
   );
