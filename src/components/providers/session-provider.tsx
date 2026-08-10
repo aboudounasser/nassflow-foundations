@@ -1,4 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import {
   createContext,
   useCallback,
@@ -10,7 +11,7 @@ import {
   type ReactNode,
 } from "react";
 
-import { CreateOrganizationScreen, SignInScreen } from "@/components/providers/auth-gate";
+import { CreateOrganizationScreen } from "@/components/providers/auth-gate";
 import { Skeleton } from "@/components/ui/skeleton";
 import { organizationRootKey } from "@/lib/tenancy/keys";
 import { initialsFrom } from "@/lib/tenancy/types";
@@ -44,6 +45,7 @@ function storeOrganizationId(id: string) {
 
 export function SessionProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [state, setState] = useState<GateState>("loading");
   const [user, setUser] = useState<AuthUser | null>(null);
   const [memberships, setMemberships] = useState<MembershipEntry[]>([]);
@@ -96,6 +98,12 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     });
   }, [reload]);
 
+  useEffect(() => {
+    if (state === "signedOut") {
+      void navigate({ to: "/login", replace: true });
+    }
+  }, [state, navigate]);
+
   const switchOrganization = useCallback(
     (id: string) => {
       if (!organizationId || id === organizationId) return;
@@ -141,7 +149,6 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }, [user, activeMembership, memberships, switchOrganization, signOut]);
 
   if (state === "loading" || !value) {
-    if (state === "signedOut") return <SignInScreen />;
     if (state === "noOrg")
       return (
         <CreateOrganizationScreen
