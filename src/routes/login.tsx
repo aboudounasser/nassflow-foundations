@@ -2,9 +2,11 @@ import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, type KeyboardEvent } from "react";
 
 import { AuthLayout } from "@/components/auth/auth-layout";
+import { useRedirectIfAuthenticated } from "@/components/auth/use-redirect-if-authenticated";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import * as authService from "@/services/auth";
 
 const DESCRIPTION = "Connectez-vous à votre espace NASSFLOW OS.";
@@ -25,6 +27,7 @@ export const Route = createFileRoute("/login")({
 
 function LoginPage() {
   const navigate = useNavigate();
+  const checking = useRedirectIfAuthenticated();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [pending, setPending] = useState(false);
@@ -47,6 +50,14 @@ function LoginPage() {
   const onKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") void submit();
   };
+
+  if (checking) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background p-6">
+        <Skeleton className="h-24 w-full max-w-sm" />
+      </div>
+    );
+  }
 
   return (
     <AuthLayout

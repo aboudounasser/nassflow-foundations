@@ -3,9 +3,11 @@ import { MailCheck } from "lucide-react";
 import { useState, type KeyboardEvent } from "react";
 
 import { AuthLayout } from "@/components/auth/auth-layout";
+import { useRedirectIfAuthenticated } from "@/components/auth/use-redirect-if-authenticated";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import * as authService from "@/services/auth";
 
 const DESCRIPTION = "Créez votre compte NASSFLOW OS en quelques secondes.";
@@ -25,6 +27,7 @@ export const Route = createFileRoute("/signup")({
 });
 
 function SignupPage() {
+  const checking = useRedirectIfAuthenticated();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -53,6 +56,14 @@ function SignupPage() {
   const onKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") void submit();
   };
+
+  if (checking) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background p-6">
+        <Skeleton className="h-24 w-full max-w-sm" />
+      </div>
+    );
+  }
 
   if (sent) {
     return (

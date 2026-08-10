@@ -11,7 +11,7 @@ import {
   type ReactNode,
 } from "react";
 
-import { CreateOrganizationScreen } from "@/components/providers/auth-gate";
+import { OnboardingScreen } from "@/components/auth/onboarding-screen";
 import { Skeleton } from "@/components/ui/skeleton";
 import { organizationRootKey } from "@/lib/tenancy/keys";
 import { initialsFrom } from "@/lib/tenancy/types";
@@ -25,6 +25,7 @@ interface SessionApi {
   organizations: Organization[];
   switchOrganization: (id: string) => void;
   signOut: () => Promise<void>;
+  refresh: () => Promise<void>;
 }
 
 const SessionCtx = createContext<SessionApi | null>(null);
@@ -145,13 +146,14 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       organizations: memberships.map((entry) => entry.organization),
       switchOrganization,
       signOut,
+      refresh: reload,
     };
-  }, [user, activeMembership, memberships, switchOrganization, signOut]);
+  }, [user, activeMembership, memberships, switchOrganization, signOut, reload]);
 
   if (state === "loading" || !value) {
     if (state === "noOrg")
       return (
-        <CreateOrganizationScreen
+        <OnboardingScreen
           onCreated={() => {
             void reload();
           }}

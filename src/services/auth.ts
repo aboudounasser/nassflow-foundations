@@ -91,6 +91,49 @@ export async function updatePassword(newPassword: string): Promise<void> {
   if (error) throw new Error(error.message);
 }
 
+async function requireUserId(): Promise<string> {
+  const { data, error } = await supabase.auth.getUser();
+  if (error || !data.user) throw new Error("Session expirée. Reconnectez-vous.");
+  return data.user.id;
+}
+
+export async function updateProfile(input: { fullName: string; jobTitle: string }): Promise<void> {
+  const userId = await requireUserId();
+  const { error } = await supabase
+    .from("profiles")
+    .update({
+      full_name: input.fullName.trim() || null,
+      job_title: input.jobTitle.trim() || null,
+    })
+    .eq("id", userId);
+  if (error) throw new Error(error.message);
+}
+
+export async function updateOrganizationDetails(
+  organizationId: string,
+  input: { industry: string; size: string },
+): Promise<void> {
+  const { error } = await supabase
+    .from("organizations")
+    .update({
+      industry: input.industry.trim() || null,
+      size: input.size.trim() || null,
+    })
+    .eq("id", organizationId);
+  if (error) throw new Error(error.message);
+}
+
+/** Le trigger base refuse le départ du dernier propriétaire : message propagé tel quel. */
+export async function leaveOrganization(organizationId: string): Promise<void> {
+  const userId = await requireUserId();
+  const { error } = await supabase
+    .from("memberships")
+    .delete()
+    .eq("organization_id", organizationId)
+    .eq("user_id", userId);
+  if (error) throw new Error(error.message);
+}
+
 export async function createOrganization(name: string): Promise<{ id: string; name: string }> {
   const { data, error } = await supabase.rpc("create_organization", { org_name: name });
   if (error) throw new Error(error.message);

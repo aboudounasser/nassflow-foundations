@@ -2,9 +2,11 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { useState, type KeyboardEvent } from "react";
 
 import { AuthLayout } from "@/components/auth/auth-layout";
+import { useRedirectIfAuthenticated } from "@/components/auth/use-redirect-if-authenticated";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import * as authService from "@/services/auth";
 
 const DESCRIPTION = "Réinitialisez le mot de passe de votre compte NASSFLOW OS.";
@@ -24,6 +26,7 @@ export const Route = createFileRoute("/forgot-password")({
 });
 
 function ForgotPasswordPage() {
+  const checking = useRedirectIfAuthenticated();
   const [email, setEmail] = useState("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -46,6 +49,14 @@ function ForgotPasswordPage() {
   const onKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") void submit();
   };
+
+  if (checking) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background p-6">
+        <Skeleton className="h-24 w-full max-w-sm" />
+      </div>
+    );
+  }
 
   return (
     <AuthLayout
