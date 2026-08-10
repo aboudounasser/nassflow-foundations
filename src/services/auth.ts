@@ -1,3 +1,5 @@
+import { FunctionsHttpError } from "@supabase/supabase-js";
+
 import { supabase } from "@/lib/supabase/client";
 import type { MemberRoleDb } from "@/lib/supabase/database.types";
 
@@ -145,6 +147,31 @@ export async function createOrganization(name: string): Promise<{ id: string; na
 export async function deleteOrganization(organizationId: string): Promise<void> {
   const { error } = await supabase.from("organizations").delete().eq("id", organizationId);
   if (error) throw new Error(error.message);
+}
+
+/** Le corps 409 porte le message métier ; supabase-js ne l'expose pas dans error.message. */
+export async function deleteAccount(): Promise<void> {
+  const { data, error } = await supabase.functions.invoke("delete-account", {
+    method: "POST",
+  });
+
+  if (error) {
+    if (error instanceof FunctionsHttpError) {
+      const body: unknown = await error.context.json().catch(() => null);
+      const message =
+        typeof body === "object" &&
+        body !== null &&
+        typeof (body as { error?: unknown }).error === "string"
+          ? (body as { error: string }).error
+          : "Suppression impossible. Réessayez plus tard.";
+      throw new Error(message);
+    }
+    throw new Error(error.message);
+  }
+
+  if (typeof (data as { error?: unknown } | null)?.error === "string") {
+    throw new Error((data as { error: string }).error);
+  }
 }
 
 export function onAuthChange(cb: () => void): () => void {
