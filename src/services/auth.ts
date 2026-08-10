@@ -159,7 +159,9 @@ export async function deleteAccount(): Promise<void> {
     if (error instanceof FunctionsHttpError) {
       const body: unknown = await error.context.json().catch(() => null);
       const message =
-        typeof body === "object" && body !== null && typeof (body as { error?: unknown }).error === "string"
+        typeof body === "object" &&
+        body !== null &&
+        typeof (body as { error?: unknown }).error === "string"
           ? (body as { error: string }).error
           : "Suppression impossible. Réessayez plus tard.";
       throw new Error(message);

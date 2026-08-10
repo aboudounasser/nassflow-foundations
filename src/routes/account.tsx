@@ -479,9 +479,7 @@ function DangerSection({ onDeleted }: { onDeleted: () => void | Promise<void> })
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <div className="space-y-1.5">
-                <Label htmlFor="account-delete-confirmation">
-                  Tapez SUPPRIMER pour confirmer
-                </Label>
+                <Label htmlFor="account-delete-confirmation">Tapez SUPPRIMER pour confirmer</Label>
                 <Input
                   id="account-delete-confirmation"
                   value={confirmation}
