@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { useSession } from "@/components/providers/session-provider";
@@ -223,10 +223,26 @@ function OrganizationsSection({
 }) {
   const [error, setError] = useState<string | null>(null);
   const [pendingId, setPendingId] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [roles, setRoles] = useState<Record<string, string>>({});
   const [creating, setCreating] = useState(false);
   const [name, setName] = useState("");
   const [createPending, setCreatePending] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
+
+  const loadRoles = useCallback(async () => {
+    try {
+      const entries = await authService.getMemberships();
+      setRoles(Object.fromEntries(entries.map((e) => [e.organization.id, e.role as string])));
+    } catch {
+      setRoles({});
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadRoles();
+  }, [loadRoles, organizations]);
 
   const leave = async (id: string) => {
     setPendingId(id);
@@ -238,6 +254,20 @@ function OrganizationsSection({
       setError(e instanceof Error ? e.message : "Départ impossible.");
     } finally {
       setPendingId(null);
+    }
+  };
+
+  const remove = async (id: string) => {
+    setDeletingId(id);
+    setDeleteError(null);
+    try {
+      await authService.deleteOrganization(id);
+      await onChanged();
+      toast.success("Organisation supprimée.");
+    } catch (e) {
+      setDeleteError(e instanceof Error ? e.message : "Suppression impossible.");
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -267,6 +297,31 @@ function OrganizationsSection({
       <div className="flex flex-col gap-2 pt-3">
         {organizations.map((organization) => {
           const isActive = organization.id === activeId;
+          const isOwner = (isActive ? activeRole : roles[organization.id]) === "owner";
+          const deleteButton = isOwner ? (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" size="sm" disabled={deletingId === organization.id}>
+                  Supprimer
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Supprimer {organization.name} ?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Cette action est définitive. L&apos;organisation, ses appartenances et toutes
+                    ses données seront supprimées. Cette action ne peut pas être annulée.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Annuler</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => void remove(organization.id)}>
+                    Supprimer définitivement
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          ) : null;
           return (
             <div
               key={organization.id}
@@ -277,7 +332,10 @@ function OrganizationsSection({
                 {isActive ? <Badge variant="primary">{activeRole}</Badge> : null}
               </div>
               {isActive ? (
-                <span className="text-[12px] text-muted-foreground">Organisation active</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-[12px] text-muted-foreground">Organisation active</span>
+                  {deleteButton}
+                </div>
               ) : (
                 <div className="flex items-center gap-2">
                   <Button variant="ghost" size="sm" onClick={() => onSwitch(organization.id)}>
@@ -309,6 +367,7 @@ function OrganizationsSection({
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
+                  {deleteButton}
                 </div>
               )}
             </div>
@@ -318,6 +377,12 @@ function OrganizationsSection({
         {error ? (
           <p className="text-[13px] text-destructive" role="alert">
             {error}
+          </p>
+        ) : null}
+
+        {deleteError ? (
+          <p className="text-[13px] text-destructive" role="alert">
+            {deleteError}
           </p>
         ) : null}
 
