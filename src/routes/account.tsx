@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 import { useSession } from "@/components/providers/session-provider";
@@ -58,7 +58,6 @@ function Page() {
         <OrganizationsSection
           organizations={organizations}
           activeId={session.organization.id}
-          activeRole={session.role}
           onChanged={refresh}
           onSwitch={switchOrganization}
         />
@@ -211,13 +210,11 @@ function SecuritySection() {
 function OrganizationsSection({
   organizations,
   activeId,
-  activeRole,
   onChanged,
   onSwitch,
 }: {
-  organizations: { id: string; name: string }[];
+  organizations: { id: string; name: string; role: string }[];
   activeId: string;
-  activeRole: string;
   onChanged: () => Promise<void>;
   onSwitch: (id: string) => void;
 }) {
@@ -225,24 +222,10 @@ function OrganizationsSection({
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [roles, setRoles] = useState<Record<string, string>>({});
   const [creating, setCreating] = useState(false);
   const [name, setName] = useState("");
   const [createPending, setCreatePending] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
-
-  const loadRoles = useCallback(async () => {
-    try {
-      const entries = await authService.getMemberships();
-      setRoles(Object.fromEntries(entries.map((e) => [e.organization.id, e.role as string])));
-    } catch {
-      setRoles({});
-    }
-  }, []);
-
-  useEffect(() => {
-    void loadRoles();
-  }, [loadRoles, organizations]);
 
   const leave = async (id: string) => {
     setPendingId(id);
@@ -297,7 +280,7 @@ function OrganizationsSection({
       <div className="flex flex-col gap-2 pt-3">
         {organizations.map((organization) => {
           const isActive = organization.id === activeId;
-          const isOwner = (isActive ? activeRole : roles[organization.id]) === "owner";
+          const isOwner = organization.role === "owner";
           const deleteButton = isOwner ? (
             <AlertDialog>
               <AlertDialogTrigger asChild>
@@ -329,7 +312,7 @@ function OrganizationsSection({
             >
               <div className="flex min-w-0 flex-wrap items-center gap-2">
                 <p className="text-[14px] text-foreground">{organization.name}</p>
-                {isActive ? <Badge variant="primary">{activeRole}</Badge> : null}
+                <Badge variant={isActive ? "primary" : "secondary"}>{organization.role}</Badge>
               </div>
               {isActive ? (
                 <div className="flex items-center gap-2">
