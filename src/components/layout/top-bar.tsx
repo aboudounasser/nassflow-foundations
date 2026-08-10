@@ -121,8 +121,8 @@ export function TopBar({
               {session.email}
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem disabled title="Bientôt disponible">
-              Profil
+            <DropdownMenuItem asChild>
+              <Link to="/account">Profil</Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link to="/system-settings">Préférences</Link>
