@@ -413,7 +413,32 @@ function OrganizationsSection({
   );
 }
 
-function DangerSection() {
+function DangerSection({ onDeleted }: { onDeleted: () => void | Promise<void> }) {
+  const [open, setOpen] = useState(false);
+  const [confirmation, setConfirmation] = useState("");
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const canSubmit = confirmation.trim() === "SUPPRIMER";
+
+  const submit = async () => {
+    if (pending || !canSubmit) return;
+    setPending(true);
+    setError(null);
+    try {
+      await authService.deleteAccount();
+      setOpen(false);
+      setConfirmation("");
+      await onDeleted();
+    } catch (e) {
+      setOpen(false);
+      setConfirmation("");
+      setError(e instanceof Error ? e.message : "Suppression impossible.");
+    } finally {
+      setPending(false);
+    }
+  };
+
   return (
     <SettingsCard title="Supprimer mon compte">
       <div className="flex flex-col gap-3 pt-3">
@@ -421,10 +446,63 @@ function DangerSection() {
           La suppression de votre compte est définitive : profil, appartenances et préférences
           seront effacés sans possibilité de restauration.
         </p>
+        <p className="text-[12px] text-muted-foreground">
+          Les organisations dont vous êtes le seul membre seront également supprimées. Si l&apos;une
+          de vos organisations compte d&apos;autres membres, la suppression sera refusée.
+        </p>
+
+        {error ? (
+          <p className="text-[13px] text-destructive" role="alert">
+            {error}
+          </p>
+        ) : null}
+
         <div className="flex justify-end">
-          <Button variant="destructive" size="sm" disabled title="Bientôt disponible">
-            Supprimer mon compte
-          </Button>
+          <AlertDialog
+            open={open}
+            onOpenChange={(next) => {
+              setOpen(next);
+              if (!next) setConfirmation("");
+            }}
+          >
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive" size="sm">
+                Supprimer mon compte
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Supprimer définitivement votre compte ?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Cette action est irréversible. Votre profil, vos appartenances et les
+                  organisations dont vous êtes le seul membre seront effacés.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <div className="space-y-1.5">
+                <Label htmlFor="account-delete-confirmation">
+                  Tapez SUPPRIMER pour confirmer
+                </Label>
+                <Input
+                  id="account-delete-confirmation"
+                  value={confirmation}
+                  autoComplete="off"
+                  onChange={(e) => setConfirmation(e.target.value)}
+                />
+              </div>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Annuler</AlertDialogCancel>
+                <AlertDialogAction
+                  disabled={!canSubmit || pending}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    void submit();
+                  }}
+                >
+                  {pending ? "Suppression…" : "Supprimer définitivement"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
     </SettingsCard>
