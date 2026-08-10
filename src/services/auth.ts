@@ -141,6 +141,12 @@ export async function createOrganization(name: string): Promise<{ id: string; na
   return { id: data.id, name: data.name };
 }
 
+/** Réservée au rôle owner par la policy org_delete ; les memberships tombent en cascade. */
+export async function deleteOrganization(organizationId: string): Promise<void> {
+  const { error } = await supabase.from("organizations").delete().eq("id", organizationId);
+  if (error) throw new Error(error.message);
+}
+
 export function onAuthChange(cb: () => void): () => void {
   const { data } = supabase.auth.onAuthStateChange(() => {
     cb();
