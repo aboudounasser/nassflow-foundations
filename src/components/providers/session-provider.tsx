@@ -15,14 +15,21 @@ import { OnboardingScreen } from "@/components/auth/onboarding-screen";
 import { Skeleton } from "@/components/ui/skeleton";
 import { organizationRootKey } from "@/lib/tenancy/keys";
 import { initialsFrom } from "@/lib/tenancy/types";
-import type { Organization, Scope, Session } from "@/lib/tenancy/types";
+import type { Scope, Session } from "@/lib/tenancy/types";
+import type { MemberRoleDb } from "@/lib/supabase/database.types";
 import * as authService from "@/services/auth";
 import type { AuthUser, MembershipEntry } from "@/services/auth";
+
+interface OrganizationWithRole {
+  id: string;
+  name: string;
+  role: MemberRoleDb;
+}
 
 interface SessionApi {
   session: Session;
   scope: Scope;
-  organizations: Organization[];
+  organizations: OrganizationWithRole[];
   switchOrganization: (id: string) => void;
   signOut: () => Promise<void>;
   refresh: () => Promise<void>;
@@ -143,7 +150,11 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         role: activeMembership.role,
       },
       scope: { organizationId: organization.id },
-      organizations: memberships.map((entry) => entry.organization),
+      organizations: memberships.map((entry) => ({
+        id: entry.organization.id,
+        name: entry.organization.name,
+        role: entry.role,
+      })),
       switchOrganization,
       signOut,
       refresh: reload,
