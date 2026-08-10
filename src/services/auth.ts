@@ -1,3 +1,5 @@
+import { FunctionsHttpError } from "@supabase/supabase-js";
+
 import { supabase } from "@/lib/supabase/client";
 import type { MemberRoleDb } from "@/lib/supabase/database.types";
 
