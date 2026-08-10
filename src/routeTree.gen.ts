@@ -14,6 +14,7 @@ import { Route as BillingRouteImport } from './routes/billing'
 import { Route as InsightsRouteImport } from './routes/insights'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as SecurityCenterRouteImport } from './routes/security-center'
+import { Route as SignupRouteImport } from './routes/signup'
 import { Route as SystemSettingsRouteImport } from './routes/system-settings'
 import { Route as AgentsIndexRouteImport } from './routes/agents.index'
 import { Route as AgentsAgentIdRouteImport } from './routes/agents.$agentId'
@@ -55,6 +56,11 @@ const LoginRoute = LoginRouteImport.update({
 const SecurityCenterRoute = SecurityCenterRouteImport.update({
   id: '/security-center',
   path: '/security-center',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SystemSettingsRoute = SystemSettingsRouteImport.update({
@@ -151,6 +157,7 @@ export interface FileRoutesByFullPath {
   '/insights': typeof InsightsRoute
   '/login': typeof LoginRoute
   '/security-center': typeof SecurityCenterRoute
+  '/signup': typeof SignupRoute
   '/system-settings': typeof SystemSettingsRoute
   '/agents/$agentId': typeof AgentsAgentIdRoute
   '/crm/$contactId': typeof CrmContactIdRoute
@@ -175,6 +182,7 @@ export interface FileRoutesByTo {
   '/insights': typeof InsightsRoute
   '/login': typeof LoginRoute
   '/security-center': typeof SecurityCenterRoute
+  '/signup': typeof SignupRoute
   '/system-settings': typeof SystemSettingsRoute
   '/agents/$agentId': typeof AgentsAgentIdRoute
   '/crm/$contactId': typeof CrmContactIdRoute
@@ -200,6 +208,7 @@ export interface FileRoutesById {
   '/insights': typeof InsightsRoute
   '/login': typeof LoginRoute
   '/security-center': typeof SecurityCenterRoute
+  '/signup': typeof SignupRoute
   '/system-settings': typeof SystemSettingsRoute
   '/agents/$agentId': typeof AgentsAgentIdRoute
   '/crm/$contactId': typeof CrmContactIdRoute
@@ -226,6 +235,7 @@ export interface FileRouteTypes {
     | '/insights'
     | '/login'
     | '/security-center'
+    | '/signup'
     | '/system-settings'
     | '/agents/$agentId'
     | '/crm/$contactId'
@@ -250,6 +260,7 @@ export interface FileRouteTypes {
     | '/insights'
     | '/login'
     | '/security-center'
+    | '/signup'
     | '/system-settings'
     | '/agents/$agentId'
     | '/crm/$contactId'
@@ -274,6 +285,7 @@ export interface FileRouteTypes {
     | '/insights'
     | '/login'
     | '/security-center'
+    | '/signup'
     | '/system-settings'
     | '/agents/$agentId'
     | '/crm/$contactId'
@@ -299,6 +311,7 @@ export interface RootRouteChildren {
   InsightsRoute: typeof InsightsRoute
   LoginRoute: typeof LoginRoute
   SecurityCenterRoute: typeof SecurityCenterRoute
+  SignupRoute: typeof SignupRoute
   SystemSettingsRoute: typeof SystemSettingsRoute
   AgentsAgentIdRoute: typeof AgentsAgentIdRoute
   CrmContactIdRoute: typeof CrmContactIdRoute
@@ -353,6 +366,13 @@ declare module '@tanstack/react-router' {
       path: '/security-center'
       fullPath: '/security-center'
       preLoaderRoute: typeof SecurityCenterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/system-settings': {
@@ -483,6 +503,7 @@ const rootRouteChildren: RootRouteChildren = {
   InsightsRoute: InsightsRoute,
   LoginRoute: LoginRoute,
   SecurityCenterRoute: SecurityCenterRoute,
+  SignupRoute: SignupRoute,
   SystemSettingsRoute: SystemSettingsRoute,
   AgentsAgentIdRoute: AgentsAgentIdRoute,
   CrmContactIdRoute: CrmContactIdRoute,
