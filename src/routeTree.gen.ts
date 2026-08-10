@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BillingRouteImport } from './routes/billing'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as InsightsRouteImport } from './routes/insights'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as SecurityCenterRouteImport } from './routes/security-center'
@@ -41,6 +42,11 @@ const IndexRoute = IndexRouteImport.update({
 const BillingRoute = BillingRouteImport.update({
   id: '/billing',
   path: '/billing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InsightsRoute = InsightsRouteImport.update({
@@ -154,6 +160,7 @@ const WorkflowEngineWorkflowIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/billing': typeof BillingRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/insights': typeof InsightsRoute
   '/login': typeof LoginRoute
   '/security-center': typeof SecurityCenterRoute
@@ -179,6 +186,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/billing': typeof BillingRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/insights': typeof InsightsRoute
   '/login': typeof LoginRoute
   '/security-center': typeof SecurityCenterRoute
@@ -205,6 +213,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/billing': typeof BillingRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/insights': typeof InsightsRoute
   '/login': typeof LoginRoute
   '/security-center': typeof SecurityCenterRoute
@@ -232,6 +241,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/billing'
+    | '/forgot-password'
     | '/insights'
     | '/login'
     | '/security-center'
@@ -257,6 +267,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/billing'
+    | '/forgot-password'
     | '/insights'
     | '/login'
     | '/security-center'
@@ -282,6 +293,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/billing'
+    | '/forgot-password'
     | '/insights'
     | '/login'
     | '/security-center'
@@ -308,6 +320,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BillingRoute: typeof BillingRoute
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
   InsightsRoute: typeof InsightsRoute
   LoginRoute: typeof LoginRoute
   SecurityCenterRoute: typeof SecurityCenterRoute
@@ -345,6 +358,13 @@ declare module '@tanstack/react-router' {
       path: '/billing'
       fullPath: '/billing'
       preLoaderRoute: typeof BillingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/insights': {
@@ -500,6 +520,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BillingRoute: BillingRoute,
+  ForgotPasswordRoute: ForgotPasswordRoute,
   InsightsRoute: InsightsRoute,
   LoginRoute: LoginRoute,
   SecurityCenterRoute: SecurityCenterRoute,
