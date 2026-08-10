@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -135,17 +136,25 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+const PUBLIC_ROUTES = ["/login", "/signup", "/forgot-password", "/reset-password"];
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isPublic = PUBLIC_ROUTES.includes(pathname);
 
   return (
     <QueryClientProvider client={queryClient}>
-      <SessionProvider>
-        <AppShell>
-          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-          <Outlet />
-        </AppShell>
-      </SessionProvider>
+      {isPublic ? (
+        /* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */
+        <Outlet />
+      ) : (
+        <SessionProvider>
+          <AppShell>
+            <Outlet />
+          </AppShell>
+        </SessionProvider>
+      )}
       <Toaster />
     </QueryClientProvider>
   );
