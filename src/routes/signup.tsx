@@ -5,7 +5,7 @@ import { useState, type KeyboardEvent } from "react";
 import { AuthLayout } from "@/components/auth/auth-layout";
 import { useRedirectIfAuthenticated } from "@/components/auth/use-redirect-if-authenticated";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Input, PasswordInput } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import * as authService from "@/services/auth";
@@ -119,9 +119,8 @@ function SignupPage() {
 
       <div className="space-y-1.5">
         <Label htmlFor="signup-password">Mot de passe</Label>
-        <Input
+        <PasswordInput
           id="signup-password"
-          type="password"
           autoComplete="new-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}

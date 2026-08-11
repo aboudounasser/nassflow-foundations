@@ -4,7 +4,7 @@ import { toast } from "sonner";
 
 import { AuthLayout } from "@/components/auth/auth-layout";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import * as authService from "@/services/auth";
 
@@ -65,9 +65,8 @@ function ResetPasswordPage() {
     >
       <div className="space-y-1.5">
         <Label htmlFor="reset-password">Nouveau mot de passe</Label>
-        <Input
+        <PasswordInput
           id="reset-password"
-          type="password"
           autoComplete="new-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -77,9 +76,8 @@ function ResetPasswordPage() {
 
       <div className="space-y-1.5">
         <Label htmlFor="reset-confirmation">Confirmation</Label>
-        <Input
+        <PasswordInput
           id="reset-confirmation"
-          type="password"
           autoComplete="new-password"
           value={confirmation}
           onChange={(e) => setConfirmation(e.target.value)}

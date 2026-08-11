@@ -1,6 +1,7 @@
 import * as React from "react";
-import { Search } from "lucide-react";
+import { Eye, EyeOff, Search } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 /** NASSFLOW OS Input — height 44px, radius 12px. */
@@ -43,4 +44,43 @@ const SearchInput = React.forwardRef<HTMLInputElement, InputProps>(
 );
 SearchInput.displayName = "SearchInput";
 
-export { Input, SearchInput, inputBase };
+/**
+ * Champ mot de passe avec bascule d'affichage.
+ * Chaque instance porte son propre état : afficher un champ n'affiche jamais
+ * le champ de confirmation voisin. Le bouton est retiré de l'ordre de
+ * tabulation (tabIndex={-1}) pour ne pas s'intercaler entre deux champs.
+ */
+const PasswordInput = React.forwardRef<HTMLInputElement, Omit<InputProps, "type">>(
+  ({ className, disabled, ...props }, ref) => {
+    const [visible, setVisible] = React.useState(false);
+    const ToggleIcon = visible ? EyeOff : Eye;
+
+    return (
+      <div className="relative w-full">
+        <Input
+          ref={ref}
+          type={visible ? "text" : "password"}
+          disabled={disabled}
+          className={cn("pr-14", className)}
+          {...props}
+        />
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          tabIndex={-1}
+          disabled={disabled}
+          aria-label={visible ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+          aria-pressed={visible}
+          onClick={() => setVisible((v) => !v)}
+          className="absolute right-1 top-1/2 size-9 -translate-y-1/2"
+        >
+          <ToggleIcon aria-hidden="true" />
+        </Button>
+      </div>
+    );
+  },
+);
+PasswordInput.displayName = "PasswordInput";
+
+export { Input, SearchInput, PasswordInput, inputBase };
