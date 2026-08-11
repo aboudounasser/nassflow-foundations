@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Langue
+
+Réponds toujours en français dans cette conversation, y compris les explications, les résumés et les messages de commit. Le code, les noms de variables et de fichiers restent en anglais selon les conventions existantes du projet. Les chaînes visibles par l'utilisateur final restent en français, comme le reste de l'application.
+
 ## Project
 
 NASSFLOW OS — an "AI Operating System" front-end (TanStack Start + React 19 + Tailwind v4 + shadcn/ui, Supabase for auth). The UI language is **French**: all user-facing strings, and most code comments, are written in French. Keep that convention.
