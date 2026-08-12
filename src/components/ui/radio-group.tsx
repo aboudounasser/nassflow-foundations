@@ -20,7 +20,9 @@ const RadioGroupItem = React.forwardRef<
     <RadioGroupPrimitive.Item
       ref={ref}
       className={cn(
-        "aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow cursor-pointer focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
+        // size-2 = 16px, comme Checkbox : les deux cohabitent dans les mêmes formulaires.
+        // Le point intérieur (h-3.5 = 14px) n'est pas sur une clé détournée, il ne bouge pas.
+        "aspect-square size-2 rounded-full border border-primary text-primary shadow cursor-pointer focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
         className,
       )}
       {...props}
