@@ -79,7 +79,7 @@ Account deletion goes through a Supabase edge function (`supabase.functions.invo
 
 ### UI conventions
 
-- shadcn/ui (new-york) in `src/components/ui/` — regenerable, avoid hand-editing.
+- shadcn/ui (new-york) in `src/components/ui/` — avoid hand-editing, but **not safely regenerable in its current state**: see « Échelle de spacing » below.
 - Design tokens live in `src/styles.css` (`@theme inline` + `:root`). Dark mode is the only implemented theme; the `.light` scope is reserved and intentionally empty. Use semantic token classes (`bg-card`, `text-muted-foreground`, `border-border`, `text-success`) rather than raw colors, `h-11`/`rounded-lg` for controls, `rounded-xl` for cards, and 8px-grid spacing. Animations 150–200ms only.
 - Icons: `lucide-react` only, ~20px.
 - Async surfaces use `WidgetShell` (`src/components/dashboard/widget-shell.tsx`) with an explicit `state` of `loading | empty | error | success` and a skeleton; empty/error states use `EmptyState` (`src/components/common/empty-state.tsx`). List pages use `ModuleToolbar` driven by the `FilterDescriptor[]` / `ViewDescriptor[]` from the module's `meta.ts` rather than bespoke filter UI.
@@ -88,6 +88,29 @@ Account deletion goes through a Supabase edge function (`supabase.functions.invo
 ### TypeScript
 
 `strict` plus `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `noImplicitReturns`, `noPropertyAccessFromIndexSignature`. Consequences you will hit: index access yields `T | undefined`, optional props must be typed `foo?: X | undefined`, and `import.meta.env` / `process.env` must be read with bracket syntax (`import.meta.env["VITE_SUPABASE_URL"]`).
+
+## Échelle de spacing
+
+Cette section est en français, comme le reste des conventions du projet. **Lis-la avant d'écrire la moindre classe de taille, de marge ou d'espacement.**
+
+**1. Sept clés numériques valent le double du standard Tailwind.** `styles.css` redéfinit une partie de l'échelle sur la grille 8px du design system (`--spacing-1: 8px` … `--spacing-12: 96px`), mais Tailwind conserve sa base `--spacing: 0.25rem` pour toutes les clés non redéfinies. Les deux échelles cohabitent donc dans le même espace de noms :
+
+| clé                                                       | valeur ici | valeur Tailwind standard |
+| --------------------------------------------------------- | ---------- | ------------------------ |
+| **1, 2, 3, 4, 6, 8, 12**                                  | `N × 8px`  | `N × 4px`                |
+| toutes les autres (3.5, 5, 7, 9, 10, 11, 14, 16, 20, 24…) | `N × 4px`  | `N × 4px`                |
+
+Conséquences à connaître par cœur : `size-4` vaut **32px**, pas 16px. `pl-12` vaut **96px**. `h-12` vaut **96px**. `gap-2` vaut **16px**. En revanche `h-11` vaut bien 44px et `size-5` vaut bien 20px.
+
+Rien dans le nom d'une classe ne dit à quelle échelle elle appartient. **Ne déduis jamais une valeur de mémoire.** En cas de doute, `bun run build` puis lis la valeur réellement générée dans `.output/public/assets/*.css` — c'est la seule source de vérité.
+
+**2. `src/components/ui/` n'est PAS régénérable en l'état.** Tout composant shadcn ajouté ou régénéré (`bunx shadcn add …`) arrive avec les classes standard et se retrouve silencieusement au double sur les sept clés détournées. Ce n'est pas théorique : `Switch`, `Checkbox` et `Radio` ont dû être repris pour cette raison — leurs dimensions internes avaient doublé alors que leur code était intact.
+
+Après tout ajout d'un composant shadcn, **vérifie chaque classe portant une clé détournée** et convertis-la vers la valeur voulue. Repère utile : `Button` déclare `[&_svg]:size-5` (20px), la taille d'icône du design system — c'est la référence pour tout ce qui est icône.
+
+**3. Attention aux faux positifs lors d'un remplacement en masse.** Une regex trop large casse des choses qui n'ont rien à voir avec l'espacement : `col-span-12` (110 occurrences, la grille 12 colonnes du master layout), `w-4/5` (une fraction, 80 %), `ring-2`, `border-2`, `z-10`, `opacity-50`, `duration-200`. Ne cible que les utilitaires qui consomment réellement l'échelle, et comme unités entières.
+
+**4. La normalisation est planifiée.** Le chantier retenu — supprimer les sept surcharges et doubler les appels correspondants pour revenir à l'échelle Tailwind standard — représente ~1500 substitutions dans ~150 fichiers. Il n'est pas encore fait. Tant qu'il ne l'est pas, tout ce qui précède reste vrai. Ne le lance pas sans validation explicite de l'utilisateur, et pas avant l'arbitrage des cas où `4` sert de dimension de mise en page et non de taille d'icône (slider, rails, squelettes, curseur OTP).
 
 ## Base de données Supabase
 
