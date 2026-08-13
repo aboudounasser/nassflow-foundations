@@ -1,9 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Plug, TriangleAlert } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "sonner";
 
 import { EmptyState } from "@/components/common/empty-state";
 import { WidgetShell } from "@/components/dashboard/widget-shell";
+import { ConnectedAccountsSection } from "@/components/integrations/connected-accounts-section";
 import {
   IntegrationCard,
   IntegrationCardSkeletonGrid,
@@ -21,6 +23,7 @@ import { Card } from "@/components/ui/card";
 import { INTEGRATION_FILTER_DESCRIPTORS, INTEGRATION_STATUS_ORDER } from "@/lib/integrations/meta";
 import { useIntegrations } from "@/lib/integrations/queries";
 import type { Integration, IntegrationFilters, IntegrationView } from "@/lib/integrations/types";
+import { gmailCallbackToast } from "@/lib/integrations-oauth/meta";
 
 const DESCRIPTION =
   "Le catalogue d'intégrations de NASSFLOW OS : outils connectés aux agents, permissions, synchronisation et connexions disponibles.";
@@ -35,6 +38,13 @@ export const Route = createFileRoute("/integrations-hub/")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+  }),
+  /** `gmail-oauth-callback` renvoie l'issue du parcours dans `?gmail=` (+ `&email=`). */
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { gmail?: string | undefined; email?: string | undefined } => ({
+    gmail: typeof search["gmail"] === "string" ? search["gmail"] : undefined,
+    email: typeof search["email"] === "string" ? search["email"] : undefined,
   }),
   component: Page,
 });
@@ -51,6 +61,25 @@ function Page() {
   const [view, setView] = useState<IntegrationView>("grid");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const { requestOpen } = useContextPanel();
+  const { gmail, email } = Route.useSearch();
+  const navigate = useNavigate();
+  const callbackHandled = useRef(false);
+
+  /**
+   * Retour de Google : un toast, puis nettoyage du paramètre. Sans ce retrait,
+   * un simple rafraîchissement rejouerait le message. Le garde-fou couvre le
+   * double montage des effets en développement.
+   */
+  useEffect(() => {
+    if (!gmail || callbackHandled.current) return;
+    callbackHandled.current = true;
+
+    const { tone, message } = gmailCallbackToast(gmail, email ?? null);
+    if (tone === "success") toast.success(message);
+    else toast.error(message);
+
+    void navigate({ to: "/integrations-hub", search: {}, replace: true });
+  }, [gmail, email, navigate]);
 
   const integrationsQuery = useIntegrations();
   const allIntegrations = useMemo(
@@ -114,28 +143,42 @@ function Page() {
         ? "empty"
         : "success";
 
+  // Le catalogue est mocké, les comptes connectés viennent de la base : son
+  // échec ne doit pas emporter la section qui, elle, a peut-être abouti.
   if (integrationsQuery.isError) {
     return (
-      <section className="col-span-12 min-w-0">
-        <Card className="border-border bg-card p-4">
-          <EmptyState
-            icon={TriangleAlert}
-            title="Impossible de charger l'Integrations Hub"
-            description="Le catalogue d'intégrations n'a pas pu être récupéré. Vérifiez votre connexion puis réessayez."
-          />
-          <div className="flex justify-center">
-            <Button type="button" size="sm" onClick={() => void integrationsQuery.refetch()}>
-              Réessayer
-            </Button>
-          </div>
-        </Card>
-      </section>
+      <>
+        <ModulePage title="Integrations Hub" description={DESCRIPTION} />
+
+        <section className="col-span-12 min-w-0">
+          <ConnectedAccountsSection />
+        </section>
+
+        <section className="col-span-12 min-w-0">
+          <Card className="border-border bg-card p-4">
+            <EmptyState
+              icon={TriangleAlert}
+              title="Impossible de charger l'Integrations Hub"
+              description="Le catalogue d'intégrations n'a pas pu être récupéré. Vérifiez votre connexion puis réessayez."
+            />
+            <div className="flex justify-center">
+              <Button type="button" size="sm" onClick={() => void integrationsQuery.refetch()}>
+                Réessayer
+              </Button>
+            </div>
+          </Card>
+        </section>
+      </>
     );
   }
 
   return (
     <>
       <ModulePage title="Integrations Hub" description={DESCRIPTION} />
+
+      <section className="col-span-12 min-w-0">
+        <ConnectedAccountsSection />
+      </section>
 
       <section className="col-span-12 min-w-0">
         {integrationsQuery.isPending ? (

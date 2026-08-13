@@ -43,6 +43,54 @@ export type Database = {
           },
         ];
       };
+      /**
+       * Comptes externes raccordés par OAuth. Lecture réservée aux owner et
+       * admin par RLS ; aucune écriture n'est possible depuis le navigateur —
+       * seules les Edge Functions `gmail-oauth-*` insèrent et mettent à jour.
+       * `provider` et `status` sont contraints côté base (respectivement
+       * `gmail`, et `active | revoked | error`) : le service les rétrécit.
+       */
+      integrations: {
+        Row: {
+          account_email: string | null;
+          connected_by: string | null;
+          created_at: string;
+          id: string;
+          organization_id: string;
+          provider: string;
+          status: string;
+          vault_secret_id: string | null;
+        };
+        Insert: {
+          account_email?: string | null;
+          connected_by?: string | null;
+          created_at?: string;
+          id?: string;
+          organization_id: string;
+          provider: string;
+          status?: string;
+          vault_secret_id?: string | null;
+        };
+        Update: {
+          account_email?: string | null;
+          connected_by?: string | null;
+          created_at?: string;
+          id?: string;
+          organization_id?: string;
+          provider?: string;
+          status?: string;
+          vault_secret_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "integrations_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       organizations: {
         Row: {
           created_at: string;
