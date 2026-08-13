@@ -6,6 +6,14 @@ export type MemberStatus = "active" | "invited" | "suspended";
 
 export interface OrgMember {
   id: string;
+  /**
+   * Identifiant de la ligne `memberships` visée par les actions d'administration.
+   * Absent tant que l'annuaire est alimenté par les fixtures : sans lui, aucune
+   * action ne peut cibler la base, et le menu d'actions reste masqué.
+   */
+  membershipId?: string | undefined;
+  /** Utilisateur Supabase derrière ce membre, pour reconnaître sa propre ligne. */
+  userId?: string | undefined;
   name: string;
   email: string;
   jobTitle: string;
@@ -13,7 +21,8 @@ export interface OrgMember {
   department: string;
   role: MemberRole;
   status: MemberStatus;
-  avatar: string;
+  /** null pour les membres réels : aucune colonne d'avatar en base à ce stade. */
+  avatar: string | null;
   managerId: string | null;
   joinedAt: string;
 }

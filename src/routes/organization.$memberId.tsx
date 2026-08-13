@@ -35,6 +35,7 @@ import {
   MEMBER_STATUS,
   formatOrgDate,
   formatSeniority,
+  memberInitials,
 } from "@/lib/organization/meta";
 import { useOrgMember } from "@/lib/organization/queries";
 import type { OrgMember } from "@/lib/organization/types";
@@ -74,7 +75,7 @@ function MemberLinkCard({ member }: { member: OrgMember }) {
       className="flex w-full cursor-pointer items-center gap-3 rounded-lg border border-border bg-card px-3 py-2 text-left transition-colors duration-150 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
       <Avatar className="size-9 shrink-0">
-        <AvatarFallback className="text-[10px]">{member.avatar}</AvatarFallback>
+        <AvatarFallback className="text-[10px]">{memberInitials(member)}</AvatarFallback>
       </Avatar>
       <span className="min-w-0 flex-1">
         <span className="block truncate text-[14px] text-foreground">{member.name}</span>
@@ -171,7 +172,7 @@ function Page() {
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex min-w-0 items-start gap-3">
             <Avatar className="size-12 shrink-0">
-              <AvatarFallback className="text-[13px]">{member.avatar}</AvatarFallback>
+              <AvatarFallback className="text-[13px]">{memberInitials(member)}</AvatarFallback>
             </Avatar>
             <div className="min-w-0 space-y-2">
               <h1 className="text-foreground">{member.name}</h1>

@@ -136,12 +136,17 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
-const PUBLIC_ROUTES = ["/login", "/signup", "/forgot-password", "/reset-password"];
+const PUBLIC_ROUTES = ["/login", "/signup", "/forgot-password", "/reset-password", "/invite"];
+
+/** Couvre le chemin exact et ses sous-chemins : /invite/{token} reste public. */
+function isPublicRoute(pathname: string): boolean {
+  return PUBLIC_ROUTES.some((route) => pathname === route || pathname.startsWith(`${route}/`));
+}
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const isPublic = PUBLIC_ROUTES.includes(pathname);
+  const isPublic = isPublicRoute(pathname);
 
   return (
     <QueryClientProvider client={queryClient}>

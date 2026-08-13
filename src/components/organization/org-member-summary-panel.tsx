@@ -10,6 +10,7 @@ import {
   MEMBER_STATUS,
   formatOrgDate,
   formatSeniority,
+  memberInitials,
 } from "@/lib/organization/meta";
 import type { OrgMember } from "@/lib/organization/types";
 
@@ -34,7 +35,7 @@ export function OrgMemberSummaryPanel({
       <div className="flex-1 space-y-5 p-6">
         <div className="flex items-start gap-3">
           <Avatar className="size-12 shrink-0">
-            <AvatarFallback className="text-[13px]">{member.avatar}</AvatarFallback>
+            <AvatarFallback className="text-[13px]">{memberInitials(member)}</AvatarFallback>
           </Avatar>
           <div className="min-w-0">
             <h3 className="text-[16px] font-medium text-foreground">{member.name}</h3>

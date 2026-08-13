@@ -91,6 +91,47 @@ export type Database = {
           },
         ];
       };
+      invitations: {
+        Row: {
+          accepted_at: string | null;
+          created_at: string;
+          email: string;
+          expires_at: string;
+          id: string;
+          invited_by: string | null;
+          organization_id: string;
+          role: Database["public"]["Enums"]["member_role"];
+        };
+        Insert: {
+          accepted_at?: string | null;
+          created_at?: string;
+          email: string;
+          expires_at?: string;
+          id?: string;
+          invited_by?: string | null;
+          organization_id: string;
+          role?: Database["public"]["Enums"]["member_role"];
+        };
+        Update: {
+          accepted_at?: string | null;
+          created_at?: string;
+          email?: string;
+          expires_at?: string;
+          id?: string;
+          invited_by?: string | null;
+          organization_id?: string;
+          role?: Database["public"]["Enums"]["member_role"];
+        };
+        Relationships: [
+          {
+            foreignKeyName: "invitations_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       organizations: {
         Row: {
           created_at: string;
@@ -147,6 +188,34 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      accept_invitation: {
+        Args: { raw_token: string };
+        Returns: {
+          created_at: string;
+          id: string;
+          name: string;
+        };
+      };
+      accept_invitation_by_id: {
+        Args: { invitation_id: string };
+        Returns: {
+          created_at: string;
+          id: string;
+          name: string;
+        };
+      };
+      create_invitation: {
+        Args: {
+          org_id: string;
+          invitee: string;
+          new_role: Database["public"]["Enums"]["member_role"];
+        };
+        Returns: {
+          invitation_id: string;
+          token: string | null;
+          already_member: boolean;
+        };
+      };
       create_organization: {
         Args: { org_name: string };
         Returns: {
@@ -167,6 +236,27 @@ export type Database = {
         Returns: Database["public"]["Enums"]["member_role"];
       };
       current_user_visible_user_ids: { Args: never; Returns: string[] };
+      invitation_preview: {
+        Args: { raw_token: string };
+        Returns: {
+          organization_name: string;
+          email: string;
+          expired: boolean;
+          accepted: boolean;
+        };
+      };
+      /** Sans paramètre : la cible est toujours auth.uid(). */
+      pending_invitations_for_me: {
+        Args: never;
+        Returns: {
+          invitation_id: string;
+          organization_id: string;
+          organization_name: string;
+          role: Database["public"]["Enums"]["member_role"];
+          expires_at: string;
+          created_at: string;
+        }[];
+      };
     };
     Enums: {
       member_role: "owner" | "admin" | "manager" | "member" | "viewer";

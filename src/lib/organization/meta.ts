@@ -1,7 +1,8 @@
 import { CircleCheck, MailCheck, PauseCircle, type LucideIcon } from "lucide-react";
 
-import type { MemberRole, MemberStatus } from "./types";
+import type { MemberRole, MemberStatus, OrgMember } from "./types";
 import type { FilterDescriptor } from "@/lib/toolbar/types";
+import { initialsFrom } from "@/lib/tenancy/types";
 
 type BadgeVariant = "neutral" | "primary" | "success" | "warning" | "destructive" | "info";
 
@@ -14,6 +15,30 @@ export const MEMBER_ROLE: Record<MemberRole, { label: string; variant: BadgeVari
 };
 
 export const MEMBER_ROLE_ORDER: MemberRole[] = ["owner", "admin", "manager", "member", "viewer"];
+
+/** Département affiché tant que la colonne correspondante n'existe pas en base. */
+export const UNASSIGNED_DEPARTMENT = "Non renseigné";
+
+/** Initiales de repli : l'annuaire réel ne stocke pas encore d'avatar. */
+export function memberInitials(member: OrgMember): string {
+  return member.avatar ?? initialsFrom(member.name, member.email);
+}
+
+/** Rôles qu'un admin ne peut ni modifier, ni attribuer — cf. policy membership_update. */
+export const PRIVILEGED_ROLES: MemberRole[] = ["owner", "admin"];
+
+/**
+ * Reproduit `membership_update` / `membership_delete` côté interface : un owner
+ * administre tout le monde, un admin tous ceux qui ne sont ni owner ni admin.
+ * Sans `membershipId`, la ligne ne désigne aucune appartenance en base et
+ * aucune action ne peut aboutir.
+ */
+export function canAdministerMember(currentRole: MemberRole, member: OrgMember): boolean {
+  if (!member.membershipId) return false;
+  if (currentRole === "owner") return true;
+  if (currentRole !== "admin") return false;
+  return !PRIVILEGED_ROLES.includes(member.role);
+}
 
 export const MEMBER_STATUS: Record<
   MemberStatus,

@@ -22,11 +22,16 @@ export const Route = createFileRoute("/login")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
+  /** `invite` : jeton d'invitation à honorer une fois la connexion réussie. */
+  validateSearch: (search: Record<string, unknown>): { invite?: string | undefined } => ({
+    invite: typeof search["invite"] === "string" && search["invite"] ? search["invite"] : undefined,
+  }),
   component: LoginPage,
 });
 
 function LoginPage() {
   const navigate = useNavigate();
+  const { invite } = Route.useSearch();
   const checking = useRedirectIfAuthenticated();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -39,6 +44,12 @@ function LoginPage() {
     setError(null);
     try {
       await authService.signIn(email, password);
+      // Le chemin est reconstruit à partir du seul jeton : aucune redirection
+      // arbitraire ne peut être injectée par l'URL.
+      if (invite) {
+        await navigate({ to: "/invite/$token", params: { token: invite } });
+        return;
+      }
       await navigate({ to: "/" });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Connexion impossible.");
@@ -66,7 +77,7 @@ function LoginPage() {
       footer={
         <>
           Pas encore de compte ?{" "}
-          <Link to="/signup" className="text-primary hover:underline">
+          <Link to="/signup" search={{ invite }} className="text-primary hover:underline">
             Créer un compte
           </Link>
         </>

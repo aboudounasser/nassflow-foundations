@@ -29,6 +29,7 @@ import { Route as HelpCenterIndexRouteImport } from './routes/help-center.index'
 import { Route as HelpCenterArticleIdRouteImport } from './routes/help-center.$articleId'
 import { Route as IntegrationsHubIndexRouteImport } from './routes/integrations-hub.index'
 import { Route as IntegrationsHubIntegrationIdRouteImport } from './routes/integrations-hub.$integrationId'
+import { Route as InviteTokenRouteImport } from './routes/invite.$token'
 import { Route as MissionsIndexRouteImport } from './routes/missions.index'
 import { Route as MissionsMissionIdRouteImport } from './routes/missions.$missionId'
 import { Route as OrganizationIndexRouteImport } from './routes/organization.index'
@@ -137,6 +138,11 @@ const IntegrationsHubIntegrationIdRoute =
     path: '/integrations-hub/$integrationId',
     getParentRoute: () => rootRouteImport,
   } as any)
+const InviteTokenRoute = InviteTokenRouteImport.update({
+  id: '/invite/$token',
+  path: '/invite/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MissionsIndexRoute = MissionsIndexRouteImport.update({
   id: '/missions/',
   path: '/missions/',
@@ -185,6 +191,7 @@ export interface FileRoutesByFullPath {
   '/enterprise-brain/$itemId': typeof EnterpriseBrainItemIdRoute
   '/help-center/$articleId': typeof HelpCenterArticleIdRoute
   '/integrations-hub/$integrationId': typeof IntegrationsHubIntegrationIdRoute
+  '/invite/$token': typeof InviteTokenRoute
   '/missions/$missionId': typeof MissionsMissionIdRoute
   '/organization/$memberId': typeof OrganizationMemberIdRoute
   '/workflow-engine/$workflowId': typeof WorkflowEngineWorkflowIdRoute
@@ -213,6 +220,7 @@ export interface FileRoutesByTo {
   '/enterprise-brain/$itemId': typeof EnterpriseBrainItemIdRoute
   '/help-center/$articleId': typeof HelpCenterArticleIdRoute
   '/integrations-hub/$integrationId': typeof IntegrationsHubIntegrationIdRoute
+  '/invite/$token': typeof InviteTokenRoute
   '/missions/$missionId': typeof MissionsMissionIdRoute
   '/organization/$memberId': typeof OrganizationMemberIdRoute
   '/workflow-engine/$workflowId': typeof WorkflowEngineWorkflowIdRoute
@@ -242,6 +250,7 @@ export interface FileRoutesById {
   '/enterprise-brain/$itemId': typeof EnterpriseBrainItemIdRoute
   '/help-center/$articleId': typeof HelpCenterArticleIdRoute
   '/integrations-hub/$integrationId': typeof IntegrationsHubIntegrationIdRoute
+  '/invite/$token': typeof InviteTokenRoute
   '/missions/$missionId': typeof MissionsMissionIdRoute
   '/organization/$memberId': typeof OrganizationMemberIdRoute
   '/workflow-engine/$workflowId': typeof WorkflowEngineWorkflowIdRoute
@@ -272,6 +281,7 @@ export interface FileRouteTypes {
     | '/enterprise-brain/$itemId'
     | '/help-center/$articleId'
     | '/integrations-hub/$integrationId'
+    | '/invite/$token'
     | '/missions/$missionId'
     | '/organization/$memberId'
     | '/workflow-engine/$workflowId'
@@ -300,6 +310,7 @@ export interface FileRouteTypes {
     | '/enterprise-brain/$itemId'
     | '/help-center/$articleId'
     | '/integrations-hub/$integrationId'
+    | '/invite/$token'
     | '/missions/$missionId'
     | '/organization/$memberId'
     | '/workflow-engine/$workflowId'
@@ -328,6 +339,7 @@ export interface FileRouteTypes {
     | '/enterprise-brain/$itemId'
     | '/help-center/$articleId'
     | '/integrations-hub/$integrationId'
+    | '/invite/$token'
     | '/missions/$missionId'
     | '/organization/$memberId'
     | '/workflow-engine/$workflowId'
@@ -357,6 +369,7 @@ export interface RootRouteChildren {
   EnterpriseBrainItemIdRoute: typeof EnterpriseBrainItemIdRoute
   HelpCenterArticleIdRoute: typeof HelpCenterArticleIdRoute
   IntegrationsHubIntegrationIdRoute: typeof IntegrationsHubIntegrationIdRoute
+  InviteTokenRoute: typeof InviteTokenRoute
   MissionsMissionIdRoute: typeof MissionsMissionIdRoute
   OrganizationMemberIdRoute: typeof OrganizationMemberIdRoute
   WorkflowEngineWorkflowIdRoute: typeof WorkflowEngineWorkflowIdRoute
@@ -512,6 +525,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IntegrationsHubIntegrationIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/invite/$token': {
+      id: '/invite/$token'
+      path: '/invite/$token'
+      fullPath: '/invite/$token'
+      preLoaderRoute: typeof InviteTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/missions/': {
       id: '/missions/'
       path: '/missions'
@@ -573,6 +593,7 @@ const rootRouteChildren: RootRouteChildren = {
   EnterpriseBrainItemIdRoute: EnterpriseBrainItemIdRoute,
   HelpCenterArticleIdRoute: HelpCenterArticleIdRoute,
   IntegrationsHubIntegrationIdRoute: IntegrationsHubIntegrationIdRoute,
+  InviteTokenRoute: InviteTokenRoute,
   MissionsMissionIdRoute: MissionsMissionIdRoute,
   OrganizationMemberIdRoute: OrganizationMemberIdRoute,
   WorkflowEngineWorkflowIdRoute: WorkflowEngineWorkflowIdRoute,
@@ -588,3 +609,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

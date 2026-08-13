@@ -23,10 +23,15 @@ export const Route = createFileRoute("/signup")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
+  /** `invite` : jeton d'invitation propagé jusqu'au retour vers la connexion. */
+  validateSearch: (search: Record<string, unknown>): { invite?: string | undefined } => ({
+    invite: typeof search["invite"] === "string" && search["invite"] ? search["invite"] : undefined,
+  }),
   component: SignupPage,
 });
 
 function SignupPage() {
+  const { invite } = Route.useSearch();
   const checking = useRedirectIfAuthenticated();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -75,7 +80,7 @@ function SignupPage() {
           Nous avons envoyé un lien de confirmation à {email}. Cliquez dessus pour activer votre
           compte, puis connectez-vous.
         </p>
-        <Link to="/login" className="text-[13px] text-primary hover:underline">
+        <Link to="/login" search={{ invite }} className="text-[13px] text-primary hover:underline">
           Retour à la connexion
         </Link>
       </AuthLayout>
@@ -89,7 +94,7 @@ function SignupPage() {
       footer={
         <>
           Déjà un compte ?{" "}
-          <Link to="/login" className="text-primary hover:underline">
+          <Link to="/login" search={{ invite }} className="text-primary hover:underline">
             Se connecter
           </Link>
         </>

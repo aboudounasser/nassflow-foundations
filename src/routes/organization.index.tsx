@@ -3,10 +3,13 @@ import { Building2, TriangleAlert, Users } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { EmptyState } from "@/components/common/empty-state";
+import { useSession } from "@/components/providers/session-provider";
 import { WidgetShell } from "@/components/dashboard/widget-shell";
 import { useContextPanel, useContextPanelContent } from "@/components/layout/context-panel";
 import { ModulePage } from "@/components/layout/page-header";
 import { DepartmentCard, DepartmentSkeletonGrid } from "@/components/organization/department-card";
+import { InvitationsSection } from "@/components/organization/invitations-section";
+import { MemberActionsMenu } from "@/components/organization/member-actions-menu";
 import {
   OrgMemberCard,
   OrgMemberCardSkeletonGrid,
@@ -17,7 +20,7 @@ import { GRID_LIST_VIEWS, ModuleToolbar } from "@/components/common/module-toolb
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { memberFilterDescriptors } from "@/lib/organization/meta";
+import { canAdministerMember, memberFilterDescriptors } from "@/lib/organization/meta";
 import {
   useCompanyProfile,
   useDepartmentSummaries,
@@ -53,6 +56,7 @@ const DEFAULT_FILTERS: MemberFilters = {
 };
 
 function Page() {
+  const { session } = useSession();
   const [tab, setTab] = useState<OrgTab>("directory");
   const [filters, setFilters] = useState<MemberFilters>(DEFAULT_FILTERS);
   const [view, setView] = useState<OrgView>("grid");
@@ -115,12 +119,14 @@ function Page() {
 
   useContextPanelContent(
     () =>
-      selected && selectedDetail ? (
+      selected ? (
+        // Les compteurs viennent encore des fixtures : un membre réel n'y figure
+        // pas, le panneau l'affiche alors sans rattachement plutôt que vide.
         <OrgMemberSummaryPanel
           member={selected}
           manager={allMembers.find((m) => m.id === selected.managerId) ?? null}
-          reportCount={selectedDetail.directReports.length}
-          agentCount={selectedDetail.departmentAgents.length}
+          reportCount={selectedDetail?.directReports.length ?? 0}
+          agentCount={selectedDetail?.departmentAgents.length ?? 0}
         />
       ) : null,
     [selected?.id, selectedDetail],
@@ -247,10 +253,19 @@ function Page() {
                     selected={member.id === selectedId}
                     compact={view === "list"}
                     onSelect={handleSelect}
+                    actions={
+                      canAdministerMember(session.role, member) ? (
+                        <MemberActionsMenu member={member} />
+                      ) : undefined
+                    }
                   />
                 ))}
               </div>
             </WidgetShell>
+          </section>
+
+          <section className="col-span-12 min-w-0">
+            <InvitationsSection />
           </section>
         </>
       ) : (

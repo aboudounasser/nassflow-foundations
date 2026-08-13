@@ -12,7 +12,10 @@ import {
 } from "react";
 
 import { OnboardingScreen } from "@/components/auth/onboarding-screen";
+import { PendingInvitationsScreen } from "@/components/auth/pending-invitations-screen";
 import { Skeleton } from "@/components/ui/skeleton";
+import type { MyPendingInvitation } from "@/lib/invitations/types";
+import * as invitationsService from "@/services/invitations";
 import { organizationRootKey } from "@/lib/tenancy/keys";
 import { initialsFrom } from "@/lib/tenancy/types";
 import type { Scope, Session } from "@/lib/tenancy/types";
@@ -37,7 +40,12 @@ interface SessionApi {
 
 const SessionCtx = createContext<SessionApi | null>(null);
 
-const ACTIVE_ORG_KEY = "nassflow.activeOrganizationId";
+/**
+ * Organisation active persistée entre deux sessions.
+ * Exportée pour que /invite puisse désigner l'organisation tout juste
+ * rejointe avant que ce provider ne monte et ne choisisse à sa place.
+ */
+export const ACTIVE_ORG_KEY = "nassflow.activeOrganizationId";
 
 type GateState = "loading" | "signedOut" | "noOrg" | "ready";
 
@@ -51,6 +59,19 @@ function storeOrganizationId(id: string) {
   window.localStorage.setItem(ACTIVE_ORG_KEY, id);
 }
 
+/**
+ * Invitations adressées à l'utilisateur, consultées avant de conclure qu'il n'a
+ * nulle part où aller. Un échec de lecture ne doit pas condamner le parcours :
+ * on retombe alors sur l'onboarding, qui reste une issue valable.
+ */
+async function loadPendingInvitations(): Promise<MyPendingInvitation[]> {
+  try {
+    return await invitationsService.getMyPendingInvitations();
+  } catch {
+    return [];
+  }
+}
+
 export function SessionProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -58,6 +79,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [memberships, setMemberships] = useState<MembershipEntry[]>([]);
   const [organizationId, setOrganizationId] = useState<string | null>(null);
+  const [pendingInvitations, setPendingInvitations] = useState<MyPendingInvitation[]>([]);
+  /** L'utilisateur a choisi de créer son organisation malgré ses invitations. */
+  const [forceOnboarding, setForceOnboarding] = useState(false);
   const reloadingRef = useRef(false);
 
   const reload = useCallback(async () => {
@@ -78,9 +102,14 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       setMemberships(entries);
       if (entries.length === 0) {
         setOrganizationId(null);
+        // Consulté AVANT de basculer sur "noOrg" : l'état reste "loading" le
+        // temps de la vérification, donc l'onboarding n'apparaît jamais pour
+        // être aussitôt remplacé par l'écran d'invitations.
+        setPendingInvitations(await loadPendingInvitations());
         setState("noOrg");
         return;
       }
+      setPendingInvitations([]);
 
       const stored = readStoredOrganizationId();
       const active =
@@ -130,6 +159,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     setUser(null);
     setMemberships([]);
     setOrganizationId(null);
+    setPendingInvitations([]);
+    setForceOnboarding(false);
     setState("signedOut");
   }, [queryClient]);
 
@@ -162,7 +193,23 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }, [user, activeMembership, memberships, switchOrganization, signOut, reload]);
 
   if (state === "loading" || !value) {
-    if (state === "noOrg")
+    if (state === "noOrg") {
+      if (pendingInvitations.length > 0 && !forceOnboarding)
+        return (
+          <PendingInvitationsScreen
+            invitations={pendingInvitations}
+            onJoined={(joinedOrganizationId) => {
+              // Même contrat que /invite/$token : l'organisation rejointe est
+              // désignée active avant que la session ne soit rechargée.
+              storeOrganizationId(joinedOrganizationId);
+              void reload();
+            }}
+            onCreateOrganization={() => setForceOnboarding(true)}
+            onSignOut={() => {
+              void signOut();
+            }}
+          />
+        );
       return (
         <OnboardingScreen
           onCreated={() => {
@@ -173,6 +220,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
           }}
         />
       );
+    }
     return (
       <div className="flex min-h-screen items-center justify-center bg-background p-6">
         <Skeleton className="h-24 w-full max-w-sm" />

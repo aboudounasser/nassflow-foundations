@@ -1,6 +1,8 @@
+import type { ReactNode } from "react";
+
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { MEMBER_ROLE, MEMBER_STATUS, formatOrgDate } from "@/lib/organization/meta";
+import { MEMBER_ROLE, MEMBER_STATUS, formatOrgDate, memberInitials } from "@/lib/organization/meta";
 import type { OrgMember } from "@/lib/organization/types";
 import { cn } from "@/lib/utils";
 
@@ -9,53 +11,59 @@ export function OrgMemberCard({
   selected = false,
   compact = false,
   onSelect,
+  actions,
 }: {
   member: OrgMember;
   selected?: boolean;
   compact?: boolean;
   onSelect?: (member: OrgMember) => void;
+  /** Rendu hors du bouton de sélection : un bouton ne peut pas en contenir un autre. */
+  actions?: ReactNode;
 }) {
   const role = MEMBER_ROLE[member.role];
   const status = MEMBER_STATUS[member.status];
   const StatusIcon = status.icon;
 
   return (
-    <button
-      type="button"
-      aria-pressed={selected}
-      onClick={() => onSelect?.(member)}
-      className={cn(
-        "flex w-full cursor-pointer flex-col gap-3 rounded-lg border bg-surface p-4 text-left transition-colors duration-150 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-        selected ? "border-primary" : "border-border",
-        compact && "gap-2 p-3",
-      )}
-    >
-      <div className="flex items-start gap-3">
-        <Avatar className="size-10 shrink-0">
-          <AvatarFallback className="text-[12px]">{member.avatar}</AvatarFallback>
-        </Avatar>
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-[14px] font-medium text-foreground">{member.name}</p>
-          <p className="truncate text-[12px] text-muted-foreground">{member.jobTitle}</p>
+    <div className="relative">
+      <button
+        type="button"
+        aria-pressed={selected}
+        onClick={() => onSelect?.(member)}
+        className={cn(
+          "flex w-full cursor-pointer flex-col gap-3 rounded-lg border bg-surface p-4 text-left transition-colors duration-150 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+          selected ? "border-primary" : "border-border",
+          compact && "gap-2 p-3",
+        )}
+      >
+        <div className={cn("flex items-start gap-3", actions && "pr-9")}>
+          <Avatar className="size-10 shrink-0">
+            <AvatarFallback className="text-[12px]">{memberInitials(member)}</AvatarFallback>
+          </Avatar>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-[14px] font-medium text-foreground">{member.name}</p>
+            <p className="truncate text-[12px] text-muted-foreground">{member.jobTitle}</p>
+          </div>
         </div>
-      </div>
 
-      <div className="flex flex-wrap items-center gap-1">
-        <Badge variant="info">{member.department}</Badge>
-        <Badge variant={role.variant}>{role.label}</Badge>
-        <Badge variant={status.variant}>
-          <StatusIcon aria-hidden="true" />
-          {status.label}
-        </Badge>
-      </div>
+        <div className="flex flex-wrap items-center gap-1">
+          <Badge variant="info">{member.department}</Badge>
+          <Badge variant={role.variant}>{role.label}</Badge>
+          <Badge variant={status.variant}>
+            <StatusIcon aria-hidden="true" />
+            {status.label}
+          </Badge>
+        </div>
 
-      {compact ? null : (
-        <p className="truncate text-[12px] text-muted-foreground">{member.email}</p>
-      )}
-      <p className="text-[12px] text-muted-foreground">
-        Arrivé·e le {formatOrgDate(member.joinedAt)}
-      </p>
-    </button>
+        {compact ? null : (
+          <p className="truncate text-[12px] text-muted-foreground">{member.email}</p>
+        )}
+        <p className="text-[12px] text-muted-foreground">
+          Arrivé·e le {formatOrgDate(member.joinedAt)}
+        </p>
+      </button>
+      {actions ? <div className="absolute right-1 top-1">{actions}</div> : null}
+    </div>
   );
 }
 

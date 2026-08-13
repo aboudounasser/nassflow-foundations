@@ -6,9 +6,10 @@ import {
   directReports,
   membersInDepartment,
   orgMemberById,
-  orgMembersMock,
 } from "@/lib/organization/mocks";
-import type { CompanyProfile, Department, OrgMember } from "@/lib/organization/types";
+import { UNASSIGNED_DEPARTMENT } from "@/lib/organization/meta";
+import type { CompanyProfile, Department, MemberRole, OrgMember } from "@/lib/organization/types";
+import { supabase } from "@/lib/supabase/client";
 import type { Scope } from "@/lib/tenancy/types";
 import { delay } from "@/services/latency";
 
@@ -46,8 +47,65 @@ export async function getDepartmentSummaries(_scope: Scope): Promise<DepartmentS
   );
 }
 
-export async function getOrgMembers(_scope: Scope): Promise<OrgMember[]> {
-  return delay(orgMembersMock);
+/**
+ * Annuaire réel — seule lecture du module branchée sur la base.
+ *
+ * Champs réels, lus dans `memberships` et `profiles` :
+ *   membershipId, userId (memberships.id, memberships.user_id)
+ *   role, joinedAt        (memberships.role, memberships.created_at)
+ *   email, name, jobTitle (profiles.email, full_name, job_title)
+ *
+ * Champs en attente d'une colonne, valeur neutre explicite plutôt qu'inventée :
+ *   department → "Non renseigné"   status → "active"
+ *   avatar     → null              managerId → null
+ *
+ * Conséquence assumée le temps de la transition : l'onglet Départements, le
+ * filtre par département et la fiche détaillée continuent de s'appuyer sur les
+ * fixtures, via getDepartmentSummaries et getOrgMember restés inchangés.
+ */
+export async function getOrgMembers(scope: Scope): Promise<OrgMember[]> {
+  const { data, error } = await supabase
+    .from("memberships")
+    .select("id, user_id, role, created_at")
+    .eq("organization_id", scope.organizationId);
+
+  if (error) throw new Error(error.message);
+
+  const memberships = data ?? [];
+  if (memberships.length === 0) return [];
+
+  // Jointure côté service : aucune clé étrangère ne relie memberships à profiles
+  // — les deux référencent auth.users — donc PostgREST ne peut pas l'imbriquer.
+  const { data: profileRows, error: profilesError } = await supabase
+    .from("profiles")
+    .select("id, email, full_name, job_title")
+    .in(
+      "id",
+      memberships.map((membership) => membership.user_id),
+    );
+
+  if (profilesError) throw new Error(profilesError.message);
+
+  const profiles = new Map((profileRows ?? []).map((profile) => [profile.id, profile]));
+
+  return memberships.map((membership) => {
+    const profile = profiles.get(membership.user_id);
+    const email = profile?.email ?? "";
+    return {
+      id: membership.id,
+      membershipId: membership.id,
+      userId: membership.user_id,
+      name: profile?.full_name ?? email,
+      email,
+      jobTitle: profile?.job_title ?? "",
+      department: UNASSIGNED_DEPARTMENT,
+      role: membership.role,
+      status: "active",
+      avatar: null,
+      managerId: null,
+      joinedAt: membership.created_at,
+    };
+  });
 }
 
 export async function getOrgMember(
@@ -61,4 +119,26 @@ export async function getOrgMember(
     directReports: directReports(member.id),
     departmentAgents: agentsInDepartment(member.department),
   });
+}
+
+/**
+ * Administration des membres — seules fonctions de ce module branchées sur la base.
+ *
+ * Les policies `membership_update` / `membership_delete` et le trigger
+ * `prevent_last_owner_removal` arbitrent seuls ce qui est permis. Leurs refus
+ * arrivent ici sous forme de messages rédigés pour l'utilisateur final : ils
+ * remontent tels quels, sans reformulation.
+ */
+export async function updateMemberRole(
+  _scope: Scope,
+  membershipId: string,
+  role: MemberRole,
+): Promise<void> {
+  const { error } = await supabase.from("memberships").update({ role }).eq("id", membershipId);
+  if (error) throw new Error(error.message);
+}
+
+export async function removeMember(_scope: Scope, membershipId: string): Promise<void> {
+  const { error } = await supabase.from("memberships").delete().eq("id", membershipId);
+  if (error) throw new Error(error.message);
 }
