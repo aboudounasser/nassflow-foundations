@@ -11,7 +11,7 @@ import { useContextPanel, useContextPanelContent } from "@/components/layout/con
 import { ModulePage } from "@/components/layout/page-header";
 import { EmptyState } from "@/components/common/empty-state";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { SearchInput } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -156,17 +156,13 @@ function Page() {
           >
             Recherche
           </label>
-          <div className="relative mt-2">
-            <Search
-              className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
-              aria-hidden="true"
-            />
-            <Input
+          <div className="mt-2">
+            <SearchInput
               id="help-search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Rechercher dans l'aide…"
-              className="h-12 pl-9 text-[15px]"
+              className="h-12 text-[15px]"
             />
           </div>
           <p className="mt-2 text-[12px] text-muted-foreground">

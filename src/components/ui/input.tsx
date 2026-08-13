@@ -31,6 +31,16 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 );
 Input.displayName = "Input";
 
+/**
+ * Champ de recherche avec icône à gauche.
+ *
+ * ⚠️ L'échelle de spacing est redéfinie dans styles.css (grille 8px) : les
+ * classes ne valent pas leur valeur Tailwind habituelle. Géométrie mesurée
+ * dans le CSS généré, à ne pas « corriger » de mémoire :
+ *   left-4 = 32px  (l'icône occupe l'inset de texte natif de Input, px-4 = 32px)
+ *   size-5 = 20px  (clé non redéfinie → base 4px ; c'est la taille d'icône du DS)
+ *   → l'icône s'arrête à 52px, pl-8 = 64px laisse 12px avant le texte.
+ */
 const SearchInput = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, ...props }, ref) => (
     <div className="relative w-full">
@@ -38,7 +48,7 @@ const SearchInput = React.forwardRef<HTMLInputElement, InputProps>(
         className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-muted-foreground"
         aria-hidden="true"
       />
-      <Input ref={ref} type="search" className={cn("pl-12", className)} {...props} />
+      <Input ref={ref} type="search" className={cn("pl-8", className)} {...props} />
     </div>
   ),
 );

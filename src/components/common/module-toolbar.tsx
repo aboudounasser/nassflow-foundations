@@ -1,4 +1,4 @@
-import { ArrowUpDown, LayoutGrid, List, RotateCcw, Search } from "lucide-react";
+import { ArrowUpDown, LayoutGrid, List, RotateCcw } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -7,7 +7,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
+import { SearchInput } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import type { FilterDescriptor, ToolbarOption, ViewDescriptor } from "@/lib/toolbar/types";
+import { cn } from "@/lib/utils";
 
 export type { ToolbarOption, FilterDescriptor, ViewDescriptor };
 
@@ -24,6 +25,17 @@ export const GRID_LIST_VIEWS: ViewDescriptor[] = [
   { value: "grid", label: "Grille", icon: LayoutGrid },
   { value: "list", label: "Liste", icon: List },
 ];
+
+/**
+ * Dimensionnement des triggers de filtre.
+ *
+ * `w-auto` neutralise le `w-full` de la base SelectTrigger : le trigger se
+ * dimensionne alors à son contenu, avec le `min-w-[…]` du descripteur comme
+ * plancher d'alignement et `max-w-full` comme plafond. La barre étant en
+ * `flex-wrap`, un filtre trop long passe à la ligne suivante au lieu d'être
+ * tronqué par le `line-clamp-1` de SelectTrigger.
+ */
+const triggerSizing = "w-auto max-w-full";
 
 export function ModuleToolbar<F extends object>({
   filters,
@@ -60,17 +72,12 @@ export function ModuleToolbar<F extends object>({
   return (
     <div className="@container flex flex-col gap-3 rounded-xl border border-border bg-surface p-4">
       <div className="flex flex-wrap items-center gap-3">
-        <div className="relative min-w-[220px] flex-1">
-          <Search
-            className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
-            aria-hidden="true"
-          />
-          <Input
+        <div className="min-w-[220px] flex-1">
+          <SearchInput
             value={String(record[searchKey] ?? "")}
             onChange={(e) => set(searchKey, e.target.value)}
             placeholder={searchPlaceholder}
             aria-label={searchAriaLabel}
-            className="pl-9"
           />
         </div>
 
@@ -82,7 +89,10 @@ export function ModuleToolbar<F extends object>({
                 value={String(record[d.key] ?? "all")}
                 onValueChange={(v) => set(d.key, v)}
               >
-                <SelectTrigger className={d.width ?? "w-[170px]"} aria-label={d.ariaLabel}>
+                <SelectTrigger
+                  className={cn(triggerSizing, d.minWidth ?? "min-w-[170px]")}
+                  aria-label={d.ariaLabel}
+                >
                   <SelectValue placeholder={d.placeholder} />
                 </SelectTrigger>
                 <SelectContent>
@@ -104,8 +114,14 @@ export function ModuleToolbar<F extends object>({
                 value={String(record[d.key] ?? "")}
                 onValueChange={(v) => set(d.key, v)}
               >
-                <SelectTrigger className={d.width ?? "w-[180px]"} aria-label={d.ariaLabel}>
-                  <ArrowUpDown className="size-4 text-muted-foreground" aria-hidden="true" />
+                <SelectTrigger
+                  className={cn(triggerSizing, d.minWidth ?? "min-w-[180px]")}
+                  aria-label={d.ariaLabel}
+                >
+                  <ArrowUpDown
+                    className="size-4 shrink-0 text-muted-foreground"
+                    aria-hidden="true"
+                  />
                   <SelectValue placeholder="Trier" />
                 </SelectTrigger>
                 <SelectContent>

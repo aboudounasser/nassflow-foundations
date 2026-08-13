@@ -119,7 +119,7 @@ export const WORKFLOW_FILTER_DESCRIPTORS: FilterDescriptor[] = [
     ariaLabel: "Filtrer par statut",
     placeholder: "Statut",
     allLabel: "Tous les statuts",
-    width: "w-[170px]",
+    minWidth: "min-w-[170px]",
     options: WORKFLOW_STATUS_ORDER.map((s) => ({ value: s, label: WORKFLOW_STATUS[s].label })),
   },
   {
@@ -128,14 +128,14 @@ export const WORKFLOW_FILTER_DESCRIPTORS: FilterDescriptor[] = [
     ariaLabel: "Filtrer par déclencheur",
     placeholder: "Déclencheur",
     allLabel: "Tous les déclencheurs",
-    width: "w-[190px]",
+    minWidth: "min-w-[190px]",
     options: TRIGGER_KIND_ORDER.map((t) => ({ value: t, label: TRIGGER_KIND[t].label })),
   },
   {
     kind: "sort",
     key: "sort",
     ariaLabel: "Trier les workflows",
-    width: "w-[220px]",
+    minWidth: "min-w-[220px]",
     options: [
       { value: "lastRun", label: "Dernière exécution" },
       { value: "successRate", label: "Taux de réussite" },

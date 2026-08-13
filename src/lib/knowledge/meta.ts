@@ -66,7 +66,7 @@ export function knowledgeFilterDescriptors(
       ariaLabel: "Filtrer par catégorie",
       placeholder: "Catégorie",
       allLabel: "Toutes les catégories",
-      width: "w-[180px]",
+      minWidth: "min-w-[180px]",
       options: categories.map((c) => ({
         value: c.category,
         label: `${c.category} (${c.count})`,
@@ -78,7 +78,7 @@ export function knowledgeFilterDescriptors(
       ariaLabel: "Filtrer par statut",
       placeholder: "Statut",
       allLabel: "Tous les statuts",
-      width: "w-[160px]",
+      minWidth: "min-w-[160px]",
       options: KNOWLEDGE_STATUS_ORDER.map((s) => ({ value: s, label: KNOWLEDGE_STATUS[s].label })),
     },
   ];

@@ -130,7 +130,7 @@ export function missionFilterDescriptors(agents: MissionAgent[]): FilterDescript
       ariaLabel: "Filtrer par priorité",
       placeholder: "Priorité",
       allLabel: "Toutes priorités",
-      width: "w-[150px]",
+      minWidth: "min-w-[150px]",
       options: PRIORITY_ORDER.map((p) => ({ value: p, label: PRIORITY_BADGE[p].label })),
     },
     {
@@ -139,14 +139,14 @@ export function missionFilterDescriptors(agents: MissionAgent[]): FilterDescript
       ariaLabel: "Filtrer par agent",
       placeholder: "Agent",
       allLabel: "Tous les agents",
-      width: "w-[170px]",
+      minWidth: "min-w-[170px]",
       options: agents.map((a) => ({ value: a.id, label: a.name })),
     },
     {
       kind: "sort",
       key: "sort",
       ariaLabel: "Trier les missions",
-      width: "w-[170px]",
+      minWidth: "min-w-[170px]",
       options: [
         { value: "dueDate", label: "Échéance" },
         { value: "priority", label: "Priorité" },

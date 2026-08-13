@@ -176,7 +176,7 @@ export const AGENT_FILTER_DESCRIPTORS: FilterDescriptor[] = [
     ariaLabel: "Filtrer par statut",
     placeholder: "Statut",
     allLabel: "Tous les statuts",
-    width: "w-[160px]",
+    minWidth: "min-w-[160px]",
     options: AGENT_STATUS_ORDER.map((s) => ({ value: s, label: AGENT_STATUS[s].label })),
   },
   {

@@ -85,7 +85,7 @@ export const INTEGRATION_FILTER_DESCRIPTORS: FilterDescriptor[] = [
     ariaLabel: "Filtrer par catégorie",
     placeholder: "Catégorie",
     allLabel: "Toutes les catégories",
-    width: "w-[190px]",
+    minWidth: "min-w-[190px]",
     options: INTEGRATION_CATEGORY_ORDER.map((c) => ({ value: c, label: c })),
   },
   {
@@ -94,7 +94,7 @@ export const INTEGRATION_FILTER_DESCRIPTORS: FilterDescriptor[] = [
     ariaLabel: "Filtrer par statut",
     placeholder: "Statut",
     allLabel: "Tous les statuts",
-    width: "w-[180px]",
+    minWidth: "min-w-[180px]",
     options: INTEGRATION_STATUS_ORDER.map((s) => ({
       value: s,
       label: INTEGRATION_STATUS[s].label,
@@ -104,7 +104,7 @@ export const INTEGRATION_FILTER_DESCRIPTORS: FilterDescriptor[] = [
     kind: "sort",
     key: "sort",
     ariaLabel: "Trier les intégrations",
-    width: "w-[210px]",
+    minWidth: "min-w-[210px]",
     options: [
       { value: "name", label: "Nom" },
       { value: "status", label: "Statut" },

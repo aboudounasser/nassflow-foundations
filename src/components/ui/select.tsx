@@ -26,7 +26,8 @@ const SelectTrigger = React.forwardRef<
   >
     {children}
     <SelectPrimitive.Icon asChild>
-      <ChevronDown className="h-4 w-4 opacity-50" />
+      {/* size-5 = 20px : `h-4 w-4` vaut 32px ici (spacing redéfini dans styles.css). */}
+      <ChevronDown className="size-5 shrink-0 opacity-50" />
     </SelectPrimitive.Icon>
   </SelectPrimitive.Trigger>
 ));

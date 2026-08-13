@@ -63,7 +63,7 @@ export function memberFilterDescriptors(departments: string[]): FilterDescriptor
       ariaLabel: "Filtrer par département",
       placeholder: "Département",
       allLabel: "Tous les départements",
-      width: "w-[180px]",
+      minWidth: "min-w-[180px]",
       options: departments.map((d) => ({ value: d, label: d })),
     },
     {
@@ -72,7 +72,7 @@ export function memberFilterDescriptors(departments: string[]): FilterDescriptor
       ariaLabel: "Filtrer par rôle",
       placeholder: "Rôle",
       allLabel: "Tous les rôles",
-      width: "w-[170px]",
+      minWidth: "min-w-[170px]",
       options: MEMBER_ROLE_ORDER.map((r) => ({ value: r, label: MEMBER_ROLE[r].label })),
     },
     {
@@ -81,14 +81,14 @@ export function memberFilterDescriptors(departments: string[]): FilterDescriptor
       ariaLabel: "Filtrer par statut",
       placeholder: "Statut",
       allLabel: "Tous les statuts",
-      width: "w-[170px]",
+      minWidth: "min-w-[170px]",
       options: MEMBER_STATUS_ORDER.map((s) => ({ value: s, label: MEMBER_STATUS[s].label })),
     },
     {
       kind: "sort",
       key: "sort",
       ariaLabel: "Trier les membres",
-      width: "w-[190px]",
+      minWidth: "min-w-[190px]",
       options: [
         { value: "name", label: "Nom" },
         { value: "joinedAt", label: "Date d'arrivée" },

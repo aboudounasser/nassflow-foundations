@@ -14,7 +14,12 @@ export type FilterDescriptor =
       ariaLabel: string;
       placeholder: string;
       allLabel: string;
-      width?: string;
+      /**
+       * Largeur *plancher* du trigger (classe `min-w-[…]`), pas une largeur fixe :
+       * le trigger se dimensionne au contenu et déborde sur la ligne suivante
+       * plutôt que de tronquer le libellé. Sert à aligner visuellement les filtres.
+       */
+      minWidth?: string;
       options: ToolbarOption[];
     }
   | {
@@ -28,7 +33,8 @@ export type FilterDescriptor =
       kind: "sort";
       key: string;
       ariaLabel: string;
-      width?: string;
+      /** Voir `minWidth` du variant "select". */
+      minWidth?: string;
       options: ToolbarOption[];
     };
 
