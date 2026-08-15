@@ -137,6 +137,8 @@ Les six, jamais quatre : « Automatically expose new tables » est désactivé s
 
 **5. Extraire les erreurs d'Edge Function via `FunctionsHttpError`.** `supabase-js` masque le corps de la réponse dans `error.message` ; il faut tester `error instanceof FunctionsHttpError` puis lire `await error.context.json()`. Modèle de référence : `deleteAccount()` dans `src/services/auth.ts`.
 
+**6. `seen_messages` — journal des messages Gmail déjà traités** par `run-gmail-scan`, retenus ou non. Clé unique sur `(integration_id, message_id)` : un identifiant Gmail n'a de sens que dans sa propre boîte. Aucune politique RLS et aucun `grant` à `authenticated` : c'est un journal technique, jamais lu depuis le navigateur. Sans cette table, chaque exécution réanalyserait les mêmes messages et le même prospect réapparaîtrait indéfiniment.
+
 ## Lovable
 
 This repo is connected to Lovable (`.lovable/project.json`, `AGENTS.md`). Do not rewrite published git history (no force-push, rebase, amend, or squash of pushed commits) — it corrupts the project history on Lovable's side. Commits pushed to `main` sync into the Lovable editor, so keep the branch working.
