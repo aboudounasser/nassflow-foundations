@@ -45,6 +45,26 @@ export interface CompanyProfile {
   primaryLocale: string;
 }
 
+/**
+ * Profil réellement persisté (table `organizations`), par opposition à
+ * `CompanyProfile` qui reste un agrégat mocké tant que le reste du module
+ * Organization (départements, plan, etc.) n'est pas branché.
+ *
+ * Seuls `name`/`industry`/`size` ont une colonne en base. `foundedYear`,
+ * `plan`, `timezone` et `primaryLocale` n'ont aucun équivalent : ils restent
+ * `null` plutôt qu'une valeur inventée, en attendant ces colonnes.
+ */
+export interface OrganizationProfile {
+  id: string;
+  name: string;
+  industry: string | null;
+  size: string | null;
+  foundedYear: number | null;
+  plan: string | null;
+  timezone: string | null;
+  primaryLocale: string | null;
+}
+
 export type OrgTab = "directory" | "departments";
 export type OrgView = "grid" | "list";
 export type MemberSortKey = "name" | "joinedAt" | "department";

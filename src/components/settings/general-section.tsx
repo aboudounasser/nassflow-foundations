@@ -5,7 +5,7 @@ import { SettingRow, SettingsCard } from "@/components/settings/settings-rows";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useCompanyProfile } from "@/lib/organization/queries";
+import { useOrganizationProfile } from "@/lib/organization/queries";
 import {
   DENSITY_LABEL,
   FIRST_DAY_LABEL,
@@ -14,9 +14,12 @@ import {
 } from "@/lib/settings/meta";
 import type { DisplaySettings } from "@/lib/settings/types";
 
+/** `foundedYear`/`plan`/`timezone`/`primaryLocale` n'ont pas de colonne en base : jamais inventés. */
+const NOT_SET = "Non renseigné";
+
 export function GeneralSection({ display }: { display: DisplaySettings }) {
   const d = display;
-  const companyQuery = useCompanyProfile();
+  const companyQuery = useOrganizationProfile();
   const company = companyQuery.data;
 
   return (
@@ -94,14 +97,18 @@ export function GeneralSection({ display }: { display: DisplaySettings }) {
         ) : company ? (
           <div className="mt-2">
             <SettingRow label="Nom">{company.name}</SettingRow>
-            <SettingRow label="Secteur">{company.industry}</SettingRow>
-            <SettingRow label="Taille">{company.size}</SettingRow>
-            <SettingRow label="Année de création">{company.foundedYear}</SettingRow>
+            <SettingRow label="Secteur">{company.industry ?? NOT_SET}</SettingRow>
+            <SettingRow label="Taille">{company.size ?? NOT_SET}</SettingRow>
+            <SettingRow label="Année de création">{company.foundedYear ?? NOT_SET}</SettingRow>
             <SettingRow label="Plan">
-              <Badge variant="primary">{company.plan}</Badge>
+              {company.plan ? (
+                <Badge variant="primary">{company.plan}</Badge>
+              ) : (
+                <span className="text-muted-foreground">{NOT_SET}</span>
+              )}
             </SettingRow>
-            <SettingRow label="Fuseau horaire">{company.timezone}</SettingRow>
-            <SettingRow label="Locale principale">{company.primaryLocale}</SettingRow>
+            <SettingRow label="Fuseau horaire">{company.timezone ?? NOT_SET}</SettingRow>
+            <SettingRow label="Locale principale">{company.primaryLocale ?? NOT_SET}</SettingRow>
           </div>
         ) : (
           <div className="mt-2 flex flex-col gap-2">

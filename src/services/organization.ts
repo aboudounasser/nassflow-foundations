@@ -8,7 +8,13 @@ import {
   orgMemberById,
 } from "@/lib/organization/mocks";
 import { UNASSIGNED_DEPARTMENT } from "@/lib/organization/meta";
-import type { CompanyProfile, Department, MemberRole, OrgMember } from "@/lib/organization/types";
+import type {
+  CompanyProfile,
+  Department,
+  MemberRole,
+  OrganizationProfile,
+  OrgMember,
+} from "@/lib/organization/types";
 import { supabase } from "@/lib/supabase/client";
 import type { Scope } from "@/lib/tenancy/types";
 import { delay } from "@/services/latency";
@@ -22,6 +28,34 @@ export interface OrgMemberDetail {
 
 export async function getCompanyProfile(_scope: Scope): Promise<CompanyProfile> {
   return delay(companyProfileMock);
+}
+
+/**
+ * Profil réel de l'organisation active (table `organizations`).
+ *
+ * Seuls `name`/`industry`/`size` existent en base : `foundedYear`, `plan`,
+ * `timezone` et `primaryLocale` n'ont pas de colonne et restent `null` — à
+ * l'appelant d'afficher une mention neutre plutôt qu'une valeur inventée.
+ */
+export async function getOrganizationProfile(scope: Scope): Promise<OrganizationProfile> {
+  const { data, error } = await supabase
+    .from("organizations")
+    .select("id, name, industry, size")
+    .eq("id", scope.organizationId)
+    .single();
+
+  if (error) throw new Error(error.message);
+
+  return {
+    id: data.id,
+    name: data.name,
+    industry: data.industry,
+    size: data.size,
+    foundedYear: null,
+    plan: null,
+    timezone: null,
+    primaryLocale: null,
+  };
 }
 
 export async function getDepartments(_scope: Scope): Promise<Department[]> {

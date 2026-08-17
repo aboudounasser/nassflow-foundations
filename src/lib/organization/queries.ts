@@ -19,6 +19,15 @@ export function useCompanyProfile() {
   });
 }
 
+/** Profil réel de l'organisation active — distinct de `useCompanyProfile()`, encore mocké. */
+export function useOrganizationProfile() {
+  const { scope } = useSession();
+  return useQuery({
+    queryKey: [...scopeKey(scope), "organization-profile"],
+    queryFn: () => organizationService.getOrganizationProfile(scope),
+  });
+}
+
 export function useDepartments() {
   const { scope } = useSession();
   return useQuery({
