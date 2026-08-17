@@ -17,6 +17,7 @@ import { supabase } from "@/lib/supabase/client";
 import type { Scope } from "@/lib/tenancy/types";
 
 const START_FALLBACK_ERROR = "Connexion Gmail impossible. Réessayez plus tard.";
+const DISCONNECT_FALLBACK_ERROR = "La déconnexion n'a pas abouti. Réessayez plus tard.";
 
 /** Page de retour après le détour par Google — celle qui lira `?gmail=`. */
 function returnToUrl(): string {
@@ -92,4 +93,30 @@ export async function listConnections(scope: Scope): Promise<Connection[]> {
     connectedBy: row.connected_by,
     createdAt: row.created_at,
   }));
+}
+
+/**
+ * Révoque l'accès à un compte Gmail raccordé.
+ *
+ * Idempotente côté Edge Function : rappeler sur une intégration déjà révoquée
+ * renvoie 200 sans rien changer, donc aucun état local particulier n'est requis
+ * ici pour ce cas.
+ *
+ * Le corps 403 (droits) ou 404 (intégration étrangère à l'organisation) porte
+ * le message métier ; supabase-js ne l'expose pas dans `error.message` — même
+ * extraction que `startGmailConnection()`.
+ */
+export async function disconnectGmail(scope: Scope, integrationId: string): Promise<void> {
+  const { error } = await supabase.functions.invoke("disconnect-gmail", {
+    method: "POST",
+    body: { organizationId: scope.organizationId, integrationId },
+  });
+
+  if (error) {
+    if (error instanceof FunctionsHttpError) {
+      const body: unknown = await error.context.json().catch(() => null);
+      throw new Error(errorFromBody(body) ?? DISCONNECT_FALLBACK_ERROR);
+    }
+    throw new Error(error.message);
+  }
 }

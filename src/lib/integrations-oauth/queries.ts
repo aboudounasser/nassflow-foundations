@@ -31,3 +31,17 @@ export function useStartGmailConnection() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: connectionsKey(scope) }),
   });
 }
+
+/**
+ * Révoque l'accès à un compte Gmail. La liste est invalidée au succès : la
+ * ligne revient au statut `revoked` plutôt que de disparaître.
+ */
+export function useDisconnectGmail() {
+  const { scope } = useSession();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (integrationId: string) =>
+      integrationsOAuthService.disconnectGmail(scope, integrationId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: connectionsKey(scope) }),
+  });
+}
