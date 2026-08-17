@@ -1,135 +1,150 @@
-import { Activity, ArrowRight, Sparkles, TrendingUp, TriangleAlert } from "lucide-react";
-
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Activity, RefreshCw, Sparkles, TriangleAlert } from "lucide-react";
 import { toast } from "sonner";
-import { WidgetShell, type WidgetProps } from "./widget-shell";
-import type { EnterprisePulse } from "@/lib/dashboard/types";
 
-function ScoreRing({ score }: { score: number }) {
-  const angle = Math.round((score / 100) * 360);
+import { WidgetShell } from "@/components/dashboard/widget-shell";
+import { useSession } from "@/components/providers/session-provider";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import type { WidgetState } from "@/lib/dashboard/types";
+import { formatRelativePulseDate, pluralize } from "@/lib/pulse/meta";
+import { useGeneratePulse, usePulse } from "@/lib/pulse/queries";
+
+/** Rôles autorisés par la RLS et par l'Edge Function `generate-pulse` à déclencher une génération. */
+const GENERATE_ROLES = ["owner", "admin"];
+
+function PulseSkeleton() {
   return (
-    <div
-      className="relative grid size-[104px] shrink-0 place-items-center rounded-full"
-      style={{
-        background: `conic-gradient(var(--color-primary) ${angle}deg, var(--color-border) ${angle}deg)`,
-      }}
-      role="img"
-      aria-label={`Enterprise Score : ${score} sur 100`}
-    >
-      <div className="grid size-[84px] place-items-center rounded-full bg-card">
-        <span className="text-[24px] font-bold leading-7 text-foreground">{score}</span>
-        <span className="text-[12px] text-muted-foreground">/ 100</span>
+    <div className="flex flex-col gap-4">
+      <div className="space-y-2">
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-4/5" />
       </div>
+      <Skeleton className="h-16 w-full rounded-lg" />
+      <Skeleton className="h-16 w-full rounded-lg" />
+      <Skeleton className="h-4 w-2/5" />
     </div>
   );
 }
 
-function PulseList({
-  label,
-  items,
-  icon: Icon,
-  tone,
-}: {
-  label: string;
-  items: string[];
-  icon: typeof TrendingUp;
-  tone: string;
-}) {
-  return (
-    <div className="min-w-0">
-      <p className="flex items-center gap-2 text-[12px] font-medium uppercase tracking-wide text-muted-foreground">
-        <Icon className={`size-4 shrink-0 ${tone}`} aria-hidden="true" />
-        {label}
-      </p>
-      <ul className="mt-2 space-y-1">
-        {items.map((item) => (
-          <li key={item} className="text-[14px] leading-5 text-foreground/90">
-            • {item}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
+/**
+ * Synthèse quotidienne du CEO Agent (table `pulses`).
+ *
+ * La génération n'est proposée qu'aux rôles que l'Edge Function accepte :
+ * masquer le bouton ailleurs évite un 403 promis d'avance, la vérification
+ * faisant autorité restant côté serveur.
+ */
+export function EnterprisePulseCard() {
+  const { session } = useSession();
+  const pulseQuery = usePulse();
+  const generateMutation = useGeneratePulse();
 
-export function EnterprisePulseCard({
-  data,
-  state = "success",
-  onRetry,
-}: WidgetProps & { data: EnterprisePulse }) {
+  const canGenerate = GENERATE_ROLES.includes(session.role);
+  const pulse = pulseQuery.data ?? null;
+
+  const generate = () => {
+    generateMutation.mutate(undefined, {
+      onSuccess: () => toast.success("Le pulse du jour a été généré."),
+      // Message rédigé pour l'utilisateur final par l'Edge Function : affiché tel quel.
+      onError: (e) => toast.error(e instanceof Error ? e.message : "La génération n'a pas abouti."),
+    });
+  };
+
+  const state: WidgetState = pulseQuery.isPending
+    ? "loading"
+    : pulseQuery.isError
+      ? "error"
+      : pulse === null
+        ? "empty"
+        : "success";
+
   return (
     <WidgetShell
       title="Enterprise Pulse"
       description="Synthèse IA de l'état de l'entreprise"
       icon={Activity}
       state={state}
-      onRetry={onRetry}
+      showMenu={false}
+      onRetry={() => void pulseQuery.refetch()}
+      skeleton={<PulseSkeleton />}
       emptyIcon={Sparkles}
-      emptyTitle="Aucune synthèse disponible"
-      emptyDescription="Le CEO Agent génèrera un résumé au prochain cycle."
-      headerAction={
-        <Badge variant="primary">
-          <Sparkles /> Confiance {data.confidenceScore}%
-        </Badge>
+      emptyTitle="Aucun résumé aujourd'hui"
+      emptyDescription={
+        canGenerate
+          ? "Générez le résumé du jour pour voir où en est l'entreprise."
+          : "Le résumé du jour n'a pas encore été généré."
       }
-      skeleton={
-        <div className="flex flex-col gap-6 md:flex-row">
-          <Skeleton className="size-[104px] shrink-0 rounded-full" />
-          <div className="flex-1 space-y-3">
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-4/5" />
-            <Skeleton className="h-20 w-full rounded-lg" />
-          </div>
-        </div>
+      emptyAction={
+        canGenerate ? (
+          <Button
+            type="button"
+            size="sm"
+            loading={generateMutation.isPending}
+            disabled={generateMutation.isPending}
+            onClick={generate}
+          >
+            <Sparkles />
+            Générer le résumé
+          </Button>
+        ) : null
+      }
+      headerAction={
+        pulse && canGenerate ? (
+          <Button
+            type="button"
+            size="sm"
+            variant="secondary"
+            loading={generateMutation.isPending}
+            disabled={generateMutation.isPending}
+            onClick={generate}
+          >
+            <RefreshCw />
+            Actualiser
+          </Button>
+        ) : null
       }
     >
-      <div className="flex flex-col gap-6 @3xl:flex-row">
-        <div className="flex items-center gap-4 @3xl:w-[320px] @3xl:shrink-0">
-          <ScoreRing score={data.enterpriseScore} />
-          <div className="min-w-0">
-            <p className="text-[14px] leading-5 text-foreground/90">{data.summary}</p>
-            <p className="mt-2 text-[12px] text-muted-foreground">
-              Généré le{" "}
-              {new Date(data.generatedAt).toLocaleDateString("fr-FR", { timeZone: "Europe/Paris" })}
-            </p>
+      {pulse ? (
+        <div className="flex flex-col gap-4">
+          <div>
+            <p className="text-[14px] leading-5 text-foreground/90">{pulse.summary}</p>
+            {!pulse.hasEnoughData ? (
+              <p className="mt-2 text-[12px] text-muted-foreground">
+                Historique insuffisant pour identifier une tendance : ce résumé décrit l'état actuel
+                sans le comparer aux jours précédents.
+              </p>
+            ) : null}
+          </div>
+
+          {pulse.attention ? (
+            <div className="flex items-start gap-2 rounded-lg border border-warning/30 bg-warning/10 p-3">
+              <TriangleAlert className="size-5 shrink-0 text-warning" aria-hidden="true" />
+              <p className="text-[14px] text-foreground/90">{pulse.attention}</p>
+            </div>
+          ) : null}
+
+          {pulse.recommendation ? (
+            <div className="rounded-lg border border-border bg-surface p-4">
+              <p className="text-[12px] font-medium uppercase tracking-wide text-muted-foreground">
+                Recommandation
+              </p>
+              <p className="mt-1 text-[14px] text-foreground/90">{pulse.recommendation}</p>
+            </div>
+          ) : null}
+
+          <div className="flex flex-wrap items-center justify-between gap-2 text-[12px] text-muted-foreground">
+            <span>
+              {pluralize(pulse.metrics.prospects7d, "prospect", "prospects")} (7 j) ·{" "}
+              {pluralize(pulse.metrics.pushed7d, "envoyé au CRM", "envoyés au CRM")} ·{" "}
+              {pluralize(
+                pulse.metrics.pendingReviewTotal,
+                "en attente de revue",
+                "en attente de revue",
+              )}
+            </span>
+            <span>Généré {formatRelativePulseDate(pulse.generatedAt)}</span>
           </div>
         </div>
-
-        <Separator orientation="vertical" className="hidden h-auto @3xl:block" />
-
-        <div className="grid min-w-0 flex-1 gap-6 @xl:grid-cols-3">
-          <PulseList
-            label="Priorités"
-            items={data.priorities}
-            icon={ArrowRight}
-            tone="text-primary"
-          />
-          <PulseList label="Risques" items={data.risks} icon={TriangleAlert} tone="text-warning" />
-          <PulseList
-            label="Opportunités"
-            items={data.opportunities}
-            icon={TrendingUp}
-            tone="text-success"
-          />
-        </div>
-      </div>
-
-      <div className="mt-6 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 rounded-lg border border-border bg-surface p-4">
-        <p className="min-w-0 text-[14px] text-muted-foreground">
-          <span className="text-foreground">Recommandation : </span>
-          {data.recommendation}
-        </p>
-        <Button
-          size="sm"
-          className="shrink-0"
-          onClick={() => toast.success("Détails du Enterprise Pulse")}
-        >
-          Voir les détails
-        </Button>
-      </div>
+      ) : null}
     </WidgetShell>
   );
 }

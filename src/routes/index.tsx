@@ -75,7 +75,6 @@ function DashboardCeo() {
   const workforceQuery = useDashboardWorkforce();
   const outlookQuery = useDashboardOutlook();
 
-  const pulse = pulseQuery.data?.pulse ?? null;
   const kpis = pulseQuery.data?.kpis ?? [];
   const health = pulseQuery.data?.health ?? [];
   const decisions = operationsQuery.data?.decisions ?? [];
@@ -113,11 +112,7 @@ function DashboardCeo() {
 
       {/* 1. Enterprise Pulse */}
       <div className="col-span-12">
-        {pulse ? (
-          <EnterprisePulseCard data={pulse} />
-        ) : (
-          <Skeleton className="h-[220px] w-full rounded-xl" />
-        )}
+        <EnterprisePulseCard />
       </div>
 
       {/* 2. KPIs stratégiques */}

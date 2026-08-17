@@ -132,6 +132,67 @@ export type Database = {
           },
         ];
       };
+      /**
+       * Synthèse quotidienne du CEO Agent, une ligne par jour et par
+       * organisation (contrainte unique sur `organization_id, pulse_date`).
+       * Lecture ouverte à tous les membres par RLS — à la différence de
+       * `runs`/`run_results` — ; aucune écriture n'est possible depuis le
+       * navigateur, seule l'Edge Function `generate-pulse` insère (réservée
+       * aux owner et admin, la génération ayant un coût).
+       * `metrics` reste typé `Json` ici — c'est ce que la base déclare ; sa
+       * forme applicative (`PulseMetrics`) est arbitrée dans `@/lib/pulse/types`
+       * et le rétrécissement se fait dans le service.
+       */
+      pulses: {
+        Row: {
+          ai_cost_millicents: number;
+          attention: string | null;
+          generated_at: string;
+          generated_by: string;
+          has_enough_data: boolean;
+          id: string;
+          metrics: Json;
+          organization_id: string;
+          pulse_date: string;
+          recommendation: string | null;
+          summary: string;
+        };
+        Insert: {
+          ai_cost_millicents?: number;
+          attention?: string | null;
+          generated_at?: string;
+          generated_by: string;
+          has_enough_data: boolean;
+          id?: string;
+          metrics: Json;
+          organization_id: string;
+          pulse_date?: string;
+          recommendation?: string | null;
+          summary: string;
+        };
+        Update: {
+          ai_cost_millicents?: number;
+          attention?: string | null;
+          generated_at?: string;
+          generated_by?: string;
+          has_enough_data?: boolean;
+          id?: string;
+          metrics?: Json;
+          organization_id?: string;
+          pulse_date?: string;
+          recommendation?: string | null;
+          summary?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "pulses_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       organizations: {
         Row: {
           created_at: string;
