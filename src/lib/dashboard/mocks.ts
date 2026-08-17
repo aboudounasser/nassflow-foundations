@@ -4,7 +4,6 @@ import type {
   AppNotification,
   CalendarEvent,
   Decision,
-  EnterprisePulse,
   Forecast,
   HealthCategory,
   HistoryEvent,
@@ -15,30 +14,6 @@ import type {
 } from "./types";
 
 /** MOCKS STATIQUES — aucune source de données réelle. */
-
-export const enterprisePulseMock: EnterprisePulse = {
-  generatedAt: "2026-08-03T08:00:00.000Z",
-  enterpriseScore: 78,
-  summary:
-    "Les ventes progressent de 14% cette semaine. Deux intégrations nécessitent une reconnexion. Trois décisions sont en attente de validation.",
-  priorities: [
-    "Valider la campagne marketing Q3",
-    "Reconnecter l'intégration facturation",
-    "Clôturer le rapport financier mensuel",
-  ],
-  opportunities: [
-    "42 prospects inactifs à relancer",
-    "Upsell identifié sur 8 comptes clés",
-    "Automatiser la qualification des leads",
-  ],
-  risks: [
-    "Deux intégrations déconnectées depuis 3 jours",
-    "Marge en baisse sur le segment PME",
-    "Temps de réponse support au-dessus du SLA",
-  ],
-  recommendation: "Prioriser la reconnexion des intégrations avant le closing de fin de mois.",
-  confidenceScore: 87,
-};
 
 export const kpisMock: Kpi[] = [
   {

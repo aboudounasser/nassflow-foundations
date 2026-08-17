@@ -4,7 +4,6 @@ import {
   agentsMock,
   calendarMock,
   decisionsMock,
-  enterprisePulseMock,
   forecastMock,
   healthMock,
   historyMock,
@@ -20,7 +19,6 @@ import type {
   AppNotification,
   CalendarEvent,
   Decision,
-  EnterprisePulse,
   Forecast,
   HealthCategory,
   HistoryEvent,
@@ -33,13 +31,12 @@ import type { Scope } from "@/lib/tenancy/types";
 import { delay } from "@/services/latency";
 
 export interface DashboardPulseData {
-  pulse: EnterprisePulse;
   kpis: Kpi[];
   health: HealthCategory[];
 }
 
 export async function getDashboardPulse(_scope: Scope): Promise<DashboardPulseData> {
-  return delay({ pulse: enterprisePulseMock, kpis: kpisMock, health: healthMock });
+  return delay({ kpis: kpisMock, health: healthMock });
 }
 
 export interface DashboardOperationsData {

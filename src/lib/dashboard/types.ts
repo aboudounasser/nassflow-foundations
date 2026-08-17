@@ -6,17 +6,6 @@ export type StatusLevel = "success" | "info" | "warning" | "destructive";
 export type Trend = "up" | "down" | "flat";
 export type Priority = "low" | "medium" | "high" | "critical";
 
-export interface EnterprisePulse {
-  generatedAt: string;
-  enterpriseScore: number;
-  summary: string;
-  priorities: string[];
-  opportunities: string[];
-  risks: string[];
-  recommendation: string;
-  confidenceScore: number;
-}
-
 export interface Kpi {
   id: string;
   title: string;
