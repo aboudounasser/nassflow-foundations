@@ -16,6 +16,7 @@ import {
   MissionListSkeleton,
   MissionListView,
 } from "@/components/missions/mission-views";
+import { GmailScanSection } from "@/components/scans/gmail-scan-section";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useMissions } from "@/lib/missions/queries";
@@ -112,28 +113,40 @@ function Page() {
         ? "empty"
         : "success";
 
+  // Les analyses Gmail ne dépendent pas des missions : un échec de lecture de
+  // ces dernières ne doit pas emporter la section avec lui.
   if (missionsQuery.isError) {
     return (
-      <section className="col-span-12 min-w-0">
-        <Card className="border-border bg-card p-4">
-          <EmptyState
-            icon={TriangleAlert}
-            title="Impossible de charger les Missions"
-            description="Les missions n'ont pas pu être récupérées. Vérifiez votre connexion puis réessayez."
-          />
-          <div className="flex justify-center">
-            <Button type="button" size="sm" onClick={() => void missionsQuery.refetch()}>
-              Réessayer
-            </Button>
-          </div>
-        </Card>
-      </section>
+      <>
+        <section className="col-span-12">
+          <GmailScanSection />
+        </section>
+
+        <section className="col-span-12 min-w-0">
+          <Card className="border-border bg-card p-4">
+            <EmptyState
+              icon={TriangleAlert}
+              title="Impossible de charger les Missions"
+              description="Les missions n'ont pas pu être récupérées. Vérifiez votre connexion puis réessayez."
+            />
+            <div className="flex justify-center">
+              <Button type="button" size="sm" onClick={() => void missionsQuery.refetch()}>
+                Réessayer
+              </Button>
+            </div>
+          </Card>
+        </section>
+      </>
     );
   }
 
   return (
     <>
       <ModulePage title="Missions" description={DESCRIPTION} />
+
+      <section className="col-span-12">
+        <GmailScanSection />
+      </section>
 
       <section className="col-span-12">
         <ModuleToolbar
