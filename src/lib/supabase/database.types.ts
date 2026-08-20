@@ -133,6 +133,208 @@ export type Database = {
         ];
       };
       /**
+       * Exécutions d'analyse d'une intégration. Lecture réservée aux owner et
+       * admin par RLS ; aucune écriture n'est possible depuis le navigateur —
+       * seule l'Edge Function `run-gmail-scan` insère et met à jour.
+       * `status` est contraint côté base (`running | succeeded | failed`) :
+       * le service le rétrécit.
+       */
+      runs: {
+        Row: {
+          ai_cost_cents: number | null;
+          emails_analyzed: number | null;
+          emails_scanned: number | null;
+          error_message: string | null;
+          finished_at: string | null;
+          id: string;
+          integration_id: string;
+          organization_id: string;
+          prospects_found: number | null;
+          started_at: string;
+          status: string;
+          triggered_by: string | null;
+        };
+        Insert: {
+          ai_cost_cents?: number | null;
+          emails_analyzed?: number | null;
+          emails_scanned?: number | null;
+          error_message?: string | null;
+          finished_at?: string | null;
+          id?: string;
+          integration_id: string;
+          organization_id: string;
+          prospects_found?: number | null;
+          started_at?: string;
+          status?: string;
+          triggered_by?: string | null;
+        };
+        Update: {
+          ai_cost_cents?: number | null;
+          emails_analyzed?: number | null;
+          emails_scanned?: number | null;
+          error_message?: string | null;
+          finished_at?: string | null;
+          id?: string;
+          integration_id?: string;
+          organization_id?: string;
+          prospects_found?: number | null;
+          started_at?: string;
+          status?: string;
+          triggered_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "runs_integration_id_fkey";
+            columns: ["integration_id"];
+            isOneToOne: false;
+            referencedRelation: "integrations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "runs_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      /**
+       * Prospects extraits par une exécution, une ligne par message retenu.
+       * `extracted` reste typé `Json` ici — c'est ce que la base déclare ; sa
+       * forme applicative (`ExtractedProspect`) est arbitrée dans
+       * `@/lib/scans/types` et le rétrécissement se fait dans le service.
+       */
+      run_results: {
+        Row: {
+          confidence: number | null;
+          created_at: string;
+          crm_action: string | null;
+          crm_contact_id: string | null;
+          extracted: Json;
+          id: string;
+          organization_id: string;
+          pushed_to_crm_at: string | null;
+          reasoning: string | null;
+          run_id: string;
+          source_date: string | null;
+          source_from: string | null;
+          source_message_id: string | null;
+          source_subject: string | null;
+        };
+        Insert: {
+          confidence?: number | null;
+          created_at?: string;
+          crm_action?: string | null;
+          crm_contact_id?: string | null;
+          extracted?: Json;
+          id?: string;
+          organization_id: string;
+          pushed_to_crm_at?: string | null;
+          reasoning?: string | null;
+          run_id: string;
+          source_date?: string | null;
+          source_from?: string | null;
+          source_message_id?: string | null;
+          source_subject?: string | null;
+        };
+        Update: {
+          confidence?: number | null;
+          created_at?: string;
+          crm_action?: string | null;
+          crm_contact_id?: string | null;
+          extracted?: Json;
+          id?: string;
+          organization_id?: string;
+          pushed_to_crm_at?: string | null;
+          reasoning?: string | null;
+          run_id?: string;
+          source_date?: string | null;
+          source_from?: string | null;
+          source_message_id?: string | null;
+          source_subject?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "run_results_run_id_fkey";
+            columns: ["run_id"];
+            isOneToOne: false;
+            referencedRelation: "runs";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "run_results_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      /**
+       * Une mission par analyse Gmail (`run_id` la relie au run
+       * correspondant), ouverte par l'Edge Function `run-gmail-scan` au
+       * lancement du run et close (`completed`/`failed`) à la fin. Aucune
+       * écriture n'est possible depuis le navigateur — seule cette fonction
+       * insère et met à jour, via `service_role`. `status` est contraint
+       * côté base (`draft | running | completed | failed`) : le service le
+       * rétrécit.
+       */
+      missions: {
+        Row: {
+          completed_at: string | null;
+          created_at: string;
+          id: string;
+          objective: string;
+          organization_id: string;
+          progress: number;
+          run_id: string;
+          status: string;
+          title: string;
+          updated_at: string;
+        };
+        Insert: {
+          completed_at?: string | null;
+          created_at?: string;
+          id?: string;
+          objective: string;
+          organization_id: string;
+          progress?: number;
+          run_id: string;
+          status?: string;
+          title: string;
+          updated_at?: string;
+        };
+        Update: {
+          completed_at?: string | null;
+          created_at?: string;
+          id?: string;
+          objective?: string;
+          organization_id?: string;
+          progress?: number;
+          run_id?: string;
+          status?: string;
+          title?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "missions_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "missions_run_id_fkey";
+            columns: ["run_id"];
+            isOneToOne: false;
+            referencedRelation: "runs";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      /**
        * Synthèse quotidienne du CEO Agent, une ligne par jour et par
        * organisation (contrainte unique sur `organization_id, pulse_date`).
        * Lecture ouverte à tous les membres par RLS — à la différence de
