@@ -1,5 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import { Archive, Link2, Maximize2, PauseCircle, Users } from "lucide-react";
+import { Archive, Ban, Link2, Maximize2, Users } from "lucide-react";
 import { toast } from "sonner";
 
 import { PRIORITY_BADGE } from "@/components/dashboard/decision-item-card";
@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { MISSION_STATUS, STEP_STATUS, formatDateTime, formatDueDate } from "@/lib/missions/meta";
+import { useCancelMission } from "@/lib/missions/queries";
 import type { MissionDetail } from "@/lib/missions/types";
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
@@ -33,6 +34,15 @@ export function MissionDetailPanel({
   const priority = PRIORITY_BADGE[mission.priority];
   const StatusIcon = status.icon;
   const navigate = useNavigate();
+  const cancelMutation = useCancelMission();
+
+  const cancelMission = () => {
+    cancelMutation.mutate(mission.id, {
+      onSuccess: () => toast.success("Mission annulée"),
+      onError: (e) =>
+        toast.error(e instanceof Error ? e.message : "Impossible d'annuler la mission."),
+    });
+  };
 
   return (
     <div className="flex h-full flex-col">
@@ -183,10 +193,17 @@ export function MissionDetailPanel({
           <Maximize2 />
           Plein écran
         </Button>
-        <Button variant="ghost" size="sm" onClick={() => toast("Mission suspendue (mock)")}>
-          <PauseCircle />
-          Suspendre
-        </Button>
+        {mission.status === "running" ? (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={cancelMission}
+            disabled={cancelMutation.isPending}
+          >
+            <Ban />
+            Annuler
+          </Button>
+        ) : null}
         <Button variant="ghost" size="sm" onClick={() => toast("Mission archivée (mock)")}>
           <Archive />
           Archiver

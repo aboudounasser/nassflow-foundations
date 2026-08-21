@@ -22,12 +22,19 @@ const MISSION_COLUMNS =
   "id, organization_id, run_id, title, objective, status, progress, created_at, updated_at, completed_at";
 
 /**
- * `status` est contraint côté base à ces quatre valeurs (voir
- * `database.types.ts`) — un statut inconnu est traité comme `failed` plutôt
- * que comme un succès silencieux, même règle que `toRunStatus` dans
- * `scans.ts`.
+ * `status` est contraint côté base à ces six valeurs (voir
+ * `database.types.ts`, contrainte `missions_status_check`) — un statut
+ * inconnu est traité comme `failed` plutôt que comme un succès silencieux,
+ * même règle que `toRunStatus` dans `scans.ts`.
  */
-const KNOWN_STATUSES: MissionStatus[] = ["draft", "running", "completed", "failed"];
+const KNOWN_STATUSES: MissionStatus[] = [
+  "draft",
+  "running",
+  "completed",
+  "failed",
+  "cancelled",
+  "archived",
+];
 
 function toMissionStatus(value: string): MissionStatus {
   return KNOWN_STATUSES.includes(value as MissionStatus) ? (value as MissionStatus) : "failed";
@@ -118,4 +125,15 @@ export async function getMission(
   if (!mission) return null;
 
   return { mission, allMissions, agents: missionAgents };
+}
+
+/** Annule une mission en cours : passe `missions.status` à `cancelled`. */
+export async function cancelMission(scope: Scope, missionId: string): Promise<void> {
+  const { error } = await supabase
+    .from("missions")
+    .update({ status: "cancelled" })
+    .eq("id", missionId)
+    .eq("organization_id", scope.organizationId);
+
+  if (error) throw new Error(error.message);
 }
