@@ -61,6 +61,9 @@ export const KANBAN_COLUMNS: { id: string; label: string; statuses: MissionStatu
 
 export const ARCHIVE_STATUSES: MissionStatus[] = ["failed", "cancelled", "archived"];
 
+/** Statuts depuis lesquels le bouton "Archiver" est proposé — états finaux uniquement. */
+export const ARCHIVABLE_STATUSES: MissionStatus[] = ["completed", "failed", "cancelled"];
+
 export const PRIORITY_WEIGHT: Record<string, number> = {
   critical: 0,
   high: 1,

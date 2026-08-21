@@ -56,6 +56,13 @@ export interface MissionHistoryEntry {
 export interface MissionDetail extends Omit<Mission, "status" | "agents"> {
   objective: string;
   status: MissionStatus;
+  /**
+   * Statut avant archivage — porté par la mission pour permettre une
+   * restauration en un seul aller-retour. Optionnel : les fixtures d'autres
+   * modules (`insights`, `workflows`, `crm`, `agents`, `security`, `billing`)
+   * construisent encore des `MissionDetail` sans ce champ.
+   */
+  archivedFromStatus?: MissionStatus | null | undefined;
   priority: Priority;
   agents: MissionAgent[];
   steps: MissionStep[];

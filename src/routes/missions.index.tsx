@@ -78,7 +78,12 @@ function Page() {
         !mission.tags.some((tag) => tag.toLowerCase().includes(query))
       )
         return false;
-      if (filters.statuses.length > 0 && !filters.statuses.includes(mission.status)) return false;
+      if (filters.statuses.length > 0) {
+        if (!filters.statuses.includes(mission.status)) return false;
+        // Un statut explicitement sélectionné (y compris "Archivée") prime sur la règle par défaut ci-dessous.
+      } else if (mission.status === "archived") {
+        return false;
+      }
       if (filters.priority !== "all" && mission.priority !== filters.priority) return false;
       if (filters.agentId !== "all" && !mission.agents.some((a) => a.id === filters.agentId))
         return false;

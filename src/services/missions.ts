@@ -19,7 +19,7 @@ import type { Tables } from "@/lib/supabase/database.types";
 import type { Scope } from "@/lib/tenancy/types";
 
 const MISSION_COLUMNS =
-  "id, organization_id, run_id, title, objective, status, progress, created_at, updated_at, completed_at";
+  "id, organization_id, run_id, title, objective, status, archived_from_status, progress, created_at, updated_at, completed_at";
 
 /**
  * `status` est contraint côté base à ces six valeurs (voir
@@ -60,6 +60,7 @@ function toMissionDetail(row: Tables<"missions">): MissionDetail {
     title: row.title,
     objective: row.objective,
     status: toMissionStatus(row.status),
+    archivedFromStatus: row.archived_from_status ? toMissionStatus(row.archived_from_status) : null,
     progress: row.progress,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -136,4 +137,51 @@ export async function cancelMission(scope: Scope, missionId: string): Promise<vo
     .eq("organization_id", scope.organizationId);
 
   if (error) throw new Error(error.message);
+}
+
+/**
+ * Archive une mission terminée : elle sort de la liste par défaut mais reste
+ * consultable via le filtre "Statuts". `fromStatus` est celui déjà détenu par
+ * l'appelant (chargé avec la mission) plutôt que relu en base — les deux
+ * colonnes s'écrivent dans un seul UPDATE atomique, et la garde
+ * `.eq("status", fromStatus)` détecte un changement concurrent (0 ligne
+ * affectée) au lieu d'écraser un statut qu'on n'a plus sous les yeux.
+ */
+export async function archiveMission(
+  scope: Scope,
+  missionId: string,
+  fromStatus: MissionStatus,
+): Promise<void> {
+  const { data, error } = await supabase
+    .from("missions")
+    .update({ status: "archived", archived_from_status: fromStatus })
+    .eq("id", missionId)
+    .eq("organization_id", scope.organizationId)
+    .eq("status", fromStatus)
+    .select("id");
+
+  if (error) throw new Error(error.message);
+  if ((data ?? []).length === 0) {
+    throw new Error("Le statut de la mission a changé entre-temps, réessayez.");
+  }
+}
+
+/** Restaure une mission archivée vers son statut précédent — symétrique de `archiveMission`. */
+export async function restoreMission(
+  scope: Scope,
+  missionId: string,
+  toStatus: MissionStatus,
+): Promise<void> {
+  const { data, error } = await supabase
+    .from("missions")
+    .update({ status: toStatus, archived_from_status: null })
+    .eq("id", missionId)
+    .eq("organization_id", scope.organizationId)
+    .eq("status", "archived")
+    .select("id");
+
+  if (error) throw new Error(error.message);
+  if ((data ?? []).length === 0) {
+    throw new Error("Le statut de la mission a changé entre-temps, réessayez.");
+  }
 }

@@ -1,5 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import { Archive, Ban, Link2, Maximize2, Users } from "lucide-react";
+import { Archive, ArchiveRestore, Ban, Link2, Maximize2, Users } from "lucide-react";
 import { toast } from "sonner";
 
 import { PRIORITY_BADGE } from "@/components/dashboard/decision-item-card";
@@ -8,8 +8,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import { MISSION_STATUS, STEP_STATUS, formatDateTime, formatDueDate } from "@/lib/missions/meta";
-import { useCancelMission } from "@/lib/missions/queries";
+import {
+  ARCHIVABLE_STATUSES,
+  MISSION_STATUS,
+  STEP_STATUS,
+  formatDateTime,
+  formatDueDate,
+} from "@/lib/missions/meta";
+import { useArchiveMission, useCancelMission, useRestoreMission } from "@/lib/missions/queries";
 import type { MissionDetail } from "@/lib/missions/types";
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
@@ -33,8 +39,11 @@ export function MissionDetailPanel({
   const status = MISSION_STATUS[mission.status];
   const priority = PRIORITY_BADGE[mission.priority];
   const StatusIcon = status.icon;
+  const archivedFromStatus = mission.archivedFromStatus;
   const navigate = useNavigate();
   const cancelMutation = useCancelMission();
+  const archiveMutation = useArchiveMission();
+  const restoreMutation = useRestoreMission();
 
   const cancelMission = () => {
     cancelMutation.mutate(mission.id, {
@@ -42,6 +51,28 @@ export function MissionDetailPanel({
       onError: (e) =>
         toast.error(e instanceof Error ? e.message : "Impossible d'annuler la mission."),
     });
+  };
+
+  const archiveMission = () => {
+    archiveMutation.mutate(
+      { missionId: mission.id, fromStatus: mission.status },
+      {
+        onSuccess: () => toast.success("Mission archivée"),
+        onError: (e) =>
+          toast.error(e instanceof Error ? e.message : "Impossible d'archiver la mission."),
+      },
+    );
+  };
+
+  const restoreMission = (toStatus: MissionDetail["status"]) => {
+    restoreMutation.mutate(
+      { missionId: mission.id, toStatus },
+      {
+        onSuccess: () => toast.success("Mission restaurée"),
+        onError: (e) =>
+          toast.error(e instanceof Error ? e.message : "Impossible de restaurer la mission."),
+      },
+    );
   };
 
   return (
@@ -204,10 +235,28 @@ export function MissionDetailPanel({
             Annuler
           </Button>
         ) : null}
-        <Button variant="ghost" size="sm" onClick={() => toast("Mission archivée (mock)")}>
-          <Archive />
-          Archiver
-        </Button>
+        {ARCHIVABLE_STATUSES.includes(mission.status) ? (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={archiveMission}
+            disabled={archiveMutation.isPending}
+          >
+            <Archive />
+            Archiver
+          </Button>
+        ) : null}
+        {mission.status === "archived" && archivedFromStatus ? (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => restoreMission(archivedFromStatus)}
+            disabled={restoreMutation.isPending}
+          >
+            <ArchiveRestore />
+            Restaurer
+          </Button>
+        ) : null}
       </div>
     </div>
   );

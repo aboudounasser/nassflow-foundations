@@ -282,6 +282,7 @@ export type Database = {
        */
       missions: {
         Row: {
+          archived_from_status: string | null;
           completed_at: string | null;
           created_at: string;
           id: string;
@@ -294,6 +295,7 @@ export type Database = {
           updated_at: string;
         };
         Insert: {
+          archived_from_status?: string | null;
           completed_at?: string | null;
           created_at?: string;
           id?: string;
@@ -306,6 +308,7 @@ export type Database = {
           updated_at?: string;
         };
         Update: {
+          archived_from_status?: string | null;
           completed_at?: string | null;
           created_at?: string;
           id?: string;
