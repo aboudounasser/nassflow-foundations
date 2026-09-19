@@ -6,6 +6,7 @@ import {
   Copy,
   PauseCircle,
   PlayCircle,
+  Sparkles,
   Target,
   TriangleAlert,
   X,
@@ -276,14 +277,16 @@ function Page() {
                     </p>
                   </Card>
                 ))}
-                <Card className="border-border bg-surface p-4">
-                  <p className="truncate text-[12px] uppercase tracking-wide text-muted-foreground">
-                    Disponibilité
-                  </p>
-                  <p className="mt-1 text-[20px] font-medium tabular-nums text-foreground">
-                    {agent.uptime}
-                  </p>
-                </Card>
+                {agent.uptime !== undefined ? (
+                  <Card className="border-border bg-surface p-4">
+                    <p className="truncate text-[12px] uppercase tracking-wide text-muted-foreground">
+                      Disponibilité
+                    </p>
+                    <p className="mt-1 text-[20px] font-medium tabular-nums text-foreground">
+                      {agent.uptime}
+                    </p>
+                  </Card>
+                ) : null}
                 <Card className="border-border bg-surface p-4">
                   <p className="truncate text-[12px] uppercase tracking-wide text-muted-foreground">
                     Dernière activité
@@ -294,6 +297,52 @@ function Page() {
                 </Card>
               </div>
             </div>
+
+            {agent.id === "a-ceo" ? (
+              <div className="space-y-2">
+                <h2 className="text-[14px] font-medium text-foreground">Résumé du jour</h2>
+                {agent.pulse ? (
+                  <div className="flex flex-col gap-4">
+                    <div>
+                      <p className="text-[14px] leading-6 text-foreground/90">
+                        {agent.pulse.summary}
+                      </p>
+                      {!agent.pulse.hasEnoughData ? (
+                        <p className="mt-2 text-[12px] text-muted-foreground">
+                          Historique insuffisant pour identifier une tendance : ce résumé décrit
+                          l'état actuel sans le comparer aux jours précédents.
+                        </p>
+                      ) : null}
+                    </div>
+                    {agent.pulse.attention ? (
+                      <div className="flex items-start gap-2 rounded-lg border border-warning/30 bg-warning/10 p-3">
+                        <TriangleAlert
+                          className="size-5 shrink-0 text-warning"
+                          aria-hidden="true"
+                        />
+                        <p className="text-[14px] text-foreground/90">{agent.pulse.attention}</p>
+                      </div>
+                    ) : null}
+                    {agent.pulse.recommendation ? (
+                      <div className="rounded-lg border border-border bg-surface p-4">
+                        <p className="text-[12px] font-medium uppercase tracking-wide text-muted-foreground">
+                          Recommandation
+                        </p>
+                        <p className="mt-1 text-[14px] text-foreground/90">
+                          {agent.pulse.recommendation}
+                        </p>
+                      </div>
+                    ) : null}
+                  </div>
+                ) : (
+                  <EmptyState
+                    icon={Sparkles}
+                    title="Aucun résumé généré aujourd'hui"
+                    description="Générez le résumé du jour depuis le Dashboard pour le voir apparaître ici."
+                  />
+                )}
+              </div>
+            ) : null}
 
             <div className="space-y-2">
               <h2 className="text-[14px] font-medium text-foreground">Collabore avec</h2>

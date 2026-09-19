@@ -48,9 +48,12 @@ export function AgentsOverview({
   runningMissions: number;
 }) {
   const actifs = agents.filter((a) => a.status === "active").length;
+  const confidences = agents
+    .map((a) => a.confidenceScore)
+    .filter((c): c is number => c !== undefined);
   const reussite =
-    agents.length > 0
-      ? Math.round(agents.reduce((sum, a) => sum + a.confidenceScore, 0) / agents.length)
+    confidences.length > 0
+      ? Math.round(confidences.reduce((sum, c) => sum + c, 0) / confidences.length)
       : 0;
 
   return (

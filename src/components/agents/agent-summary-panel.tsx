@@ -45,13 +45,15 @@ export function AgentSummaryPanel({
 
         <p className="text-[14px] leading-6 text-muted-foreground">{agent.description}</p>
 
-        <div className="space-y-1">
-          <div className="flex items-center justify-between text-[12px] text-muted-foreground">
-            <span>Score de confiance</span>
-            <span className="tabular-nums">{agent.confidenceScore}%</span>
+        {agent.confidenceScore !== undefined ? (
+          <div className="space-y-1">
+            <div className="flex items-center justify-between text-[12px] text-muted-foreground">
+              <span>Score de confiance</span>
+              <span className="tabular-nums">{agent.confidenceScore}%</span>
+            </div>
+            <Progress value={agent.confidenceScore} className="h-2" />
           </div>
-          <Progress value={agent.confidenceScore} className="h-2" />
-        </div>
+        ) : null}
 
         <Separator />
 
@@ -66,10 +68,12 @@ export function AgentSummaryPanel({
             <dt className="text-[12px] text-muted-foreground">Missions liées</dt>
             <dd className="text-foreground">{missionCount}</dd>
           </div>
-          <div>
-            <dt className="text-[12px] text-muted-foreground">Disponibilité</dt>
-            <dd className="text-foreground">{agent.uptime}</dd>
-          </div>
+          {agent.uptime !== undefined ? (
+            <div>
+              <dt className="text-[12px] text-muted-foreground">Disponibilité</dt>
+              <dd className="text-foreground">{agent.uptime}</dd>
+            </div>
+          ) : null}
           <div>
             <dt className="text-[12px] text-muted-foreground">Dernière activité</dt>
             <dd className="text-foreground">{formatAgentActivity(agent.lastActivity)}</dd>

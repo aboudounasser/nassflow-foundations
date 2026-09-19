@@ -63,7 +63,8 @@ function Page() {
     });
 
     return [...filtered].sort((a, b) => {
-      if (filters.sort === "confidence") return b.agent.confidenceScore - a.agent.confidenceScore;
+      if (filters.sort === "confidence")
+        return (b.agent.confidenceScore ?? -1) - (a.agent.confidenceScore ?? -1);
       if (filters.sort === "activity")
         return new Date(b.agent.lastActivity).getTime() - new Date(a.agent.lastActivity).getTime();
       return a.agent.name.localeCompare(b.agent.name, "fr");

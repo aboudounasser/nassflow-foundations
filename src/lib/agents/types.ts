@@ -1,5 +1,7 @@
 /** Modèle universel d'un Agent — sous-ensemble prioritaire (itération 1). */
 
+import type { Pulse } from "@/lib/pulse/types";
+
 export interface AgentCapability {
   id: string;
   label: string;
@@ -89,13 +91,17 @@ export interface AgentDetail {
   tools: AgentTool[];
   permissions: AgentPermission[];
   kpis: AgentKpi[];
-  confidenceScore: number;
-  uptime: string;
+  /** Absent pour un agent dont la confiance n'est mesurée par aucune donnée réelle (CEO Agent). */
+  confidenceScore?: number | undefined;
+  /** Absent pour un agent dont la disponibilité n'est mesurée par aucune donnée réelle (CEO Agent). */
+  uptime?: string | undefined;
   lastActivity: string;
   collaboratesWith: string[];
   memory: AgentMemoryEntry[];
   logs: AgentLogEntry[];
   config: AgentConfig;
+  /** Synthèse Enterprise Pulse du jour — uniquement renseigné pour le CEO Agent. */
+  pulse?: Pulse | undefined;
 }
 
 export type AgentSortKey = "name" | "confidence" | "activity";

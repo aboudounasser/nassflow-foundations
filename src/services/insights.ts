@@ -99,7 +99,11 @@ function workflowSuccessRateByDay(days = 8): { day: string; successRate: number;
 
 function averageConfidenceByAgent(): { agentName: string; confidenceScore: number }[] {
   return agentsDetailMock
-    .map((agent) => ({ agentName: agent.name, confidenceScore: agent.confidenceScore }))
+    .flatMap((agent) =>
+      agent.confidenceScore !== undefined
+        ? [{ agentName: agent.name, confidenceScore: agent.confidenceScore }]
+        : [],
+    )
     .sort((a, b) => b.confidenceScore - a.confidenceScore);
 }
 
@@ -122,7 +126,9 @@ function insightsOverview() {
   const totalMissions = missionsDetailMock.length;
   const completed = missionsDetailMock.filter((m) => COMPLETED_STATUSES.has(m.status)).length;
 
-  const confidences = agentsDetailMock.map((a) => a.confidenceScore);
+  const confidences = agentsDetailMock
+    .map((a) => a.confidenceScore)
+    .filter((c): c is number => c !== undefined);
   const avgConfidence = confidences.length
     ? Math.round(confidences.reduce((s, v) => s + v, 0) / confidences.length)
     : 0;

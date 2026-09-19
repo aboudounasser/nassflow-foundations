@@ -57,13 +57,15 @@ export function AgentCard({
         ) : null}
       </div>
 
-      <div className="space-y-1">
-        <div className="flex items-center justify-between text-[12px] text-muted-foreground">
-          <span>Confiance</span>
-          <span className="tabular-nums">{agent.confidenceScore}%</span>
+      {agent.confidenceScore !== undefined ? (
+        <div className="space-y-1">
+          <div className="flex items-center justify-between text-[12px] text-muted-foreground">
+            <span>Confiance</span>
+            <span className="tabular-nums">{agent.confidenceScore}%</span>
+          </div>
+          <Progress value={agent.confidenceScore} className="h-1.5" />
         </div>
-        <Progress value={agent.confidenceScore} className="h-1.5" />
-      </div>
+      ) : null}
 
       <p className="text-[12px] text-muted-foreground">
         Dernière activité · {formatAgentActivity(agent.lastActivity)}
