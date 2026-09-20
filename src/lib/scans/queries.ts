@@ -18,11 +18,34 @@ function runResultsKey(scope: Scope, runId: string): readonly unknown[] {
   return [...runResultsRootKey(scope), runId];
 }
 
+/**
+ * Sous le préfixe commun, et non à côté : l'invalidation de `usePushToCrm`
+ * porte sur `runResultsRootKey`, elle couvre donc la liste cumulative sans
+ * avoir à la connaître.
+ */
+function recentProspectsKey(scope: Scope): readonly unknown[] {
+  return [...runResultsRootKey(scope), "recent"];
+}
+
 export function useRuns() {
   const { scope } = useSession();
   return useQuery({
     queryKey: runsKey(scope),
     queryFn: () => scansService.listRuns(scope),
+  });
+}
+
+/**
+ * Tous les prospects de l'organisation, groupés par analyse.
+ *
+ * Distinct de `useRunResults` : celui-ci ne dépend d'aucune exécution, et
+ * reste donc renseigné quand la dernière analyse n'a rien trouvé.
+ */
+export function useRecentProspects() {
+  const { scope } = useSession();
+  return useQuery({
+    queryKey: recentProspectsKey(scope),
+    queryFn: () => scansService.listRecentProspects(scope),
   });
 }
 
@@ -43,14 +66,18 @@ export function useRunResults(runId: string | null) {
 /**
  * Lance l'analyse et attend son verdict — l'appel dure jusqu'à une minute.
  * La liste des exécutions est invalidée au succès : le nouveau run y apparaît
- * avec ses compteurs, et ses résultats sont chargés à partir de là.
+ * avec ses compteurs. Les résultats le sont aussi, sans quoi les prospects que
+ * l'analyse vient de trouver n'apparaîtraient qu'au prochain chargement.
  */
 export function useStartGmailScan() {
   const { scope } = useSession();
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (integrationId: string) => scansService.startGmailScan(scope, integrationId),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: runsKey(scope) }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: runsKey(scope) });
+      void queryClient.invalidateQueries({ queryKey: runResultsRootKey(scope) });
+    },
   });
 }
 

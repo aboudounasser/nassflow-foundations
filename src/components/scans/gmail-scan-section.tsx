@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Loader2, Mail, MailSearch, Sparkles, TriangleAlert } from "lucide-react";
+import { Loader2, Mail, MailSearch, Sparkles, TriangleAlert, type LucideIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { EmptyState } from "@/components/common/empty-state";
@@ -11,9 +11,15 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { WidgetState } from "@/lib/dashboard/types";
 import { useConnections } from "@/lib/integrations-oauth/queries";
-import { RUN_STATUS, formatRelativeScanDate, pluralize } from "@/lib/scans/meta";
-import { useRunResults, useRuns, useStartGmailScan } from "@/lib/scans/queries";
+import {
+  RUN_STATUS,
+  formatRelativeScanDate,
+  formatScanDateTime,
+  pluralize,
+} from "@/lib/scans/meta";
+import { useRecentProspects, useRuns, useStartGmailScan } from "@/lib/scans/queries";
 import type { Run } from "@/lib/scans/types";
+import type { ProspectRunGroup } from "@/services/scans";
 
 const DESCRIPTION =
   "Vos derniers e-mails lus par un agent, avec la trace de ce qu'il a compris de chacun.";
@@ -95,6 +101,62 @@ function RunSummary({ run }: { run: Run }) {
 }
 
 /**
+ * Verdict de la dernière analyse, resserré à dessein.
+ *
+ * Ce n'est plus un `EmptyState` pleine hauteur : depuis que les prospects sont
+ * listés en dessous, l'écran n'est jamais vide et un bloc centré de 80 px
+ * repousserait la liste hors de vue. Le verdict porte sur la dernière analyse
+ * seule, pas sur le stock.
+ */
+function LastRunVerdict({
+  icon: Icon,
+  tone,
+  title,
+  description,
+}: {
+  icon: LucideIcon;
+  tone: "neutral" | "destructive";
+  title: string;
+  description: string;
+}) {
+  const border = tone === "destructive" ? "border-destructive/30" : "border-border";
+  const iconColor = tone === "destructive" ? "text-destructive" : "text-muted-foreground";
+
+  return (
+    <div className={`mb-3 flex items-start gap-2 rounded-lg border ${border} bg-surface p-3`}>
+      <Icon className={`size-5 shrink-0 ${iconColor}`} aria-hidden="true" />
+      <div className="min-w-0">
+        <p className="text-[14px] text-foreground">{title}</p>
+        <p className="text-[12px] text-muted-foreground">{description}</p>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Les prospects d'une analyse, sous sa date.
+ *
+ * Date absolue et non relative : « il y a 1 mois » sur deux en-têtes successifs
+ * ne les distinguerait pas, alors que le groupe existe précisément pour dire de
+ * quelle analyse vient chaque fiche.
+ */
+function ProspectGroup({ group }: { group: ProspectRunGroup }) {
+  return (
+    <section>
+      <p className="mb-2 text-[12px] text-muted-foreground">
+        {formatScanDateTime(group.startedAt)} ·{" "}
+        {pluralize(group.results.length, "prospect", "prospects")}
+      </p>
+      <ul className="flex flex-col gap-3">
+        {group.results.map((result) => (
+          <RunResultCard key={result.id} result={result} />
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+/**
  * Analyses Gmail — la première brique réellement branchée sur la base, posée
  * avant les Missions mockées qu'elle a vocation à alimenter.
  *
@@ -115,7 +177,9 @@ export function GmailScanSection() {
     ) ?? null;
 
   const latestRun = runsQuery.data?.[0] ?? null;
-  const resultsQuery = useRunResults(latestRun?.id ?? null);
+  // Indépendant de `latestRun` : c'est tout l'objet du changement — une
+  // dernière analyse sans trouvaille ne doit plus masquer le stock.
+  const prospectsQuery = useRecentProspects();
 
   const launch = () => {
     if (!gmailConnection) return;
@@ -193,37 +257,52 @@ export function GmailScanSection() {
         <>
           <RunSummary run={latestRun} />
 
+          {/* Zone 1 — le sort de la dernière analyse, qui ne dit rien du stock.
+              Le verdict se lit sur `prospectsFound`, compteur écrit par l'Edge
+              Function, et non plus sur la longueur d'une liste : c'est ce qui
+              rend les deux zones indépendantes. */}
           {latestRun.status === "failed" ? (
-            <EmptyState
+            <LastRunVerdict
               icon={TriangleAlert}
+              tone="destructive"
               title="La dernière analyse a échoué"
               description={latestRun.errorMessage ?? "Relancez une analyse."}
-              className="py-10"
             />
-          ) : resultsQuery.isError ? (
-            <RetryBlock
-              title="Impossible de charger les résultats"
-              onRetry={() => void resultsQuery.refetch()}
-            />
-          ) : resultsQuery.isPending ? (
-            <ResultsSkeleton />
-          ) : resultsQuery.data.length === 0 ? (
-            <EmptyState
+          ) : latestRun.prospectsFound === 0 ? (
+            <LastRunVerdict
               icon={MailSearch}
+              tone="neutral"
               title={
                 latestRun.emailsScanned > 0
                   ? `Aucune demande commerciale trouvée dans les ${latestRun.emailsScanned} derniers messages`
                   : "Aucune demande commerciale trouvée dans les 50 derniers messages"
               }
               description="Ce n'est pas une erreur : l'agent a bien lu la boîte, il n'y a simplement rien à traiter."
+            />
+          ) : null}
+
+          {/* Zone 2 — les prospects réellement en base, toutes analyses
+              confondues. */}
+          {prospectsQuery.isError ? (
+            <RetryBlock
+              title="Impossible de charger les prospects"
+              onRetry={() => void prospectsQuery.refetch()}
+            />
+          ) : prospectsQuery.isPending ? (
+            <ResultsSkeleton />
+          ) : prospectsQuery.data.length === 0 ? (
+            <EmptyState
+              icon={MailSearch}
+              title="Aucun prospect pour l'instant"
+              description="Les demandes commerciales identifiées par l'agent apparaîtront ici, groupées par analyse."
               className="py-10"
             />
           ) : (
-            <ul className="flex flex-col gap-3">
-              {resultsQuery.data.map((result) => (
-                <RunResultCard key={result.id} result={result} />
+            <div className="flex flex-col gap-6">
+              {prospectsQuery.data.map((group) => (
+                <ProspectGroup key={group.runId} group={group} />
               ))}
-            </ul>
+            </div>
           )}
         </>
       )}

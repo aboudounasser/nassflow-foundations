@@ -31,6 +31,14 @@ const CRM_FALLBACK_ERROR = "L'envoi vers le CRM n'a pas abouti. Réessayez plus 
 /** Une exécution récente suffit à la première brique ; l'historique viendra plus tard. */
 const RUNS_LIMIT = 20;
 
+/**
+ * Plafond de la liste cumulative des prospects. Il porte sur les lignes
+ * `run_results`, donc avant regroupement : le groupe le plus ancien affiché
+ * peut être tronqué. Préféré à une limite en nombre de runs, qui obligerait à
+ * deux allers-retours.
+ */
+const PROSPECTS_LIMIT = 50;
+
 function errorFromBody(body: unknown): string | null {
   if (typeof body !== "object" || body === null) return null;
   const message = (body as { error?: unknown }).error;
@@ -68,6 +76,17 @@ function toCount(value: number | null): number {
 
 function toNumber(value: unknown): number | null {
   return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+/**
+ * Date de début de l'analyse jointe. La ligne vient de PostgREST : elle est
+ * validée comme le reste plutôt qu'acceptée en confiance, et une jointure
+ * inattendue dégrade en chaîne vide — `formatScanDateTime` la rend « — ».
+ */
+function toStartedAt(value: unknown): string {
+  if (typeof value !== "object" || value === null) return "";
+  const started = (value as { started_at?: unknown }).started_at;
+  return typeof started === "string" ? started : "";
 }
 
 /** Champ de `extracted` : tout ce qui n'est pas une chaîne non vide vaut absent. */
@@ -177,24 +196,36 @@ export async function listRuns(scope: Scope): Promise<Run[]> {
 }
 
 /**
- * Prospects extraits par une exécution, les mieux notés d'abord.
- * Le filtre sur `organization_id` double la RLS : un `runId` appartenant à une
- * autre organisation ne renvoie rien, sans jamais dépendre d'une seule barrière.
+ * Colonnes d'un prospect extrait. Partagées par la lecture d'une exécution
+ * précise et par la liste cumulative, pour que les deux ne puissent pas
+ * diverger.
  */
-export async function getRunResults(scope: Scope, runId: string): Promise<RunResult[]> {
-  const { data, error } = await supabase
-    .from("run_results")
-    .select(
-      "id, run_id, source_message_id, source_subject, source_from, source_date, extracted, confidence, reasoning, created_at, pushed_to_crm_at, crm_contact_id, crm_action",
-    )
-    .eq("organization_id", scope.organizationId)
-    .eq("run_id", runId)
-    .order("confidence", { ascending: false, nullsFirst: false })
-    .order("created_at", { ascending: true });
+const RESULT_COLUMNS =
+  "id, run_id, source_message_id, source_subject, source_from, source_date, extracted, confidence, reasoning, created_at, pushed_to_crm_at, crm_contact_id, crm_action";
 
-  if (error) throw new Error(error.message);
+/**
+ * Forme d'une ligne de `run_results` telle qu'elle revient de PostgREST. Décrite
+ * structurellement : la requête groupée y ajoute la jointure `runs`, ce qui
+ * reste compatible.
+ */
+interface RunResultRow {
+  id: string;
+  run_id: string;
+  source_message_id: string | null;
+  source_subject: string | null;
+  source_from: string | null;
+  source_date: string | null;
+  extracted: Json;
+  confidence: number | null;
+  reasoning: string | null;
+  created_at: string;
+  pushed_to_crm_at: string | null;
+  crm_contact_id: string | null;
+  crm_action: string | null;
+}
 
-  return (data ?? []).map((row) => ({
+function toRunResult(row: RunResultRow): RunResult {
+  return {
     id: row.id,
     runId: row.run_id,
     sourceMessageId: row.source_message_id,
@@ -208,7 +239,79 @@ export async function getRunResults(scope: Scope, runId: string): Promise<RunRes
     pushedToCrmAt: row.pushed_to_crm_at,
     crmContactId: row.crm_contact_id,
     crmAction: toCrmAction(row.crm_action),
-  }));
+  };
+}
+
+/**
+ * Prospects extraits par une exécution, les mieux notés d'abord.
+ * Le filtre sur `organization_id` double la RLS : un `runId` appartenant à une
+ * autre organisation ne renvoie rien, sans jamais dépendre d'une seule barrière.
+ */
+export async function getRunResults(scope: Scope, runId: string): Promise<RunResult[]> {
+  const { data, error } = await supabase
+    .from("run_results")
+    .select(RESULT_COLUMNS)
+    .eq("organization_id", scope.organizationId)
+    .eq("run_id", runId)
+    .order("confidence", { ascending: false, nullsFirst: false })
+    .order("created_at", { ascending: true });
+
+  if (error) throw new Error(error.message);
+
+  return (data ?? []).map(toRunResult);
+}
+
+/** Les prospects d'une même analyse, avec la date de celle-ci. */
+export interface ProspectRunGroup {
+  runId: string;
+  /** Début de l'analyse, pas date d'écriture du résultat. */
+  startedAt: string;
+  results: RunResult[];
+}
+
+/**
+ * Tous les prospects de l'organisation, groupés par analyse, la plus récente
+ * d'abord.
+ *
+ * Complète `getRunResults()` plutôt qu'elle ne la remplace : l'écran des
+ * analyses montrait les seuls résultats de la dernière exécution, si bien
+ * qu'un prospect trouvé la semaine passée devenait invisible dès l'analyse
+ * suivante — laquelle ne retrouve rien, `seen_messages` ayant déjà écarté ses
+ * messages.
+ *
+ * La date vient de `runs` par jointure, et non de la liste des exécutions déjà
+ * chargée par l'écran : celle-ci est plafonnée à {@link RUNS_LIMIT}, et un
+ * prospect plus ancien s'y retrouverait sans date. Le `!inner` n'écarte rien
+ * au passage — `runs` et `run_results` partagent la même politique RLS.
+ */
+export async function listRecentProspects(scope: Scope): Promise<ProspectRunGroup[]> {
+  const { data, error } = await supabase
+    .from("run_results")
+    .select(`${RESULT_COLUMNS}, runs!inner(started_at)`)
+    .eq("organization_id", scope.organizationId)
+    .order("created_at", { ascending: false })
+    .limit(PROSPECTS_LIMIT);
+
+  if (error) throw new Error(error.message);
+
+  // L'ordre d'insertion de la Map conserve le tri de la requête : les groupes
+  // sortent du plus récent au plus ancien sans second tri.
+  const groups = new Map<string, ProspectRunGroup>();
+
+  for (const row of data ?? []) {
+    const existing = groups.get(row.run_id);
+    if (existing) {
+      existing.results.push(toRunResult(row));
+      continue;
+    }
+    groups.set(row.run_id, {
+      runId: row.run_id,
+      startedAt: toStartedAt(row.runs),
+      results: [toRunResult(row)],
+    });
+  }
+
+  return [...groups.values()];
 }
 
 /**
