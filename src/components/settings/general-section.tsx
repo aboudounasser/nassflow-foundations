@@ -97,8 +97,6 @@ export function GeneralSection({ display }: { display: DisplaySettings }) {
         ) : company ? (
           <div className="mt-2">
             <SettingRow label="Nom">{company.name}</SettingRow>
-            <SettingRow label="Secteur">{company.industry ?? NOT_SET}</SettingRow>
-            <SettingRow label="Taille">{company.size ?? NOT_SET}</SettingRow>
             <SettingRow label="Année de création">{company.foundedYear ?? NOT_SET}</SettingRow>
             <SettingRow label="Plan">
               {company.plan ? (
@@ -112,7 +110,7 @@ export function GeneralSection({ display }: { display: DisplaySettings }) {
           </div>
         ) : (
           <div className="mt-2 flex flex-col gap-2">
-            {Array.from({ length: 7 }).map((_, i) => (
+            {Array.from({ length: 5 }).map((_, i) => (
               <Skeleton key={i} className="h-8 w-full rounded-lg" />
             ))}
           </div>

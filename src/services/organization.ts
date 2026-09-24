@@ -33,14 +33,14 @@ export async function getCompanyProfile(_scope: Scope): Promise<CompanyProfile> 
 /**
  * Profil réel de l'organisation active (table `organizations`).
  *
- * Seuls `name`/`industry`/`size` existent en base : `foundedYear`, `plan`,
- * `timezone` et `primaryLocale` n'ont pas de colonne et restent `null` — à
- * l'appelant d'afficher une mention neutre plutôt qu'une valeur inventée.
+ * Seul `name` existe en base : `foundedYear`, `plan`, `timezone` et
+ * `primaryLocale` n'ont pas de colonne et restent `null` — à l'appelant
+ * d'afficher une mention neutre plutôt qu'une valeur inventée.
  */
 export async function getOrganizationProfile(scope: Scope): Promise<OrganizationProfile> {
   const { data, error } = await supabase
     .from("organizations")
-    .select("id, name, industry, size")
+    .select("id, name")
     .eq("id", scope.organizationId)
     .single();
 
@@ -49,8 +49,6 @@ export async function getOrganizationProfile(scope: Scope): Promise<Organization
   return {
     id: data.id,
     name: data.name,
-    industry: data.industry,
-    size: data.size,
     foundedYear: null,
     plan: null,
     timezone: null,

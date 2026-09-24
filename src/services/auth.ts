@@ -111,20 +111,6 @@ export async function updateProfile(input: { fullName: string; jobTitle: string 
   if (error) throw new Error(error.message);
 }
 
-export async function updateOrganizationDetails(
-  organizationId: string,
-  input: { industry: string; size: string },
-): Promise<void> {
-  const { error } = await supabase
-    .from("organizations")
-    .update({
-      industry: input.industry.trim() || null,
-      size: input.size.trim() || null,
-    })
-    .eq("id", organizationId);
-  if (error) throw new Error(error.message);
-}
-
 /** Le trigger base refuse le départ du dernier propriétaire : message propagé tel quel. */
 export async function leaveOrganization(organizationId: string): Promise<void> {
   const userId = await requireUserId();
