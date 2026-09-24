@@ -1,6 +1,14 @@
-import { CircleCheck, CircleSlash, Mail, Plug, TriangleAlert, type LucideIcon } from "lucide-react";
+import {
+  CircleCheck,
+  CircleSlash,
+  Contact,
+  Mail,
+  Plug,
+  TriangleAlert,
+  type LucideIcon,
+} from "lucide-react";
 
-import type { ConnectionStatus, GmailCallbackCode } from "./types";
+import type { Connection, ConnectionStatus, GmailCallbackCode, HubspotCallbackCode } from "./types";
 
 type BadgeVariant = "neutral" | "primary" | "success" | "warning" | "destructive" | "info";
 
@@ -15,11 +23,23 @@ export const CONNECTION_STATUS: Record<
 
 const PROVIDERS: Record<string, { label: string; icon: LucideIcon }> = {
   gmail: { label: "Gmail", icon: Mail },
+  hubspot: { label: "HubSpot", icon: Contact },
 };
 
 /** Un fournisseur inconnu de l'interface reste affichable : son code sert de libellé. */
 export function providerMeta(provider: string): { label: string; icon: LucideIcon } {
   return PROVIDERS[provider] ?? { label: provider, icon: Plug };
+}
+
+/**
+ * Ce qui identifie le compte après le nom du fournisseur : l'adresse pour une
+ * boîte Gmail, le portail pour HubSpot, qui n'a pas d'e-mail. `null` si la
+ * ligne ne porte ni l'un ni l'autre.
+ */
+export function connectionAccountLabel(connection: Connection): string | null {
+  if (connection.accountEmail) return connection.accountEmail;
+  if (connection.externalAccountId) return `portail ${connection.externalAccountId}`;
+  return null;
 }
 
 const DATE_FMT = new Intl.DateTimeFormat("fr-FR", {
@@ -84,5 +104,56 @@ export function gmailCallbackToast(
       };
     default:
       return { tone: "error", message: "La connexion Gmail a échoué. Réessayez." };
+  }
+}
+
+/**
+ * Retour de HubSpot traduit pour l'utilisateur final, sur le modèle de
+ * `gmailCallbackToast`. `connected` porte le portail raccordé.
+ */
+export function hubspotCallbackToast(
+  code: HubspotCallbackCode | string,
+  portal: string | null,
+): { tone: "success" | "error"; message: string } {
+  switch (code) {
+    case "connected":
+      return {
+        tone: "success",
+        message: portal ? `HubSpot connecté : portail ${portal}` : "HubSpot connecté",
+      };
+    case "refused":
+      return { tone: "error", message: "Vous avez refusé l'autorisation." };
+    case "invalid":
+      return { tone: "error", message: "Demande de connexion invalide. Relancez la connexion." };
+    case "expired":
+      return { tone: "error", message: "La demande a expiré, réessayez." };
+    case "token_error":
+      return {
+        tone: "error",
+        message: "HubSpot a refusé l'échange de jetons. Réessayez dans un instant.",
+      };
+    case "no_refresh":
+      return {
+        tone: "error",
+        message: "HubSpot n'a pas fourni d'accès durable. Réessayez en autorisant à nouveau.",
+      };
+    case "vault_error":
+      return {
+        tone: "error",
+        message: "L'enregistrement sécurisé des jetons a échoué. Réessayez.",
+      };
+    case "save_error":
+      return {
+        tone: "error",
+        message: "La connexion n'a pas pu être enregistrée. Réessayez.",
+      };
+    case "already_connected":
+      return {
+        tone: "error",
+        message:
+          "Un autre portail HubSpot est déjà connecté à cette organisation. Déconnectez-le d'abord.",
+      };
+    default:
+      return { tone: "error", message: "La connexion HubSpot a échoué. Réessayez." };
   }
 }

@@ -32,8 +32,18 @@ export function useStartGmailConnection() {
   });
 }
 
+/** Prépare la redirection vers HubSpot, sur le modèle de `useStartGmailConnection`. */
+export function useStartHubspotConnection() {
+  const { scope } = useSession();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => integrationsOAuthService.startHubspotConnection(scope.organizationId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: connectionsKey(scope) }),
+  });
+}
+
 /**
- * Révoque l'accès à un compte Gmail. La liste est invalidée au succès : la
+ * Révoque l'accès à un compte Gmail ou HubSpot. La liste est invalidée au succès : la
  * ligne revient au statut `revoked` plutôt que de disparaître.
  */
 export function useDisconnectGmail() {

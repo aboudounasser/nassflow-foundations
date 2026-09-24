@@ -11,9 +11,11 @@ export type ConnectionStatus = "active" | "revoked" | "error";
 
 export interface Connection {
   id: string;
-  /** `gmail` aujourd'hui ; la colonne accueillera d'autres fournisseurs. */
+  /** `gmail` ou `hubspot` ; la colonne accueillera d'autres fournisseurs. */
   provider: string;
   accountEmail: string | null;
+  /** Identité du compte quand il n'a pas d'e-mail (HubSpot : `hub_id` du portail). */
+  externalAccountId: string | null;
   status: ConnectionStatus;
   connectedBy: string | null;
   createdAt: string;
@@ -30,3 +32,15 @@ export type GmailCallbackCode =
   | "profile_error"
   | "vault_error"
   | "save_error";
+
+/** Codes que `hubspot-oauth-callback` renvoie dans `?hubspot=` au retour de HubSpot. */
+export type HubspotCallbackCode =
+  | "connected"
+  | "refused"
+  | "invalid"
+  | "expired"
+  | "token_error"
+  | "no_refresh"
+  | "vault_error"
+  | "save_error"
+  | "already_connected";

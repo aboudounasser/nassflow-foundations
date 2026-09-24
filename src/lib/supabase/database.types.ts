@@ -46,15 +46,19 @@ export type Database = {
       /**
        * Comptes externes raccordés par OAuth. Lecture réservée aux owner et
        * admin par RLS ; aucune écriture n'est possible depuis le navigateur —
-       * seules les Edge Functions `gmail-oauth-*` insèrent et mettent à jour.
-       * `provider` et `status` sont contraints côté base (respectivement
-       * `gmail`, et `active | revoked | error`) : le service les rétrécit.
+       * seules les Edge Functions `gmail-oauth-*` et `hubspot-oauth-*` insèrent et
+       * mettent à jour. `provider` et `status` sont contraints côté base
+       * (respectivement `gmail | hubspot`, et `active | revoked | error`) : le
+       * service les rétrécit. `external_account_id` identifie le compte quand il
+       * n'a pas d'e-mail (HubSpot : `hub_id` du portail) ; une seule connexion
+       * HubSpot active par organisation (index partiel).
        */
       integrations: {
         Row: {
           account_email: string | null;
           connected_by: string | null;
           created_at: string;
+          external_account_id: string | null;
           id: string;
           organization_id: string;
           provider: string;
@@ -65,6 +69,7 @@ export type Database = {
           account_email?: string | null;
           connected_by?: string | null;
           created_at?: string;
+          external_account_id?: string | null;
           id?: string;
           organization_id: string;
           provider: string;
@@ -75,6 +80,7 @@ export type Database = {
           account_email?: string | null;
           connected_by?: string | null;
           created_at?: string;
+          external_account_id?: string | null;
           id?: string;
           organization_id?: string;
           provider?: string;

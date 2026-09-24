@@ -28,7 +28,8 @@ Deno.serve(async (req) => {
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
   const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-  const hubspotToken = Deno.env.get("HUBSPOT_ACCESS_TOKEN")!;
+  const clientId = Deno.env.get("HUBSPOT_CLIENT_ID")!;
+  const clientSecret = Deno.env.get("HUBSPOT_CLIENT_SECRET")!;
 
   // ─── 1. Identifier l'appelant par son jeton ────────────────
   const authHeader = req.headers.get("Authorization");
@@ -95,6 +96,62 @@ Deno.serve(async (req) => {
   }
 
   const { first, last } = splitName(extracted.name);
+
+  // ─── 3bis. Le CRM connecté de CETTE organisation ───────────
+  //    vault_read_secret ne vérifie aucune appartenance : c'est ici
+  //    que se joue l'isolation. L'index partiel garantit au plus une
+  //    connexion HubSpot active par organisation.
+  const { data: integration, error: intError } = await admin
+    .from("integrations")
+    .select("id, external_account_id, vault_secret_id")
+    .eq("organization_id", organizationId)
+    .eq("provider", "hubspot")
+    .eq("status", "active")
+    .maybeSingle();
+
+  if (intError) return json({ error: intError.message }, 500);
+  if (!integration) {
+    return json({ error: "Aucun CRM HubSpot n'est connecté à cette organisation." }, 409);
+  }
+
+  // ─── 3ter. Jeton d'accès HubSpot ───────────────────────────
+  const { data: refreshToken, error: vaultError } = await admin.rpc(
+    "vault_read_secret",
+    { secret_id: integration.vault_secret_id },
+  );
+  if (vaultError || !refreshToken) {
+    return json({ error: "Jeton HubSpot introuvable." }, 500);
+  }
+
+  const tokenRes = await fetch("https://api.hubapi.com/oauth/2026-03/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      grant_type: "refresh_token",
+      refresh_token: String(refreshToken),
+      client_id: clientId,
+      client_secret: clientSecret,
+    }),
+  });
+  if (!tokenRes.ok) {
+    console.error("rafraîchissement refusé", tokenRes.status, await tokenRes.text());
+    await admin.from("integrations").update({ status: "error" }).eq("id", integration.id);
+    return json({ error: "L'accès HubSpot a expiré. Reconnectez le compte." }, 409);
+  }
+  const tokens = await tokenRes.json();
+  const hubspotToken = tokens.access_token as string;
+
+  // La documentation ne dit pas si HubSpot fait tourner le refresh_token.
+  // S'il change, l'ancien risque de ne plus servir : on le remplace sous le
+  // même nom (vault_store_secret met à jour un secret existant). Un échec
+  // n'empêche pas cet envoi — le jeton d'accès obtenu reste valable.
+  if (tokens.refresh_token && tokens.refresh_token !== String(refreshToken)) {
+    const { error: rotateError } = await admin.rpc("vault_store_secret", {
+      secret_value: tokens.refresh_token,
+      secret_name: `hubspot_${organizationId}_${integration.external_account_id}`,
+    });
+    if (rotateError) console.error("rotation du jeton non enregistrée", rotateError.message);
+  }
 
   try {
     // ─── 4. Le contact existe-t-il déjà ? ────────────────────

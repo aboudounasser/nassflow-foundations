@@ -23,9 +23,11 @@ import {
   useConnections,
   useDisconnectGmail,
   useStartGmailConnection,
+  useStartHubspotConnection,
 } from "@/lib/integrations-oauth/queries";
 import {
   CONNECTION_STATUS,
+  connectionAccountLabel,
   formatConnectionDate,
   providerMeta,
 } from "@/lib/integrations-oauth/meta";
@@ -36,6 +38,19 @@ import { cn } from "@/lib/utils";
 const CONNECT_ROLES = ["owner", "admin"];
 
 const DISCONNECT_FALLBACK_ERROR = "La déconnexion n'a pas abouti.";
+
+/**
+ * Conséquences annoncées avant la déconnexion. Pour HubSpot, seul notre jeton
+ * est supprimé : l'app reste installée côté HubSpot tant que
+ * `disconnect-hubspot` n'existe pas — autant le dire que laisser croire à une
+ * révocation complète.
+ */
+const DISCONNECT_DESCRIPTION: Record<string, string> = {
+  gmail:
+    "L'accès à cette boîte sera révoqué et les analyses ne pourront plus être lancées. Les prospects déjà trouvés restent consultables dans Missions.",
+  hubspot:
+    "NASSFLOW n'aura plus accès à ce portail et les prospects ne pourront plus être envoyés dans le CRM. L'application restera visible dans vos paramètres HubSpot.",
+};
 
 function ConnectionsSkeleton() {
   return (
@@ -50,7 +65,7 @@ function ConnectionsSkeleton() {
  * Une ligne de compte connecté.
  *
  * La déconnexion n'est proposée qu'aux rôles que l'Edge Function
- * `disconnect-gmail` accepte, et disparaît une fois le compte révoqué : une
+ * `disconnect-gmail` accepte (elle sert aussi aux lignes HubSpot), et disparaît une fois le compte révoqué : une
  * intégration déjà coupée n'a plus d'action à offrir, seulement un état à
  * montrer — atténué plutôt que masqué, l'historique des analyses continuant
  * d'y faire référence.
@@ -66,7 +81,8 @@ function ConnectionRow({ connection }: { connection: Connection }) {
 
   const revoked = connection.status === "revoked";
   const canDisconnect = CONNECT_ROLES.includes(session.role) && !revoked;
-  const label = connection.accountEmail ?? provider.label;
+  const accountLabel = connectionAccountLabel(connection);
+  const label = accountLabel ?? provider.label;
 
   const disconnect = () => {
     disconnectMutation.mutate(connection.id, {
@@ -89,9 +105,7 @@ function ConnectionRow({ connection }: { connection: Connection }) {
         <div className="min-w-0">
           <p className="truncate text-[14px] text-foreground">
             {provider.label}
-            {connection.accountEmail ? (
-              <span className="text-muted-foreground"> — {connection.accountEmail}</span>
-            ) : null}
+            {accountLabel ? <span className="text-muted-foreground"> — {accountLabel}</span> : null}
           </p>
           <p className="text-[12px] text-muted-foreground">
             Connecté le {formatConnectionDate(connection.createdAt)}
@@ -117,8 +131,7 @@ function ConnectionRow({ connection }: { connection: Connection }) {
                 <AlertDialogHeader>
                   <AlertDialogTitle>Déconnecter {label} ?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    L&apos;accès à cette boîte sera révoqué et les analyses ne pourront plus être
-                    lancées. Les prospects déjà trouvés restent consultables dans Missions.
+                    {DISCONNECT_DESCRIPTION[connection.provider] ?? DISCONNECT_DESCRIPTION["gmail"]}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -143,17 +156,25 @@ function ConnectionRow({ connection }: { connection: Connection }) {
 
 /**
  * Comptes externes réellement raccordés, par opposition au catalogue mocké.
- * L'action de connexion n'est proposée qu'aux rôles que l'Edge Function
- * `gmail-oauth-start` accepte : masquer le bouton ailleurs évite un 403 promis
- * d'avance, la vérification faisant autorité restant côté serveur.
+ * Les actions de connexion ne sont proposées qu'aux rôles que les Edge
+ * Functions `gmail-oauth-start` et `hubspot-oauth-start` acceptent : masquer
+ * les boutons ailleurs évite un 403 promis d'avance, la vérification faisant
+ * autorité restant côté serveur.
+ *
+ * Une entreprise n'a qu'un CRM : le bouton HubSpot disparaît dès qu'un portail
+ * est actif. Le 409 de `hubspot-oauth-start` reste le garde-fou.
  */
 export function ConnectedAccountsSection() {
   const { session } = useSession();
   const connectionsQuery = useConnections();
   const startMutation = useStartGmailConnection();
+  const startHubspotMutation = useStartHubspotConnection();
 
   const canConnect = CONNECT_ROLES.includes(session.role);
   const connections = connectionsQuery.data ?? [];
+  const hasActiveHubspot = connections.some(
+    (connection) => connection.provider === "hubspot" && connection.status === "active",
+  );
 
   const connect = () => {
     startMutation.mutate(undefined, {
@@ -163,6 +184,18 @@ export function ConnectedAccountsSection() {
       },
       onError: (e) =>
         toast.error(e instanceof Error ? e.message : "Connexion Gmail impossible. Réessayez."),
+    });
+  };
+
+  const connectHubspot = () => {
+    startHubspotMutation.mutate(undefined, {
+      // Redirection complète, comme pour Google.
+      onSuccess: (authUrl) => {
+        window.location.href = authUrl;
+      },
+      // Message rédigé par l'Edge Function (409 notamment) : affiché tel quel.
+      onError: (e) =>
+        toast.error(e instanceof Error ? e.message : "Connexion HubSpot impossible. Réessayez."),
     });
   };
 
@@ -184,16 +217,28 @@ export function ConnectedAccountsSection() {
       showMenu={false}
       headerAction={
         canConnect ? (
-          <Button type="button" size="sm" loading={startMutation.isPending} onClick={connect}>
-            Connecter Gmail
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button type="button" size="sm" loading={startMutation.isPending} onClick={connect}>
+              Connecter Gmail
+            </Button>
+            {!hasActiveHubspot ? (
+              <Button
+                type="button"
+                size="sm"
+                loading={startHubspotMutation.isPending}
+                onClick={connectHubspot}
+              >
+                Connecter HubSpot
+              </Button>
+            ) : null}
+          </div>
         ) : null
       }
       emptyIcon={Link2}
       emptyTitle="Aucun compte connecté"
       emptyDescription={
         canConnect
-          ? "Connectez un compte Gmail pour que vos agents puissent y accéder."
+          ? "Connectez Gmail ou HubSpot pour que vos agents puissent y accéder."
           : "Seuls les propriétaires et administrateurs peuvent consulter et connecter des comptes."
       }
       skeleton={<ConnectionsSkeleton />}

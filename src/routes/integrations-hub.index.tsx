@@ -23,7 +23,7 @@ import { Card } from "@/components/ui/card";
 import { INTEGRATION_FILTER_DESCRIPTORS, INTEGRATION_STATUS_ORDER } from "@/lib/integrations/meta";
 import { useIntegrations } from "@/lib/integrations/queries";
 import type { Integration, IntegrationFilters, IntegrationView } from "@/lib/integrations/types";
-import { gmailCallbackToast } from "@/lib/integrations-oauth/meta";
+import { gmailCallbackToast, hubspotCallbackToast } from "@/lib/integrations-oauth/meta";
 
 const DESCRIPTION =
   "Le catalogue d'intégrations de NASSFLOW OS : outils connectés aux agents, permissions, synchronisation et connexions disponibles.";
@@ -39,12 +39,27 @@ export const Route = createFileRoute("/integrations-hub/")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  /** `gmail-oauth-callback` renvoie l'issue du parcours dans `?gmail=` (+ `&email=`). */
+  /**
+   * Les callbacks OAuth renvoient l'issue du parcours dans l'URL :
+   * `gmail-oauth-callback` dans `?gmail=` (+ `&email=`),
+   * `hubspot-oauth-callback` dans `?hubspot=` (+ `&portal=`).
+   */
   validateSearch: (
     search: Record<string, unknown>,
-  ): { gmail?: string | undefined; email?: string | undefined } => ({
+  ): {
+    gmail?: string | undefined;
+    email?: string | undefined;
+    hubspot?: string | undefined;
+    portal?: string | undefined;
+  } => ({
     gmail: typeof search["gmail"] === "string" ? search["gmail"] : undefined,
     email: typeof search["email"] === "string" ? search["email"] : undefined,
+    hubspot: typeof search["hubspot"] === "string" ? search["hubspot"] : undefined,
+    // Un hub_id est numérique : l'analyse de l'URL peut le livrer en nombre.
+    portal:
+      typeof search["portal"] === "string" || typeof search["portal"] === "number"
+        ? String(search["portal"])
+        : undefined,
   }),
   component: Page,
 });
@@ -61,25 +76,27 @@ function Page() {
   const [view, setView] = useState<IntegrationView>("grid");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const { requestOpen } = useContextPanel();
-  const { gmail, email } = Route.useSearch();
+  const { gmail, email, hubspot, portal } = Route.useSearch();
   const navigate = useNavigate();
   const callbackHandled = useRef(false);
 
   /**
-   * Retour de Google : un toast, puis nettoyage du paramètre. Sans ce retrait,
-   * un simple rafraîchissement rejouerait le message. Le garde-fou couvre le
-   * double montage des effets en développement.
+   * Retour de Google ou de HubSpot : un toast, puis nettoyage des paramètres.
+   * Sans ce retrait, un simple rafraîchissement rejouerait le message. Le
+   * garde-fou couvre le double montage des effets en développement.
    */
   useEffect(() => {
-    if (!gmail || callbackHandled.current) return;
+    if ((!gmail && !hubspot) || callbackHandled.current) return;
     callbackHandled.current = true;
 
-    const { tone, message } = gmailCallbackToast(gmail, email ?? null);
+    const { tone, message } = gmail
+      ? gmailCallbackToast(gmail, email ?? null)
+      : hubspotCallbackToast(hubspot ?? "", portal ?? null);
     if (tone === "success") toast.success(message);
     else toast.error(message);
 
     void navigate({ to: "/integrations-hub", search: {}, replace: true });
-  }, [gmail, email, navigate]);
+  }, [gmail, email, hubspot, portal, navigate]);
 
   const integrationsQuery = useIntegrations();
   const allIntegrations = useMemo(
