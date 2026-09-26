@@ -16,7 +16,6 @@ import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as InsightsRouteImport } from './routes/insights'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
-import { Route as SecurityCenterRouteImport } from './routes/security-center'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as SystemSettingsRouteImport } from './routes/system-settings'
 import { Route as AgentsIndexRouteImport } from './routes/agents.index'
@@ -71,11 +70,6 @@ const LoginRoute = LoginRouteImport.update({
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SecurityCenterRoute = SecurityCenterRouteImport.update({
-  id: '/security-center',
-  path: '/security-center',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SignupRoute = SignupRouteImport.update({
@@ -188,7 +182,6 @@ export interface FileRoutesByFullPath {
   '/insights': typeof InsightsRoute
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/security-center': typeof SecurityCenterRoute
   '/signup': typeof SignupRoute
   '/system-settings': typeof SystemSettingsRoute
   '/agents/$agentId': typeof AgentsAgentIdRoute
@@ -218,7 +211,6 @@ export interface FileRoutesByTo {
   '/insights': typeof InsightsRoute
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/security-center': typeof SecurityCenterRoute
   '/signup': typeof SignupRoute
   '/system-settings': typeof SystemSettingsRoute
   '/agents/$agentId': typeof AgentsAgentIdRoute
@@ -249,7 +241,6 @@ export interface FileRoutesById {
   '/insights': typeof InsightsRoute
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/security-center': typeof SecurityCenterRoute
   '/signup': typeof SignupRoute
   '/system-settings': typeof SystemSettingsRoute
   '/agents/$agentId': typeof AgentsAgentIdRoute
@@ -281,7 +272,6 @@ export interface FileRouteTypes {
     | '/insights'
     | '/login'
     | '/reset-password'
-    | '/security-center'
     | '/signup'
     | '/system-settings'
     | '/agents/$agentId'
@@ -311,7 +301,6 @@ export interface FileRouteTypes {
     | '/insights'
     | '/login'
     | '/reset-password'
-    | '/security-center'
     | '/signup'
     | '/system-settings'
     | '/agents/$agentId'
@@ -341,7 +330,6 @@ export interface FileRouteTypes {
     | '/insights'
     | '/login'
     | '/reset-password'
-    | '/security-center'
     | '/signup'
     | '/system-settings'
     | '/agents/$agentId'
@@ -372,7 +360,6 @@ export interface RootRouteChildren {
   InsightsRoute: typeof InsightsRoute
   LoginRoute: typeof LoginRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
-  SecurityCenterRoute: typeof SecurityCenterRoute
   SignupRoute: typeof SignupRoute
   SystemSettingsRoute: typeof SystemSettingsRoute
   AgentsAgentIdRoute: typeof AgentsAgentIdRoute
@@ -444,13 +431,6 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/security-center': {
-      id: '/security-center'
-      path: '/security-center'
-      fullPath: '/security-center'
-      preLoaderRoute: typeof SecurityCenterRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/signup': {
@@ -604,7 +584,6 @@ const rootRouteChildren: RootRouteChildren = {
   InsightsRoute: InsightsRoute,
   LoginRoute: LoginRoute,
   ResetPasswordRoute: ResetPasswordRoute,
-  SecurityCenterRoute: SecurityCenterRoute,
   SignupRoute: SignupRoute,
   SystemSettingsRoute: SystemSettingsRoute,
   AgentsAgentIdRoute: AgentsAgentIdRoute,
