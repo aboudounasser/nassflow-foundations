@@ -124,7 +124,6 @@ export function AgentPermissionsTable({ rows }: { rows: AgentPermissionsRow[] })
 }
 
 export function IntegrationPermissionsTable({ rows }: { rows: IntegrationPermissionsRow[] }) {
-  const navigate = useNavigate();
   return (
     <Section
       title="Permissions par intégration"
@@ -139,16 +138,7 @@ export function IntegrationPermissionsTable({ rows }: { rows: IntegrationPermiss
         </TableHeader>
         <TableBody>
           {rows.map((row) => (
-            <TableRow
-              key={row.integrationId}
-              className="cursor-pointer"
-              onClick={() =>
-                navigate({
-                  to: "/integrations-hub/$integrationId",
-                  params: { integrationId: row.integrationId },
-                })
-              }
-            >
+            <TableRow key={row.integrationId}>
               <TableCell className="text-foreground">{row.integrationName}</TableCell>
               <TableCell className="text-right tabular-nums text-muted-foreground">
                 {row.grantedCount} / {row.totalCount}
