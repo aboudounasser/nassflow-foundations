@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Bot, Plug, Plus, UserPlus } from "lucide-react";
+import { Plug, Plus, UserPlus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -12,12 +12,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const LAUNCH_ACTIONS = [
-  {
-    label: "Déployer un Agent",
-    description: "Ajouter un collaborateur IA à votre AI Workforce",
-    icon: Bot,
-    to: "/agents",
-  },
   {
     label: "Connecter une Intégration",
     description: "Relier un outil externe à la plateforme",

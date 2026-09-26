@@ -83,6 +83,5 @@ export interface MissionFilters {
   search: string;
   statuses: MissionStatus[];
   priority: Priority | "all";
-  agentId: string | "all";
   sort: MissionSortKey;
 }

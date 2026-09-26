@@ -1,23 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Bot, TriangleAlert } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
-import { AgentCard, AgentCardSkeletonGrid } from "@/components/agents/agent-card";
+import { AgentCard } from "@/components/agents/agent-card";
 import { AgentSummaryPanel } from "@/components/agents/agent-summary-panel";
-import { AgentsOverview, AgentsOverviewSkeleton } from "@/components/agents/agents-overview";
-import { GRID_LIST_VIEWS, ModuleToolbar } from "@/components/common/module-toolbar";
-import { EmptyState } from "@/components/common/empty-state";
-import { WidgetShell } from "@/components/dashboard/widget-shell";
 import { useContextPanel, useContextPanelContent } from "@/components/layout/context-panel";
 import { ModulePage } from "@/components/layout/page-header";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { AGENT_FILTER_DESCRIPTORS } from "@/lib/agents/meta";
-import { useAgents } from "@/lib/agents/queries";
-import type { AgentDetail, AgentFilters, AgentView } from "@/lib/agents/types";
+import { AVAILABLE_AGENTS, type ProductAgent } from "@/lib/agents/catalog";
 
 const DESCRIPTION =
-  "Pilotez la workforce IA de NASSFLOW OS : rôles, capacités, outils, permissions et missions de chaque collaborateur IA.";
+  "Les agents IA en service dans NASSFLOW OS et ce qu'ils font réellement pour votre organisation.";
 
 export const Route = createFileRoute("/agents/")({
   head: () => ({
@@ -31,154 +22,41 @@ export const Route = createFileRoute("/agents/")({
   component: Page,
 });
 
-const DEFAULT_FILTERS: AgentFilters = {
-  search: "",
-  domain: "all",
-  status: "all",
-  sort: "name",
-};
-
+/**
+ * AI Workforce — les seuls agents dont le pipeline tourne (`available` dans le
+ * registre). Pas de compteurs ni de filtres : ils portaient sur des fixtures.
+ */
 function Page() {
-  const [filters, setFilters] = useState<AgentFilters>(DEFAULT_FILTERS);
-  const [view, setView] = useState<AgentView>("grid");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const { requestOpen } = useContextPanel();
 
-  const agentsQuery = useAgents();
-  const items = useMemo(() => agentsQuery.data?.items ?? [], [agentsQuery.data]);
-
-  const agents = useMemo(() => {
-    const query = filters.search.trim().toLowerCase();
-    const filtered = items.filter(({ agent }) => {
-      if (
-        query &&
-        !agent.name.toLowerCase().includes(query) &&
-        !agent.role.toLowerCase().includes(query) &&
-        !agent.domain.toLowerCase().includes(query)
-      )
-        return false;
-      if (filters.domain !== "all" && agent.domain !== filters.domain) return false;
-      if (filters.status !== "all" && agent.status !== filters.status) return false;
-      return true;
-    });
-
-    return [...filtered].sort((a, b) => {
-      if (filters.sort === "confidence")
-        return (b.agent.confidenceScore ?? -1) - (a.agent.confidenceScore ?? -1);
-      if (filters.sort === "activity")
-        return new Date(b.agent.lastActivity).getTime() - new Date(a.agent.lastActivity).getTime();
-      return a.agent.name.localeCompare(b.agent.name, "fr");
-    });
-  }, [filters, items]);
-
-  const selected = agents.find((a) => a.agent.id === selectedId) ?? null;
+  const selected = AVAILABLE_AGENTS.find((agent) => agent.id === selectedId) ?? null;
 
   useContextPanelContent(
-    () =>
-      selected ? (
-        <AgentSummaryPanel agent={selected.agent} missionCount={selected.missionCount} />
-      ) : null,
-    [selected?.agent.id],
+    () => (selected ? <AgentSummaryPanel agent={selected} /> : null),
+    [selected?.id],
   );
 
-  const handleSelect = (agent: AgentDetail) => {
+  const handleSelect = (agent: ProductAgent) => {
     setSelectedId(agent.id);
     requestOpen();
   };
-
-  const widgetState = agentsQuery.isError
-    ? "error"
-    : agentsQuery.isPending
-      ? "loading"
-      : agents.length === 0
-        ? "empty"
-        : "success";
-
-  if (agentsQuery.isError) {
-    return (
-      <section className="col-span-12 min-w-0">
-        <Card className="border-border bg-card p-4">
-          <EmptyState
-            icon={TriangleAlert}
-            title="Impossible de charger l'AI Workforce"
-            description="Les agents n'ont pas pu être récupérés. Vérifiez votre connexion puis réessayez."
-          />
-          <div className="flex justify-center">
-            <Button type="button" size="sm" onClick={() => void agentsQuery.refetch()}>
-              Réessayer
-            </Button>
-          </div>
-        </Card>
-      </section>
-    );
-  }
 
   return (
     <>
       <ModulePage title="AI Workforce" description={DESCRIPTION} />
 
-      <section className="col-span-12 min-w-0">
-        {agentsQuery.isPending || !agentsQuery.data ? (
-          <AgentsOverviewSkeleton />
-        ) : (
-          <AgentsOverview
-            agents={items.map((i) => i.agent)}
-            runningMissions={agentsQuery.data.runningMissions}
-          />
-        )}
-      </section>
-
-      <section className="col-span-12 min-w-0">
-        <ModuleToolbar
-          filters={filters}
-          onChange={setFilters}
-          onReset={() => setFilters(DEFAULT_FILTERS)}
-          searchKey="search"
-          searchPlaceholder="Rechercher un agent, un rôle, un domaine…"
-          searchAriaLabel="Rechercher un agent"
-          descriptors={AGENT_FILTER_DESCRIPTORS}
-          views={GRID_LIST_VIEWS}
-          view={view}
-          onViewChange={(v) => setView(v as AgentView)}
-          resultCount={agents.length}
-          resultLabel={(n) => `${n} agent${n > 1 ? "s" : ""}`}
-        />
-      </section>
-
-      <section className="col-span-12 min-w-0">
-        <WidgetShell
-          title={view === "grid" ? "Vue Grille" : "Vue Liste"}
-          icon={Bot}
-          state={widgetState}
-          showMenu={false}
-          emptyIcon={Bot}
-          emptyTitle="Aucun agent ne correspond à ces critères"
-          emptyAction={
-            <Button variant="secondary" size="sm" onClick={() => setFilters(DEFAULT_FILTERS)}>
-              Réinitialiser les filtres
-            </Button>
-          }
-          skeleton={<AgentCardSkeletonGrid />}
-        >
-          <div
-            className={
-              view === "grid"
-                ? "grid grid-cols-1 gap-4 @2xl:grid-cols-2 @5xl:grid-cols-3"
-                : "flex flex-col gap-3"
-            }
-          >
-            {agents.map(({ agent, missionCount }) => (
-              <AgentCard
-                key={agent.id}
-                agent={agent}
-                selected={agent.id === selectedId}
-                compact={view === "list"}
-                missionCount={missionCount}
-                onSelect={handleSelect}
-              />
-            ))}
-          </div>
-        </WidgetShell>
+      <section className="col-span-12 min-w-0 @container">
+        <div className="grid grid-cols-1 gap-4 @2xl:grid-cols-2">
+          {AVAILABLE_AGENTS.map((agent) => (
+            <AgentCard
+              key={agent.id}
+              agent={agent}
+              selected={agent.id === selectedId}
+              onSelect={handleSelect}
+            />
+          ))}
+        </div>
       </section>
     </>
   );

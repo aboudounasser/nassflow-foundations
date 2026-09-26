@@ -18,7 +18,7 @@ import {
 import type { FilterDescriptor, ViewDescriptor } from "@/lib/toolbar/types";
 import { PRIORITY_BADGE } from "@/lib/dashboard/meta";
 import type { Mission, Priority } from "@/lib/dashboard/types";
-import type { MissionAgent, MissionStatus, MissionStepStatus } from "./types";
+import type { MissionStatus, MissionStepStatus } from "./types";
 
 export type BadgeVariant = "neutral" | "primary" | "success" | "warning" | "destructive" | "info";
 
@@ -118,43 +118,36 @@ export const MISSION_VIEWS: ViewDescriptor[] = [
   { value: "calendar", label: "Calendrier", icon: Calendar },
 ];
 
-export function missionFilterDescriptors(agents: MissionAgent[]): FilterDescriptor[] {
-  return [
-    {
-      kind: "multiselect",
-      key: "statuses",
-      ariaLabel: "Filtrer par statut",
-      buttonLabel: "Statuts",
-      options: MISSION_STATUS_ORDER.map((s) => ({ value: s, label: MISSION_STATUS[s].label })),
-    },
-    {
-      kind: "select",
-      key: "priority",
-      ariaLabel: "Filtrer par priorité",
-      placeholder: "Priorité",
-      allLabel: "Toutes priorités",
-      minWidth: "min-w-[150px]",
-      options: PRIORITY_ORDER.map((p) => ({ value: p, label: PRIORITY_BADGE[p].label })),
-    },
-    {
-      kind: "select",
-      key: "agentId",
-      ariaLabel: "Filtrer par agent",
-      placeholder: "Agent",
-      allLabel: "Tous les agents",
-      minWidth: "min-w-[170px]",
-      options: agents.map((a) => ({ value: a.id, label: a.name })),
-    },
-    {
-      kind: "sort",
-      key: "sort",
-      ariaLabel: "Trier les missions",
-      minWidth: "min-w-[170px]",
-      options: [
-        { value: "dueDate", label: "Échéance" },
-        { value: "priority", label: "Priorité" },
-        { value: "progress", label: "Progression" },
-      ],
-    },
-  ];
-}
+/**
+ * Filtres de la liste des missions. Pas de filtre par agent : les missions
+ * réelles n'en portent aucun (`agents: []`), il viderait toujours la liste.
+ */
+export const MISSION_FILTER_DESCRIPTORS: FilterDescriptor[] = [
+  {
+    kind: "multiselect",
+    key: "statuses",
+    ariaLabel: "Filtrer par statut",
+    buttonLabel: "Statuts",
+    options: MISSION_STATUS_ORDER.map((s) => ({ value: s, label: MISSION_STATUS[s].label })),
+  },
+  {
+    kind: "select",
+    key: "priority",
+    ariaLabel: "Filtrer par priorité",
+    placeholder: "Priorité",
+    allLabel: "Toutes priorités",
+    minWidth: "min-w-[150px]",
+    options: PRIORITY_ORDER.map((p) => ({ value: p, label: PRIORITY_BADGE[p].label })),
+  },
+  {
+    kind: "sort",
+    key: "sort",
+    ariaLabel: "Trier les missions",
+    minWidth: "min-w-[170px]",
+    options: [
+      { value: "dueDate", label: "Échéance" },
+      { value: "priority", label: "Priorité" },
+      { value: "progress", label: "Progression" },
+    ],
+  },
+];

@@ -19,7 +19,7 @@ import { GmailScanSection } from "@/components/scans/gmail-scan-section";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useMissions } from "@/lib/missions/queries";
-import { MISSION_VIEWS, PRIORITY_WEIGHT, missionFilterDescriptors } from "@/lib/missions/meta";
+import { MISSION_FILTER_DESCRIPTORS, MISSION_VIEWS, PRIORITY_WEIGHT } from "@/lib/missions/meta";
 import type { MissionDetail, MissionFilters, MissionView } from "@/lib/missions/types";
 
 const DESCRIPTION =
@@ -41,7 +41,6 @@ const DEFAULT_FILTERS: MissionFilters = {
   search: "",
   statuses: [],
   priority: "all",
-  agentId: "all",
   sort: "dueDate",
 };
 
@@ -52,9 +51,7 @@ function Page() {
   const { requestOpen } = useContextPanel();
 
   const missionsQuery = useMissions();
-  const agents = useMemo(() => missionsQuery.data?.agents ?? [], [missionsQuery.data]);
   const allMissions = useMemo(() => missionsQuery.data?.missions ?? [], [missionsQuery.data]);
-  const descriptors = useMemo(() => missionFilterDescriptors(agents), [agents]);
 
   const missions = useMemo(() => {
     const query = filters.search.trim().toLowerCase();
@@ -72,8 +69,6 @@ function Page() {
         return false;
       }
       if (filters.priority !== "all" && mission.priority !== filters.priority) return false;
-      if (filters.agentId !== "all" && !mission.agents.some((a) => a.id === filters.agentId))
-        return false;
       return true;
     });
 
@@ -148,7 +143,7 @@ function Page() {
           searchKey="search"
           searchPlaceholder="Rechercher une mission ou un tag…"
           searchAriaLabel="Rechercher une mission"
-          descriptors={descriptors}
+          descriptors={MISSION_FILTER_DESCRIPTORS}
           views={MISSION_VIEWS}
           view={view}
           onViewChange={(v) => setView(v as MissionView)}

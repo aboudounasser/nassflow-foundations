@@ -1,26 +1,20 @@
+import { useAgentState } from "@/components/agents/use-agent-state";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { AGENT_STATUS, formatAgentActivity } from "@/lib/agents/meta";
-import type { AgentDetail } from "@/lib/agents/types";
+import type { ProductAgent } from "@/lib/agents/catalog";
 import { cn } from "@/lib/utils";
 
-/** Carte agent du module AI Workforce (distincte de AgentSummaryCard du Dashboard). */
+/** Carte d'un agent disponible : identité et état réel, rien d'autre. */
 export function AgentCard({
   agent,
   selected = false,
-  compact = false,
-  missionCount = 0,
   onSelect,
 }: {
-  agent: AgentDetail;
+  agent: ProductAgent;
   selected?: boolean;
-  compact?: boolean;
-  missionCount?: number;
-  onSelect?: (agent: AgentDetail) => void;
+  onSelect?: (agent: ProductAgent) => void;
 }) {
-  const status = AGENT_STATUS[agent.status];
-  const StatusIcon = status.icon;
+  const state = useAgentState(agent.id);
 
   return (
     <button
@@ -30,7 +24,6 @@ export function AgentCard({
       className={cn(
         "flex w-full cursor-pointer flex-col gap-3 rounded-lg border bg-surface p-4 text-left transition-colors duration-150 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         selected ? "border-primary" : "border-border",
-        compact && "gap-2 p-3",
       )}
     >
       <div className="flex items-start gap-3">
@@ -43,43 +36,11 @@ export function AgentCard({
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-1">
-        <Badge variant={status.variant}>
-          <StatusIcon aria-hidden="true" />
-          {status.label}
-        </Badge>
-        <Badge variant="info">{agent.domain}</Badge>
-        <Badge>{agent.version}</Badge>
-        {missionCount > 0 ? (
-          <Badge variant="primary">
-            {missionCount} mission{missionCount > 1 ? "s" : ""}
-          </Badge>
-        ) : null}
-      </div>
-
-      {agent.confidenceScore !== undefined ? (
-        <div className="space-y-1">
-          <div className="flex items-center justify-between text-[12px] text-muted-foreground">
-            <span>Confiance</span>
-            <span className="tabular-nums">{agent.confidenceScore}%</span>
-          </div>
-          <Progress value={agent.confidenceScore} className="h-1.5" />
+      {state ? (
+        <div className="flex flex-wrap items-center gap-1">
+          <Badge variant={state.variant}>{state.label}</Badge>
         </div>
       ) : null}
-
-      <p className="text-[12px] text-muted-foreground">
-        Dernière activité · {formatAgentActivity(agent.lastActivity)}
-      </p>
     </button>
-  );
-}
-
-export function AgentCardSkeletonGrid({ count = 6 }: { count?: number }) {
-  return (
-    <div className="grid grid-cols-1 gap-4 @2xl:grid-cols-2 @5xl:grid-cols-3">
-      {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="h-[168px] animate-pulse rounded-lg border border-border bg-card" />
-      ))}
-    </div>
   );
 }
