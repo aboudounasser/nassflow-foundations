@@ -170,7 +170,6 @@ function MissionsList() {
           title="Missions"
           icon={Target}
           state={state}
-          showMenu={false}
           emptyIcon={Target}
           emptyTitle={
             noMissionAtAll

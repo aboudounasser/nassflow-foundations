@@ -63,7 +63,6 @@ export function EnterprisePulseCard() {
       description="Synthèse IA de l'état de l'entreprise"
       icon={Activity}
       state={state}
-      showMenu={false}
       onRetry={() => void pulseQuery.refetch()}
       skeleton={<PulseSkeleton />}
       emptyIcon={Sparkles}

@@ -214,7 +214,6 @@ export function ConnectedAccountsSection() {
       description="Comptes externes raccordés à cette organisation par autorisation OAuth."
       icon={Link2}
       state={state}
-      showMenu={false}
       headerAction={
         canConnect ? (
           <div className="flex flex-wrap items-center gap-2">

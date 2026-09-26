@@ -49,7 +49,6 @@ export function RecentMissionsWidget() {
       description="Les dernières analyses de votre boîte e-mail et leur résultat."
       icon={History}
       state={state}
-      showMenu={false}
       onRetry={() => void missionsQuery.refetch()}
       headerAction={
         canRead ? (

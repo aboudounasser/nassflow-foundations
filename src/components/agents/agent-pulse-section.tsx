@@ -29,7 +29,6 @@ export function AgentPulseSection() {
       description={pulse ? `Généré ${formatRelativePulseDate(pulse.generatedAt)}` : undefined}
       icon={Sparkles}
       state={state}
-      showMenu={false}
       onRetry={() => void pulseQuery.refetch()}
       emptyIcon={Sparkles}
       emptyTitle="Aucun résumé généré aujourd'hui"

@@ -52,7 +52,6 @@ export function AgentSalesActivity() {
       description="Analyses de la boîte e-mail, prospects en attente et dernières missions."
       icon={Activity}
       state={state}
-      showMenu={false}
       onRetry={retry}
       emptyIcon={Activity}
       emptyTitle="Aucune activité"

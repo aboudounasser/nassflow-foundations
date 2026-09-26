@@ -232,7 +232,6 @@ export function InvitationsSection() {
         description="Invitations en attente d'acceptation dans cette organisation."
         icon={MailPlus}
         state={state}
-        showMenu={false}
         onRetry={() => void invitationsQuery.refetch()}
         emptyIcon={MailPlus}
         emptyTitle="Aucune invitation en attente."

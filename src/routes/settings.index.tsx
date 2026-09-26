@@ -206,7 +206,6 @@ function MembersTab() {
           title="Membres"
           icon={Users}
           state={state}
-          showMenu={false}
           emptyIcon={Users}
           emptyTitle="Aucun membre ne correspond à ces critères"
           emptyAction={

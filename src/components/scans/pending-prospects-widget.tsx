@@ -66,7 +66,6 @@ export function PendingProspectsWidget() {
       description={description}
       icon={Inbox}
       state={canScan ? state : "success"}
-      showMenu={false}
       onRetry={retry}
       headerAction={
         canScan && gmailConnection ? (

@@ -199,7 +199,6 @@ function RunSection({ mission }: { mission: Mission }) {
       description="L'analyse de la boîte e-mail qui a ouvert cette mission."
       icon={MailSearch}
       state={run ? "success" : "empty"}
-      showMenu={false}
       headerAction={runStatus ? <Badge variant={runStatus.variant}>{runStatus.label}</Badge> : null}
       emptyIcon={MailSearch}
       emptyTitle="Aucune analyse liée à cette mission"
@@ -255,7 +254,6 @@ function ProspectsSection({ runId }: { runId: string }) {
       }
       icon={Users}
       state={state}
-      showMenu={false}
       onRetry={() => void resultsQuery.refetch()}
       emptyIcon={Users}
       emptyTitle="Aucune demande commerciale dans cette analyse"

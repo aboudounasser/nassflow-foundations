@@ -50,7 +50,6 @@ export function AgentConnections() {
       description="Comptes utilisés par l'agent : Gmail pour lire, HubSpot pour envoyer."
       icon={Link2}
       state={state}
-      showMenu={false}
       onRetry={() => void connectionsQuery.refetch()}
       headerAction={
         canRead ? (
