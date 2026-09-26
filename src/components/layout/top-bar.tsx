@@ -1,10 +1,8 @@
 import { Link } from "@tanstack/react-router";
-import { Bell, Check, ChevronDown, Menu, PanelRight } from "lucide-react";
+import { Check, ChevronDown, Menu, PanelRight } from "lucide-react";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { SearchInput } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,7 +11,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LaunchCenter } from "@/components/layout/launch-center";
 import { useSession } from "@/components/providers/session-provider";
 
 export function TopBar({
@@ -70,31 +67,7 @@ export function TopBar({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <LaunchCenter />
-
-      <div className="mx-auto hidden w-full max-w-[520px] lg:block">
-        <SearchInput placeholder="Rechercher... (⌘K)" aria-label="Recherche universelle" />
-      </div>
-
-      <div className="ml-auto flex items-center gap-2 lg:ml-0">
-        <span
-          className="hidden items-center gap-2 rounded-lg border border-border px-3 py-2 md:inline-flex"
-          title="Services IA opérationnels"
-        >
-          <span className="size-2 rounded-full bg-success" aria-hidden="true" />
-          <span className="text-[14px] text-muted-foreground">AI Status</span>
-        </span>
-
-        <Button variant="ghost" size="icon" className="relative" aria-label="Notifications (3)">
-          <Bell />
-          <Badge
-            variant="primary"
-            className="pointer-events-none absolute right-1 top-1 min-w-4 justify-center px-1 py-0 text-[10px] leading-4"
-          >
-            3
-          </Badge>
-        </Button>
-
+      <div className="ml-auto flex items-center gap-2">
         <Button
           variant="ghost"
           size="icon"
