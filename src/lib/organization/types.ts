@@ -63,7 +63,6 @@ export interface OrganizationProfile {
   primaryLocale: string | null;
 }
 
-export type OrgTab = "directory" | "departments";
 export type OrgView = "grid" | "list";
 export type MemberSortKey = "name" | "joinedAt";
 

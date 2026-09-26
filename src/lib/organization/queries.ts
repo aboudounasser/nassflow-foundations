@@ -11,36 +11,12 @@ function membersKey(scope: Scope): readonly unknown[] {
   return [...scopeKey(scope), "organization", "members"];
 }
 
-export function useCompanyProfile() {
-  const { scope } = useSession();
-  return useQuery({
-    queryKey: [...scopeKey(scope), "organization", "profile"],
-    queryFn: () => organizationService.getCompanyProfile(scope),
-  });
-}
-
-/** Profil réel de l'organisation active — distinct de `useCompanyProfile()`, encore mocké. */
+/** Profil réel de l'organisation active (table `organizations`). */
 export function useOrganizationProfile() {
   const { scope } = useSession();
   return useQuery({
     queryKey: [...scopeKey(scope), "organization-profile"],
     queryFn: () => organizationService.getOrganizationProfile(scope),
-  });
-}
-
-export function useDepartments() {
-  const { scope } = useSession();
-  return useQuery({
-    queryKey: [...scopeKey(scope), "organization", "departments"],
-    queryFn: () => organizationService.getDepartments(scope),
-  });
-}
-
-export function useDepartmentSummaries() {
-  const { scope } = useSession();
-  return useQuery({
-    queryKey: [...scopeKey(scope), "organization", "departments", "summaries"],
-    queryFn: () => organizationService.getDepartmentSummaries(scope),
   });
 }
 

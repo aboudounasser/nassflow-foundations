@@ -36,7 +36,6 @@ function Section({
 }
 
 export function MembersAccessTable({ rows }: { rows: AccessMatrixRow[] }) {
-  const navigate = useNavigate();
   return (
     <Section
       title="Accès des membres"
@@ -57,13 +56,7 @@ export function MembersAccessTable({ rows }: { rows: AccessMatrixRow[] }) {
             const status = MEMBER_STATUS[row.status];
             const StatusIcon = status.icon;
             return (
-              <TableRow
-                key={row.memberId}
-                className="cursor-pointer"
-                onClick={() =>
-                  navigate({ to: "/organization/$memberId", params: { memberId: row.memberId } })
-                }
-              >
+              <TableRow key={row.memberId}>
                 <TableCell className="text-foreground">{row.memberName}</TableCell>
                 <TableCell>
                   <Badge variant={role.variant}>{role.label}</Badge>

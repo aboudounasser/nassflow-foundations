@@ -1,33 +1,7 @@
-import type { AgentDetail } from "@/lib/agents/types";
-import {
-  agentsInDepartment,
-  companyProfileMock,
-  departmentsMock,
-  membersInDepartment,
-  orgMemberById,
-} from "@/lib/organization/mocks";
 import { UNASSIGNED_DEPARTMENT } from "@/lib/organization/meta";
-import type {
-  CompanyProfile,
-  Department,
-  MemberRole,
-  OrganizationProfile,
-  OrgMember,
-} from "@/lib/organization/types";
+import type { MemberRole, OrganizationProfile, OrgMember } from "@/lib/organization/types";
 import { supabase } from "@/lib/supabase/client";
 import type { Scope } from "@/lib/tenancy/types";
-import { delay } from "@/services/latency";
-
-/** Agrégat de la vue détail : un seul aller-retour par identifiant (option B). */
-export interface OrgMemberDetail {
-  member: OrgMember;
-  directReports: OrgMember[];
-  departmentAgents: AgentDetail[];
-}
-
-export async function getCompanyProfile(_scope: Scope): Promise<CompanyProfile> {
-  return delay(companyProfileMock);
-}
 
 /**
  * Profil réel de l'organisation active (table `organizations`).
@@ -53,29 +27,6 @@ export async function getOrganizationProfile(scope: Scope): Promise<Organization
     timezone: null,
     primaryLocale: null,
   };
-}
-
-export async function getDepartments(_scope: Scope): Promise<Department[]> {
-  return delay(departmentsMock);
-}
-
-/** Départements enrichis : lead, membres humains et agents IA du même domaine. */
-export interface DepartmentSummary {
-  department: Department;
-  lead: OrgMember | null;
-  members: OrgMember[];
-  agents: AgentDetail[];
-}
-
-export async function getDepartmentSummaries(_scope: Scope): Promise<DepartmentSummary[]> {
-  return delay(
-    departmentsMock.map((department) => ({
-      department,
-      lead: orgMemberById(department.leadMemberId),
-      members: membersInDepartment(department.name),
-      agents: agentsInDepartment(department.name),
-    })),
-  );
 }
 
 /** Colonnes lues dans `memberships` pour un membre de l'annuaire. */

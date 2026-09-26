@@ -46,13 +46,6 @@ export function SecurityEventItem({
         }),
     });
   }
-  if (link?.memberId) {
-    links.push({
-      label: "Voir le membre",
-      onClick: () =>
-        navigate({ to: "/organization/$memberId", params: { memberId: link.memberId as string } }),
-    });
-  }
 
   return (
     <li className="flex items-start gap-3 rounded-lg border border-border bg-surface p-3">
