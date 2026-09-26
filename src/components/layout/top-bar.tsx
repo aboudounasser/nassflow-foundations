@@ -17,7 +17,9 @@ export function TopBar({ onOpenMenu }: { onOpenMenu: () => void }) {
   const { session, organizations, switchOrganization, signOut } = useSession();
 
   return (
-    <header className="flex h-[72px] shrink-0 items-center gap-4 border-b border-border bg-surface px-4 md:px-6">
+    // Sur téléphone, marges et écarts resserrés (16 px, contre 32 px et plus au-delà
+    // de 768 px) : sans cela, menu, logo, organisation et avatar ne tiennent pas.
+    <header className="flex h-[72px] shrink-0 items-center gap-2 border-b border-border bg-surface px-2 md:gap-4 md:px-6">
       <Button
         variant="ghost"
         size="icon"
@@ -30,7 +32,7 @@ export function TopBar({ onOpenMenu }: { onOpenMenu: () => void }) {
 
       <Link
         to="/"
-        className="rounded-lg text-[16px] font-semibold tracking-tight text-foreground"
+        className="shrink-0 rounded-lg text-[16px] font-semibold tracking-tight text-foreground"
         aria-label="NASSFLOW OS — accueil"
       >
         NASSFLOW<span className="text-primary"> OS</span>
@@ -38,13 +40,14 @@ export function TopBar({ onOpenMenu }: { onOpenMenu: () => void }) {
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
+          {/* Visible aussi sur téléphone, en version compacte : le nom est tronqué. */}
           <Button
             variant="secondary"
-            className="hidden md:inline-flex"
-            aria-label="Changer d'organisation"
+            className="min-w-0 max-w-[140px] md:max-w-[280px]"
+            aria-label={`Changer d'organisation — ${session.organization.name}`}
           >
-            {session.organization.name}
-            <ChevronDown className="size-4" />
+            <span className="truncate">{session.organization.name}</span>
+            <ChevronDown />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-56">
@@ -54,7 +57,7 @@ export function TopBar({ onOpenMenu }: { onOpenMenu: () => void }) {
             <DropdownMenuItem key={o.id} onClick={() => switchOrganization(o.id)}>
               {o.name}
               {o.id === session.organization.id ? (
-                <Check className="ml-auto size-4" aria-hidden="true" />
+                <Check className="ml-auto" aria-hidden="true" />
               ) : null}
             </DropdownMenuItem>
           ))}
@@ -65,7 +68,8 @@ export function TopBar({ onOpenMenu }: { onOpenMenu: () => void }) {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" aria-label="Menu utilisateur">
-              <Avatar className="size-8">
+              {/* 32 px, dans le bouton de 44 px : `size-8` vaut 64 px sur l'échelle détournée. */}
+              <Avatar className="size-[32px]">
                 <AvatarFallback className="bg-card text-[12px] text-foreground">
                   {session.initials}
                 </AvatarFallback>

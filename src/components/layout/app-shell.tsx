@@ -27,7 +27,9 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-background">
+    // `h-dvh` et non `h-screen` : sur iOS Safari, 100vh inclut la barre d'adresse
+    // et masquait le bas de page.
+    <div className="flex h-dvh flex-col overflow-hidden bg-background">
       <TopBar onOpenMenu={() => setMenuOpen(true)} />
 
       <div className="flex min-h-0 flex-1">
