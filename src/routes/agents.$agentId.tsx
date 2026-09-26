@@ -1,18 +1,6 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
-import {
-  ArrowLeft,
-  Bot,
-  Check,
-  Copy,
-  PauseCircle,
-  PlayCircle,
-  Sparkles,
-  Target,
-  TriangleAlert,
-  X,
-} from "lucide-react";
+import { ArrowLeft, Bot, Check, Sparkles, Target, TriangleAlert, X } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
 
 import { AgentSummaryPanel } from "@/components/agents/agent-summary-panel";
 import { AgentConfigTab } from "@/components/agents/agent-config-tab";
@@ -194,32 +182,6 @@ function Page() {
                 <Badge>{agent.version}</Badge>
               </div>
             </div>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => toast(`${agent.name} suspendu (mock)`)}
-            >
-              <PauseCircle />
-              Suspendre
-            </Button>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => toast.success(`${agent.name} redémarré (mock)`)}
-            >
-              <PlayCircle />
-              Redémarrer
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => toast(`${agent.name} dupliqué (mock)`)}
-            >
-              <Copy />
-              Dupliquer
-            </Button>
           </div>
         </div>
       </section>

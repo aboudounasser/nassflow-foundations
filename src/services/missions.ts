@@ -3,17 +3,11 @@
  *
  * Les missions elles-mêmes viennent de la table `missions` (une ligne par
  * analyse Gmail, ouverte par l'Edge Function `run-gmail-scan` — voir
- * `database.types.ts`). `missionAgents` et `missionBlueprints` restent
- * mockés : ce ne sont pas des entités persistées, et le Mission Builder qui
- * les consomme ne persiste rien lui-même pour l'instant.
+ * `database.types.ts`). `missionAgents` reste mocké : les agents ne sont pas
+ * des entités persistées.
  */
-import { missionAgents, missionBlueprints } from "@/lib/missions/mocks";
-import type {
-  MissionAgent,
-  MissionBlueprint,
-  MissionDetail,
-  MissionStatus,
-} from "@/lib/missions/types";
+import { missionAgents } from "@/lib/missions/mocks";
+import type { MissionAgent, MissionDetail, MissionStatus } from "@/lib/missions/types";
 import { supabase } from "@/lib/supabase/client";
 import type { Tables } from "@/lib/supabase/database.types";
 import type { Scope } from "@/lib/tenancy/types";
@@ -82,8 +76,6 @@ function toMissionDetail(row: Tables<"missions">): MissionDetail {
 export interface MissionsListData {
   missions: MissionDetail[];
   agents: MissionAgent[];
-  /** Modèles proposés par le Mission Builder. */
-  blueprints: MissionBlueprint[];
 }
 
 export async function getMissions(scope: Scope): Promise<MissionsListData> {
@@ -98,7 +90,6 @@ export async function getMissions(scope: Scope): Promise<MissionsListData> {
   return {
     missions: (data ?? []).map(toMissionDetail),
     agents: missionAgents,
-    blueprints: missionBlueprints,
   };
 }
 

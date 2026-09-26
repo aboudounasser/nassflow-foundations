@@ -1,15 +1,6 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
-import {
-  ArrowLeft,
-  Copy,
-  History,
-  ListTree,
-  PlayCircle,
-  Target,
-  TriangleAlert,
-} from "lucide-react";
+import { ArrowLeft, History, ListTree, PlayCircle, Target, TriangleAlert } from "lucide-react";
 import { useMemo, useState } from "react";
-import { toast } from "sonner";
 
 import { EmptyState } from "@/components/common/empty-state";
 import { PRIORITY_BADGE } from "@/components/dashboard/decision-item-card";
@@ -156,24 +147,6 @@ function Page() {
                 <Badge key={tag}>{tag}</Badge>
               ))}
             </div>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={() => toast.success(`Mission relancée : ${mission.title}`)}
-            >
-              <PlayCircle />
-              Relancer la Mission
-            </Button>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => toast.success(`Mission clonée : ${mission.title}`)}
-            >
-              <Copy />
-              Cloner la Mission
-            </Button>
           </div>
         </div>
       </section>

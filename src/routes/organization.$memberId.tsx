@@ -1,29 +1,9 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
-import {
-  ArrowLeft,
-  Bot,
-  PauseCircle,
-  ShieldCheck,
-  TriangleAlert,
-  UserMinus,
-  Users,
-} from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
+import { ArrowLeft, Bot, TriangleAlert, Users } from "lucide-react";
 
 import { EmptyState } from "@/components/common/empty-state";
 import { useContextPanelContent } from "@/components/layout/context-panel";
 import { OrgMemberSummaryPanel } from "@/components/organization/org-member-summary-panel";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -91,7 +71,6 @@ function MemberLinkCard({ member }: { member: OrgMember }) {
 function Page() {
   const { memberId } = Route.useParams();
   const navigate = useNavigate();
-  const [confirmRemove, setConfirmRemove] = useState(false);
 
   const memberQuery = useOrgMember(memberId);
   const detail = memberQuery.data ?? null;
@@ -185,28 +164,6 @@ function Page() {
                 <Badge variant={status.variant}>{status.label}</Badge>
               </div>
             </div>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => toast(`Modification du rôle de ${member.name} (mock)`)}
-            >
-              <ShieldCheck />
-              Modifier le rôle
-            </Button>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => toast(`${member.name} suspendu·e (mock)`)}
-            >
-              <PauseCircle />
-              Suspendre
-            </Button>
-            <Button variant="ghost" size="sm" onClick={() => setConfirmRemove(true)}>
-              <UserMinus />
-              Retirer de l'organisation
-            </Button>
           </div>
         </div>
       </section>
@@ -309,26 +266,6 @@ function Page() {
           </div>
         }
       </section>
-
-      <AlertDialog open={confirmRemove} onOpenChange={setConfirmRemove}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Retirer {member.name} de l'organisation ?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Cette action retirerait l'accès de ce membre à NASSFLOW OS. Elle est simulée à ce
-              stade et ne modifie aucune donnée.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Annuler</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => toast(`${member.name} retiré·e de l'organisation (mock)`)}
-            >
-              Retirer
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </>
   );
 }

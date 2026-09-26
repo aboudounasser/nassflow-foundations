@@ -86,37 +86,3 @@ export interface MissionFilters {
   agentId: string | "all";
   sort: MissionSortKey;
 }
-
-/* ---------- Mission Builder (assistant de création) ---------- */
-
-export type TriggerType = "manual" | "scheduled" | "event";
-
-export interface MissionStepDraft {
-  id: string;
-  title: string;
-  agentId: string | null;
-  requiresValidation: boolean;
-}
-
-export interface MissionBlueprint {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  defaultAgentIds: string[];
-  defaultSteps: { title: string; agentId: string }[];
-}
-
-export interface MissionDraft {
-  title: string;
-  objective: string;
-  priority: Priority;
-  tags: string[];
-  dueDate: string | null;
-  agentIds: string[];
-  steps: MissionStepDraft[];
-  triggerType: TriggerType;
-  scheduledFor: string | null;
-  eventDescription: string;
-  validationThreshold: "none" | "critical_only" | "all_steps";
-}

@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Bot, Plug, Plus, Target, UserPlus } from "lucide-react";
+import { Bot, Plug, Plus, UserPlus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -12,13 +12,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const LAUNCH_ACTIONS = [
-  {
-    label: "Créer une Mission",
-    description: "Confier un objectif métier à vos agents",
-    icon: Target,
-    to: "/missions",
-    search: { new: true },
-  },
   {
     label: "Déployer un Agent",
     description: "Ajouter un collaborateur IA à votre AI Workforce",
@@ -53,11 +46,7 @@ export function LaunchCenter() {
         <DropdownMenuSeparator />
         {LAUNCH_ACTIONS.map((action) => (
           <DropdownMenuItem key={action.label} asChild>
-            <Link
-              to={action.to}
-              search={"search" in action ? action.search : {}}
-              className="flex items-start gap-3"
-            >
+            <Link to={action.to} className="flex items-start gap-3">
               <action.icon className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
               <span className="flex flex-col">
                 <span className="text-[14px] text-foreground">{action.label}</span>

@@ -1,5 +1,5 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Plus, Target, TriangleAlert } from "lucide-react";
+import { createFileRoute } from "@tanstack/react-router";
+import { Target, TriangleAlert } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { EmptyState } from "@/components/common/empty-state";
@@ -7,7 +7,6 @@ import { ModuleToolbar } from "@/components/common/module-toolbar";
 import { WidgetShell } from "@/components/dashboard/widget-shell";
 import { useContextPanel, useContextPanelContent } from "@/components/layout/context-panel";
 import { ModulePage } from "@/components/layout/page-header";
-import { MissionBuilderDialog } from "@/components/missions/mission-builder-dialog";
 import { MissionDetailPanel } from "@/components/missions/mission-detail-panel";
 import {
   MissionCalendarView,
@@ -35,9 +34,6 @@ export const Route = createFileRoute("/missions/")({
       { property: "og:description", content: DESCRIPTION },
     ],
   }),
-  validateSearch: (search: Record<string, unknown>): { new?: boolean | undefined } => ({
-    new: search["new"] === true || search["new"] === "true" ? true : undefined,
-  }),
   component: Page,
 });
 
@@ -53,15 +49,6 @@ function Page() {
   const [filters, setFilters] = useState<MissionFilters>(DEFAULT_FILTERS);
   const [view, setView] = useState<MissionView>("list");
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const { new: openBuilder } = Route.useSearch();
-  const [dialogOpen, setDialogOpen] = useState(openBuilder === true);
-  const navigate = useNavigate();
-  const handleDialogChange = (open: boolean) => {
-    setDialogOpen(open);
-    if (!open && openBuilder) {
-      void navigate({ to: "/missions", search: {}, replace: true });
-    }
-  };
   const { requestOpen } = useContextPanel();
 
   const missionsQuery = useMissions();
@@ -167,12 +154,6 @@ function Page() {
           onViewChange={(v) => setView(v as MissionView)}
           resultCount={missions.length}
           resultLabel={(n) => `${n} mission${n > 1 ? "s" : ""}`}
-          actions={
-            <Button onClick={() => setDialogOpen(true)}>
-              <Plus />
-              Créer une Mission
-            </Button>
-          }
         />
       </section>
 
@@ -210,13 +191,6 @@ function Page() {
           )}
         </WidgetShell>
       </section>
-
-      <MissionBuilderDialog
-        open={dialogOpen}
-        onOpenChange={handleDialogChange}
-        agents={agents}
-        blueprints={missionsQuery.data?.blueprints ?? []}
-      />
     </>
   );
 }
