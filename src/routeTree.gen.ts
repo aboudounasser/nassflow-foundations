@@ -25,8 +25,6 @@ import { Route as MissionsMissionIdRouteImport } from './routes/missions.$missio
 import { Route as OrganizationIndexRouteImport } from './routes/organization.index'
 import { Route as OrganizationMemberIdRouteImport } from './routes/organization.$memberId'
 import { Route as SettingsIndexRouteImport } from './routes/settings.index'
-import { Route as WorkflowEngineIndexRouteImport } from './routes/workflow-engine.index'
-import { Route as WorkflowEngineWorkflowIdRouteImport } from './routes/workflow-engine.$workflowId'
 import { Route as SettingsMembersMemberIdRouteImport } from './routes/settings.members.$memberId'
 
 const IndexRoute = IndexRouteImport.update({
@@ -109,17 +107,6 @@ const SettingsIndexRoute = SettingsIndexRouteImport.update({
   path: '/settings/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const WorkflowEngineIndexRoute = WorkflowEngineIndexRouteImport.update({
-  id: '/workflow-engine/',
-  path: '/workflow-engine/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const WorkflowEngineWorkflowIdRoute =
-  WorkflowEngineWorkflowIdRouteImport.update({
-    id: '/workflow-engine/$workflowId',
-    path: '/workflow-engine/$workflowId',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const SettingsMembersMemberIdRoute = SettingsMembersMemberIdRouteImport.update({
   id: '/settings/members/$memberId',
   path: '/settings/members/$memberId',
@@ -138,13 +125,11 @@ export interface FileRoutesByFullPath {
   '/invite/$token': typeof InviteTokenRoute
   '/missions/$missionId': typeof MissionsMissionIdRoute
   '/organization/$memberId': typeof OrganizationMemberIdRoute
-  '/workflow-engine/$workflowId': typeof WorkflowEngineWorkflowIdRoute
   '/agents/': typeof AgentsIndexRoute
   '/integrations-hub/': typeof IntegrationsHubIndexRoute
   '/missions/': typeof MissionsIndexRoute
   '/organization/': typeof OrganizationIndexRoute
   '/settings/': typeof SettingsIndexRoute
-  '/workflow-engine/': typeof WorkflowEngineIndexRoute
   '/settings/members/$memberId': typeof SettingsMembersMemberIdRoute
 }
 export interface FileRoutesByTo {
@@ -159,13 +144,11 @@ export interface FileRoutesByTo {
   '/invite/$token': typeof InviteTokenRoute
   '/missions/$missionId': typeof MissionsMissionIdRoute
   '/organization/$memberId': typeof OrganizationMemberIdRoute
-  '/workflow-engine/$workflowId': typeof WorkflowEngineWorkflowIdRoute
   '/agents': typeof AgentsIndexRoute
   '/integrations-hub': typeof IntegrationsHubIndexRoute
   '/missions': typeof MissionsIndexRoute
   '/organization': typeof OrganizationIndexRoute
   '/settings': typeof SettingsIndexRoute
-  '/workflow-engine': typeof WorkflowEngineIndexRoute
   '/settings/members/$memberId': typeof SettingsMembersMemberIdRoute
 }
 export interface FileRoutesById {
@@ -181,13 +164,11 @@ export interface FileRoutesById {
   '/invite/$token': typeof InviteTokenRoute
   '/missions/$missionId': typeof MissionsMissionIdRoute
   '/organization/$memberId': typeof OrganizationMemberIdRoute
-  '/workflow-engine/$workflowId': typeof WorkflowEngineWorkflowIdRoute
   '/agents/': typeof AgentsIndexRoute
   '/integrations-hub/': typeof IntegrationsHubIndexRoute
   '/missions/': typeof MissionsIndexRoute
   '/organization/': typeof OrganizationIndexRoute
   '/settings/': typeof SettingsIndexRoute
-  '/workflow-engine/': typeof WorkflowEngineIndexRoute
   '/settings/members/$memberId': typeof SettingsMembersMemberIdRoute
 }
 export interface FileRouteTypes {
@@ -204,13 +185,11 @@ export interface FileRouteTypes {
     | '/invite/$token'
     | '/missions/$missionId'
     | '/organization/$memberId'
-    | '/workflow-engine/$workflowId'
     | '/agents/'
     | '/integrations-hub/'
     | '/missions/'
     | '/organization/'
     | '/settings/'
-    | '/workflow-engine/'
     | '/settings/members/$memberId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -225,13 +204,11 @@ export interface FileRouteTypes {
     | '/invite/$token'
     | '/missions/$missionId'
     | '/organization/$memberId'
-    | '/workflow-engine/$workflowId'
     | '/agents'
     | '/integrations-hub'
     | '/missions'
     | '/organization'
     | '/settings'
-    | '/workflow-engine'
     | '/settings/members/$memberId'
   id:
     | '__root__'
@@ -246,13 +223,11 @@ export interface FileRouteTypes {
     | '/invite/$token'
     | '/missions/$missionId'
     | '/organization/$memberId'
-    | '/workflow-engine/$workflowId'
     | '/agents/'
     | '/integrations-hub/'
     | '/missions/'
     | '/organization/'
     | '/settings/'
-    | '/workflow-engine/'
     | '/settings/members/$memberId'
   fileRoutesById: FileRoutesById
 }
@@ -268,13 +243,11 @@ export interface RootRouteChildren {
   InviteTokenRoute: typeof InviteTokenRoute
   MissionsMissionIdRoute: typeof MissionsMissionIdRoute
   OrganizationMemberIdRoute: typeof OrganizationMemberIdRoute
-  WorkflowEngineWorkflowIdRoute: typeof WorkflowEngineWorkflowIdRoute
   AgentsIndexRoute: typeof AgentsIndexRoute
   IntegrationsHubIndexRoute: typeof IntegrationsHubIndexRoute
   MissionsIndexRoute: typeof MissionsIndexRoute
   OrganizationIndexRoute: typeof OrganizationIndexRoute
   SettingsIndexRoute: typeof SettingsIndexRoute
-  WorkflowEngineIndexRoute: typeof WorkflowEngineIndexRoute
   SettingsMembersMemberIdRoute: typeof SettingsMembersMemberIdRoute
 }
 
@@ -392,20 +365,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/workflow-engine/': {
-      id: '/workflow-engine/'
-      path: '/workflow-engine'
-      fullPath: '/workflow-engine/'
-      preLoaderRoute: typeof WorkflowEngineIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/workflow-engine/$workflowId': {
-      id: '/workflow-engine/$workflowId'
-      path: '/workflow-engine/$workflowId'
-      fullPath: '/workflow-engine/$workflowId'
-      preLoaderRoute: typeof WorkflowEngineWorkflowIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/settings/members/$memberId': {
       id: '/settings/members/$memberId'
       path: '/settings/members/$memberId'
@@ -428,13 +387,11 @@ const rootRouteChildren: RootRouteChildren = {
   InviteTokenRoute: InviteTokenRoute,
   MissionsMissionIdRoute: MissionsMissionIdRoute,
   OrganizationMemberIdRoute: OrganizationMemberIdRoute,
-  WorkflowEngineWorkflowIdRoute: WorkflowEngineWorkflowIdRoute,
   AgentsIndexRoute: AgentsIndexRoute,
   IntegrationsHubIndexRoute: IntegrationsHubIndexRoute,
   MissionsIndexRoute: MissionsIndexRoute,
   OrganizationIndexRoute: OrganizationIndexRoute,
   SettingsIndexRoute: SettingsIndexRoute,
-  WorkflowEngineIndexRoute: WorkflowEngineIndexRoute,
   SettingsMembersMemberIdRoute: SettingsMembersMemberIdRoute,
 }
 export const routeTree = rootRouteImport
