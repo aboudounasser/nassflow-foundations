@@ -18,8 +18,6 @@ import { Route as SignupRouteImport } from './routes/signup'
 import { Route as SystemSettingsRouteImport } from './routes/system-settings'
 import { Route as AgentsIndexRouteImport } from './routes/agents.index'
 import { Route as AgentsAgentIdRouteImport } from './routes/agents.$agentId'
-import { Route as CrmIndexRouteImport } from './routes/crm.index'
-import { Route as CrmContactIdRouteImport } from './routes/crm.$contactId'
 import { Route as IntegrationsHubIndexRouteImport } from './routes/integrations-hub.index'
 import { Route as InviteTokenRouteImport } from './routes/invite.$token'
 import { Route as MissionsIndexRouteImport } from './routes/missions.index'
@@ -74,16 +72,6 @@ const AgentsIndexRoute = AgentsIndexRouteImport.update({
 const AgentsAgentIdRoute = AgentsAgentIdRouteImport.update({
   id: '/agents/$agentId',
   path: '/agents/$agentId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CrmIndexRoute = CrmIndexRouteImport.update({
-  id: '/crm/',
-  path: '/crm/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CrmContactIdRoute = CrmContactIdRouteImport.update({
-  id: '/crm/$contactId',
-  path: '/crm/$contactId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IntegrationsHubIndexRoute = IntegrationsHubIndexRouteImport.update({
@@ -147,13 +135,11 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/system-settings': typeof SystemSettingsRoute
   '/agents/$agentId': typeof AgentsAgentIdRoute
-  '/crm/$contactId': typeof CrmContactIdRoute
   '/invite/$token': typeof InviteTokenRoute
   '/missions/$missionId': typeof MissionsMissionIdRoute
   '/organization/$memberId': typeof OrganizationMemberIdRoute
   '/workflow-engine/$workflowId': typeof WorkflowEngineWorkflowIdRoute
   '/agents/': typeof AgentsIndexRoute
-  '/crm/': typeof CrmIndexRoute
   '/integrations-hub/': typeof IntegrationsHubIndexRoute
   '/missions/': typeof MissionsIndexRoute
   '/organization/': typeof OrganizationIndexRoute
@@ -170,13 +156,11 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/system-settings': typeof SystemSettingsRoute
   '/agents/$agentId': typeof AgentsAgentIdRoute
-  '/crm/$contactId': typeof CrmContactIdRoute
   '/invite/$token': typeof InviteTokenRoute
   '/missions/$missionId': typeof MissionsMissionIdRoute
   '/organization/$memberId': typeof OrganizationMemberIdRoute
   '/workflow-engine/$workflowId': typeof WorkflowEngineWorkflowIdRoute
   '/agents': typeof AgentsIndexRoute
-  '/crm': typeof CrmIndexRoute
   '/integrations-hub': typeof IntegrationsHubIndexRoute
   '/missions': typeof MissionsIndexRoute
   '/organization': typeof OrganizationIndexRoute
@@ -194,13 +178,11 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/system-settings': typeof SystemSettingsRoute
   '/agents/$agentId': typeof AgentsAgentIdRoute
-  '/crm/$contactId': typeof CrmContactIdRoute
   '/invite/$token': typeof InviteTokenRoute
   '/missions/$missionId': typeof MissionsMissionIdRoute
   '/organization/$memberId': typeof OrganizationMemberIdRoute
   '/workflow-engine/$workflowId': typeof WorkflowEngineWorkflowIdRoute
   '/agents/': typeof AgentsIndexRoute
-  '/crm/': typeof CrmIndexRoute
   '/integrations-hub/': typeof IntegrationsHubIndexRoute
   '/missions/': typeof MissionsIndexRoute
   '/organization/': typeof OrganizationIndexRoute
@@ -219,13 +201,11 @@ export interface FileRouteTypes {
     | '/signup'
     | '/system-settings'
     | '/agents/$agentId'
-    | '/crm/$contactId'
     | '/invite/$token'
     | '/missions/$missionId'
     | '/organization/$memberId'
     | '/workflow-engine/$workflowId'
     | '/agents/'
-    | '/crm/'
     | '/integrations-hub/'
     | '/missions/'
     | '/organization/'
@@ -242,13 +222,11 @@ export interface FileRouteTypes {
     | '/signup'
     | '/system-settings'
     | '/agents/$agentId'
-    | '/crm/$contactId'
     | '/invite/$token'
     | '/missions/$missionId'
     | '/organization/$memberId'
     | '/workflow-engine/$workflowId'
     | '/agents'
-    | '/crm'
     | '/integrations-hub'
     | '/missions'
     | '/organization'
@@ -265,13 +243,11 @@ export interface FileRouteTypes {
     | '/signup'
     | '/system-settings'
     | '/agents/$agentId'
-    | '/crm/$contactId'
     | '/invite/$token'
     | '/missions/$missionId'
     | '/organization/$memberId'
     | '/workflow-engine/$workflowId'
     | '/agents/'
-    | '/crm/'
     | '/integrations-hub/'
     | '/missions/'
     | '/organization/'
@@ -289,13 +265,11 @@ export interface RootRouteChildren {
   SignupRoute: typeof SignupRoute
   SystemSettingsRoute: typeof SystemSettingsRoute
   AgentsAgentIdRoute: typeof AgentsAgentIdRoute
-  CrmContactIdRoute: typeof CrmContactIdRoute
   InviteTokenRoute: typeof InviteTokenRoute
   MissionsMissionIdRoute: typeof MissionsMissionIdRoute
   OrganizationMemberIdRoute: typeof OrganizationMemberIdRoute
   WorkflowEngineWorkflowIdRoute: typeof WorkflowEngineWorkflowIdRoute
   AgentsIndexRoute: typeof AgentsIndexRoute
-  CrmIndexRoute: typeof CrmIndexRoute
   IntegrationsHubIndexRoute: typeof IntegrationsHubIndexRoute
   MissionsIndexRoute: typeof MissionsIndexRoute
   OrganizationIndexRoute: typeof OrganizationIndexRoute
@@ -367,20 +341,6 @@ declare module '@tanstack/react-router' {
       path: '/agents/$agentId'
       fullPath: '/agents/$agentId'
       preLoaderRoute: typeof AgentsAgentIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/crm/': {
-      id: '/crm/'
-      path: '/crm'
-      fullPath: '/crm/'
-      preLoaderRoute: typeof CrmIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/crm/$contactId': {
-      id: '/crm/$contactId'
-      path: '/crm/$contactId'
-      fullPath: '/crm/$contactId'
-      preLoaderRoute: typeof CrmContactIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/integrations-hub/': {
@@ -465,13 +425,11 @@ const rootRouteChildren: RootRouteChildren = {
   SignupRoute: SignupRoute,
   SystemSettingsRoute: SystemSettingsRoute,
   AgentsAgentIdRoute: AgentsAgentIdRoute,
-  CrmContactIdRoute: CrmContactIdRoute,
   InviteTokenRoute: InviteTokenRoute,
   MissionsMissionIdRoute: MissionsMissionIdRoute,
   OrganizationMemberIdRoute: OrganizationMemberIdRoute,
   WorkflowEngineWorkflowIdRoute: WorkflowEngineWorkflowIdRoute,
   AgentsIndexRoute: AgentsIndexRoute,
-  CrmIndexRoute: CrmIndexRoute,
   IntegrationsHubIndexRoute: IntegrationsHubIndexRoute,
   MissionsIndexRoute: MissionsIndexRoute,
   OrganizationIndexRoute: OrganizationIndexRoute,
