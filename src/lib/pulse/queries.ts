@@ -1,7 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { useSession } from "@/components/providers/session-provider";
-import { agentsKey } from "@/lib/agents/queries";
 import { scopeKey } from "@/lib/tenancy/keys";
 import type { Scope } from "@/lib/tenancy/types";
 import * as pulseService from "@/services/pulse";
@@ -23,7 +22,7 @@ export function usePulse() {
  * relit la ligne fraîchement écrite, la contrainte unique sur
  * (organization_id, pulse_date) garantissant qu'il n'y en a qu'une à trouver.
  */
-/** Invalide aussi la fiche AI Workforce du CEO Agent : elle affiche le même pulse. */
+/** La fiche du CEO Agent lit la même clé : elle se met à jour avec la carte de l'accueil. */
 export function useGeneratePulse() {
   const { scope } = useSession();
   const queryClient = useQueryClient();
@@ -31,7 +30,6 @@ export function useGeneratePulse() {
     mutationFn: () => pulseService.generatePulse(scope),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: pulseKey(scope) });
-      void queryClient.invalidateQueries({ queryKey: agentsKey(scope) });
     },
   });
 }

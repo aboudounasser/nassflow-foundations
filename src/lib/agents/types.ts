@@ -103,13 +103,3 @@ export interface AgentDetail {
   /** Synthèse Enterprise Pulse du jour — uniquement renseigné pour le CEO Agent. */
   pulse?: Pulse | undefined;
 }
-
-export type AgentSortKey = "name" | "confidence" | "activity";
-export type AgentView = "grid" | "list";
-
-export interface AgentFilters {
-  search: string;
-  domain: AgentDomain | "all";
-  status: AgentStatus | "all";
-  sort: AgentSortKey;
-}
