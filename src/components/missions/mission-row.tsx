@@ -1,30 +1,47 @@
-import { MissionRowContent } from "@/components/missions/recent-mission-row";
-import type { Mission } from "@/lib/missions/types";
-import { cn } from "@/lib/utils";
+import { Link } from "@tanstack/react-router";
 
-/** Une ligne de la liste `/missions` : un clic ouvre le panneau de contexte. */
-export function MissionRow({
-  mission,
-  selected,
-  onSelect,
-}: {
-  mission: Mission;
-  selected: boolean;
-  onSelect: (mission: Mission) => void;
-}) {
+import { Badge } from "@/components/ui/badge";
+import { MISSION_STATUS, missionOutcome } from "@/lib/missions/meta";
+import type { Mission } from "@/lib/missions/types";
+import { formatRelativeScanDate } from "@/lib/scans/meta";
+
+/**
+ * Une mission : titre, statut, ouverture et résultat, en lien vers sa fiche.
+ * Même ligne partout — liste `/missions`, accueil et fiche Sales Agent.
+ */
+export function MissionRow({ mission }: { mission: Mission }) {
+  const status = MISSION_STATUS[mission.status];
+  const StatusIcon = status.icon;
+  const result = missionOutcome(mission);
+
   return (
     <li>
-      <button
-        type="button"
-        aria-pressed={selected}
-        onClick={() => onSelect(mission)}
-        className={cn(
-          "block w-full cursor-pointer rounded-lg border bg-surface p-3 text-left transition-colors duration-150 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-          selected ? "border-primary" : "border-border",
-        )}
+      <Link
+        to="/missions/$missionId"
+        params={{ missionId: mission.id }}
+        className="block rounded-lg border border-border bg-surface p-3 transition-colors duration-150 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
-        <MissionRowContent mission={mission} />
-      </button>
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          <p className="min-w-0 truncate text-[14px] font-medium text-foreground">
+            {mission.title}
+          </p>
+          <Badge variant={status.variant}>
+            <StatusIcon aria-hidden="true" />
+            {status.label}
+          </Badge>
+        </div>
+        <p className="mt-1 text-[12px] text-muted-foreground">
+          Ouverte {formatRelativeScanDate(mission.createdAt)}
+          {result ? (
+            <>
+              {" · "}
+              <span className={result.tone === "destructive" ? "text-destructive" : undefined}>
+                {result.text}
+              </span>
+            </>
+          ) : null}
+        </p>
+      </Link>
     </li>
   );
 }

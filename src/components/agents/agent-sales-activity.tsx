@@ -3,7 +3,7 @@ import { Activity, Lock } from "lucide-react";
 
 import { EmptyState } from "@/components/common/empty-state";
 import { WidgetShell } from "@/components/dashboard/widget-shell";
-import { RecentMissionRow } from "@/components/missions/recent-mission-row";
+import { MissionRow } from "@/components/missions/mission-row";
 import { useSession } from "@/components/providers/session-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -101,7 +101,7 @@ export function AgentSalesActivity() {
             {missions.length > 0 ? (
               <ul className="flex flex-col gap-3">
                 {missions.map((mission) => (
-                  <RecentMissionRow key={mission.id} mission={mission} />
+                  <MissionRow key={mission.id} mission={mission} />
                 ))}
               </ul>
             ) : (

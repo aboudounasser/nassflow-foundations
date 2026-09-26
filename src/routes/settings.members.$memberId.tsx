@@ -2,9 +2,7 @@ import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, TriangleAlert, Users } from "lucide-react";
 
 import { EmptyState } from "@/components/common/empty-state";
-import { useContextPanelContent } from "@/components/layout/context-panel";
 import { MemberActionsMenu } from "@/components/organization/member-actions-menu";
-import { OrgMemberSummaryPanel } from "@/components/organization/org-member-summary-panel";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -50,11 +48,6 @@ function Page() {
 
   const memberQuery = useOrgMember(memberId);
   const member = memberQuery.data ?? null;
-
-  useContextPanelContent(
-    () => (member ? <OrgMemberSummaryPanel member={member} /> : null),
-    [member?.id, member?.role],
-  );
 
   if (memberQuery.isError) {
     return (

@@ -5,14 +5,12 @@ import { useMemo, useState } from "react";
 import { EmptyState } from "@/components/common/empty-state";
 import { GRID_LIST_VIEWS, ModuleToolbar } from "@/components/common/module-toolbar";
 import { WidgetShell } from "@/components/dashboard/widget-shell";
-import { useContextPanel, useContextPanelContent } from "@/components/layout/context-panel";
 import { InvitationsSection } from "@/components/organization/invitations-section";
 import { MemberActionsMenu } from "@/components/organization/member-actions-menu";
 import {
   OrgMemberCard,
   OrgMemberCardSkeletonGrid,
 } from "@/components/organization/org-member-card";
-import { OrgMemberSummaryPanel } from "@/components/organization/org-member-summary-panel";
 import { useSession } from "@/components/providers/session-provider";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -23,7 +21,7 @@ import {
   canAdministerMember,
 } from "@/lib/organization/meta";
 import { useOrgMembers, useOrganizationProfile } from "@/lib/organization/queries";
-import type { MemberFilters, OrgMember, OrgView, SettingsTab } from "@/lib/organization/types";
+import type { MemberFilters, OrgView, SettingsTab } from "@/lib/organization/types";
 
 const DESCRIPTION =
   "Paramètres de l'organisation dans NASSFLOW OS : membres, rôles et invitations en cours.";
@@ -122,8 +120,6 @@ function MembersTab() {
   const { session } = useSession();
   const [filters, setFilters] = useState<MemberFilters>(DEFAULT_FILTERS);
   const [view, setView] = useState<OrgView>("grid");
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const { requestOpen } = useContextPanel();
 
   const membersQuery = useOrgMembers();
   const allMembers = useMemo(() => membersQuery.data ?? [], [membersQuery.data]);
@@ -148,18 +144,6 @@ function MembersTab() {
       return a.name.localeCompare(b.name, "fr");
     });
   }, [filters, allMembers]);
-
-  const selected = allMembers.find((m) => m.id === selectedId) ?? null;
-
-  useContextPanelContent(
-    () => (selected ? <OrgMemberSummaryPanel member={selected} /> : null),
-    [selected?.id, selected?.role],
-  );
-
-  const handleSelect = (member: OrgMember) => {
-    setSelectedId(member.id);
-    requestOpen();
-  };
 
   if (membersQuery.isError) {
     return (
@@ -226,9 +210,7 @@ function MembersTab() {
               <OrgMemberCard
                 key={member.id}
                 member={member}
-                selected={member.id === selectedId}
                 compact={view === "list"}
-                onSelect={handleSelect}
                 actions={
                   canAdministerMember(session.role, member) ? (
                     <MemberActionsMenu member={member} />

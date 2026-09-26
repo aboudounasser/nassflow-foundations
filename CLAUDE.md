@@ -41,9 +41,11 @@ TanStack Start with file-based routing in `src/routes/` (see `src/routes/README.
 
 ### Master Layout
 
-`src/components/layout/app-shell.tsx` implements the normative shell — Top Bar (72px) / Sidebar (280px, 80px collapsed) / Main Content / Context Panel (360px). Main content is a `max-w-[1440px]` **12-column grid**, so every page section must carry a `col-span-*` class (usually `col-span-12`). Don't restructure the shell without an explicit instruction.
+`src/components/layout/app-shell.tsx` implements the shell — Top Bar (72px) / Sidebar (280px, 80px collapsed) / Main Content. Main content is a `max-w-[1440px]` **12-column grid**, so every page section must carry a `col-span-*` class (usually `col-span-12`). Don't restructure the shell without an explicit instruction.
 
-The Context Panel is filled by the current page, not by the layout: call `useContextPanelContent(() => <SomePanel/>, [deps])` to inject content while mounted, and `useContextPanel().requestOpen()` to open the drawer on tablet/mobile.
+**There is no Context Panel any more.** The brief's fourth column was removed in chantier 9 (explicit decision): on real data it only repeated the row or the detail page. A click on a list row or card opens the detail page; actions live on that page (or, for members, in the ⋮ menu rendered _next to_ the card link, never inside it).
+
+The Top Bar holds only real elements: the ☰ menu (below 1024px), the logo, the organization switcher and the user menu (Profil, Déconnexion). Search, notifications, the « AI Status » pill and the Launch Center were removed in chantier 9 because they did nothing.
 
 `src/lib/navigation.ts` holds `NAV_ITEMS` — the modules shown in the sidebar, in normative order (5 since chantier 6, where Organization and System Settings were merged into « Paramètres » at `/settings`; their old URLs were removed in chantier 12 and now show the 404 page). The seven modules hidden in chantier 3 (CRM, Enterprise Brain, Workflow Engine, Insights, Security Center, Billing, Help Center) were deleted in chantier 12, with every fixture they relied on.
 

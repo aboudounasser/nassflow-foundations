@@ -3,7 +3,7 @@ import { ArrowUpRight, History, Lock, Target } from "lucide-react";
 
 import { EmptyState } from "@/components/common/empty-state";
 import { WidgetShell } from "@/components/dashboard/widget-shell";
-import { RecentMissionRow } from "@/components/missions/recent-mission-row";
+import { MissionRow } from "@/components/missions/mission-row";
 import { useSession } from "@/components/providers/session-provider";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -68,7 +68,7 @@ export function RecentMissionsWidget() {
       {canRead ? (
         <ul className="flex flex-col gap-3">
           {missions.map((mission) => (
-            <RecentMissionRow key={mission.id} mission={mission} />
+            <MissionRow key={mission.id} mission={mission} />
           ))}
         </ul>
       ) : (

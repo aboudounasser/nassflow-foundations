@@ -5,9 +5,7 @@ import { useMemo, useState } from "react";
 import { EmptyState } from "@/components/common/empty-state";
 import { ModuleToolbar } from "@/components/common/module-toolbar";
 import { WidgetShell } from "@/components/dashboard/widget-shell";
-import { useContextPanel, useContextPanelContent } from "@/components/layout/context-panel";
 import { ModulePage } from "@/components/layout/page-header";
-import { MissionDetailPanel } from "@/components/missions/mission-detail-panel";
 import { MissionRow } from "@/components/missions/mission-row";
 import { useSession } from "@/components/providers/session-provider";
 import { Button } from "@/components/ui/button";
@@ -15,7 +13,7 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MISSION_FILTER_DESCRIPTORS } from "@/lib/missions/meta";
 import { useMissions } from "@/lib/missions/queries";
-import type { Mission, MissionFilters } from "@/lib/missions/types";
+import type { MissionFilters } from "@/lib/missions/types";
 import { PRIVILEGED_ROLES } from "@/lib/organization/meta";
 
 const DESCRIPTION =
@@ -79,9 +77,7 @@ function ListSkeleton() {
 
 function MissionsList() {
   const [filters, setFilters] = useState<MissionFilters>(DEFAULT_FILTERS);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [page, setPage] = useState(0);
-  const { requestOpen } = useContextPanel();
 
   const missionsQuery = useMissions();
   const allMissions = useMemo(() => missionsQuery.data ?? [], [missionsQuery.data]);
@@ -106,18 +102,6 @@ function MissionsList() {
   const pageCount = Math.max(1, Math.ceil(missions.length / PAGE_SIZE));
   const current = Math.min(page, pageCount - 1);
   const slice = missions.slice(current * PAGE_SIZE, current * PAGE_SIZE + PAGE_SIZE);
-
-  const selected = allMissions.find((m) => m.id === selectedId) ?? null;
-
-  useContextPanelContent(
-    () => (selected ? <MissionDetailPanel mission={selected} /> : null),
-    [selected],
-  );
-
-  const handleSelect = (mission: Mission) => {
-    setSelectedId(mission.id);
-    requestOpen();
-  };
 
   const changeFilters = (next: MissionFilters) => {
     setFilters(next);
@@ -193,12 +177,7 @@ function MissionsList() {
           <div className="space-y-3">
             <ul className="flex flex-col gap-3">
               {slice.map((mission) => (
-                <MissionRow
-                  key={mission.id}
-                  mission={mission}
-                  selected={mission.id === selectedId}
-                  onSelect={handleSelect}
-                />
+                <MissionRow key={mission.id} mission={mission} />
               ))}
             </ul>
 

@@ -214,6 +214,8 @@ MAIN CONTENT (largeur max 1440px, grille 12 colonnes)
 
 Zone centrale. Pour cette première génération, affiche uniquement une page d'accueil placeholder simple : titre "Mission Control" + texte "Fondations posées. Prochaine étape : construction du Dashboard CEO." — rien d'autre.
 
+> Chantier 9 de la refonte : le Context Panel a été retiré par décision explicite. Sur les données réelles, il répétait la ligne ou la fiche ; un clic ouvre désormais la fiche. La référence est la section « Master Layout » de `CLAUDE.md`.
+
 CONTEXT PANEL (largeur 360px, à droite)
 
 Panneau contextuel vide pour l'instant, avec juste un état "Empty" : icône + texte "Aucun contexte sélectionné."

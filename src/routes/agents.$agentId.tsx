@@ -4,10 +4,8 @@ import { ArrowLeft, Bot } from "lucide-react";
 import { AgentConnections } from "@/components/agents/agent-connections";
 import { AgentPulseSection } from "@/components/agents/agent-pulse-section";
 import { AgentSalesActivity } from "@/components/agents/agent-sales-activity";
-import { AgentSummaryPanel } from "@/components/agents/agent-summary-panel";
 import { useAgentState } from "@/components/agents/use-agent-state";
 import { EmptyState } from "@/components/common/empty-state";
-import { useContextPanelContent } from "@/components/layout/context-panel";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -38,8 +36,6 @@ export const Route = createFileRoute("/agents/$agentId")({
 function Page() {
   const { agentId } = Route.useParams();
   const agent = findAvailableAgent(agentId);
-
-  useContextPanelContent(() => (agent ? <AgentSummaryPanel agent={agent} /> : null), [agent?.id]);
 
   if (!agent) {
     return (

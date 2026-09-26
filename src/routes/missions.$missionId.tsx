@@ -3,9 +3,7 @@ import { ArrowLeft, Lock, MailSearch, Target, TriangleAlert, Users } from "lucid
 
 import { EmptyState } from "@/components/common/empty-state";
 import { WidgetShell } from "@/components/dashboard/widget-shell";
-import { useContextPanelContent } from "@/components/layout/context-panel";
 import { MissionActions } from "@/components/missions/mission-actions";
-import { MissionDetailPanel } from "@/components/missions/mission-detail-panel";
 import { useSession } from "@/components/providers/session-provider";
 import { RunResultCard } from "@/components/scans/run-result-card";
 import { Badge } from "@/components/ui/badge";
@@ -76,11 +74,6 @@ function MissionPage() {
   const { missionId } = Route.useParams();
   const missionQuery = useMission(missionId);
   const mission = missionQuery.data ?? null;
-
-  useContextPanelContent(
-    () => (mission ? <MissionDetailPanel mission={mission} /> : null),
-    [mission],
-  );
 
   if (missionQuery.isError) {
     return (

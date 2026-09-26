@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -6,31 +7,29 @@ import { MEMBER_ROLE, formatOrgDate, memberInitials } from "@/lib/organization/m
 import type { OrgMember } from "@/lib/organization/types";
 import { cn } from "@/lib/utils";
 
+/**
+ * Carte d'un membre : la zone principale mène à sa fiche. Le menu d'actions
+ * est rendu à côté du lien, jamais dedans — un élément interactif ne peut pas
+ * être imbriqué dans un `<a>`, et l'ouvrir ne doit pas naviguer.
+ */
 export function OrgMemberCard({
   member,
-  selected = false,
   compact = false,
-  onSelect,
   actions,
 }: {
   member: OrgMember;
-  selected?: boolean;
   compact?: boolean;
-  onSelect?: (member: OrgMember) => void;
-  /** Rendu hors du bouton de sélection : un bouton ne peut pas en contenir un autre. */
   actions?: ReactNode;
 }) {
   const role = MEMBER_ROLE[member.role];
 
   return (
     <div className="relative">
-      <button
-        type="button"
-        aria-pressed={selected}
-        onClick={() => onSelect?.(member)}
+      <Link
+        to="/settings/members/$memberId"
+        params={{ memberId: member.id }}
         className={cn(
-          "flex w-full cursor-pointer flex-col gap-3 rounded-lg border bg-surface p-4 text-left transition-colors duration-150 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-          selected ? "border-primary" : "border-border",
+          "flex w-full flex-col gap-3 rounded-lg border border-border bg-surface p-4 text-left transition-colors duration-150 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
           compact && "gap-2 p-3",
         )}
       >
@@ -54,7 +53,7 @@ export function OrgMemberCard({
         <p className="text-[12px] text-muted-foreground">
           Arrivé·e le {formatOrgDate(member.joinedAt)}
         </p>
-      </button>
+      </Link>
       {actions ? <div className="absolute right-1 top-1">{actions}</div> : null}
     </div>
   );

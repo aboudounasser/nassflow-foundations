@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Check, ChevronDown, Menu, PanelRight } from "lucide-react";
+import { Check, ChevronDown, Menu } from "lucide-react";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -13,13 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useSession } from "@/components/providers/session-provider";
 
-export function TopBar({
-  onOpenMenu,
-  onOpenContext,
-}: {
-  onOpenMenu: () => void;
-  onOpenContext: () => void;
-}) {
+export function TopBar({ onOpenMenu }: { onOpenMenu: () => void }) {
   const { session, organizations, switchOrganization, signOut } = useSession();
 
   return (
@@ -68,16 +62,6 @@ export function TopBar({
       </DropdownMenu>
 
       <div className="ml-auto flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="xl:hidden"
-          onClick={onOpenContext}
-          aria-label="Ouvrir le panneau contextuel"
-        >
-          <PanelRight />
-        </Button>
-
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" aria-label="Menu utilisateur">
