@@ -24,7 +24,12 @@ export function SidebarNav({
     >
       <ul className="flex-1 space-y-1 overflow-y-auto p-4">
         {NAV_ITEMS.map((item) => {
-          const active = pathname === item.to;
+          // Actif aussi sur les sous-pages (/missions/<id>, /settings/members/<id>…) ;
+          // « / » ne l'est que sur l'accueil, sans quoi il le serait partout.
+          const active =
+            item.to === "/"
+              ? pathname === "/"
+              : pathname === item.to || pathname.startsWith(`${item.to}/`);
           return (
             <li key={item.to}>
               <Link
