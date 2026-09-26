@@ -1,24 +1,20 @@
 import {
   Archive,
   Ban,
-  Calendar,
   CheckCircle2,
   CircleDashed,
   CirclePause,
   CircleSlash,
   Clock,
-  LayoutGrid,
-  List,
   Play,
   TriangleAlert,
   XCircle,
   type LucideIcon,
 } from "lucide-react";
 
-import type { FilterDescriptor, ViewDescriptor } from "@/lib/toolbar/types";
-import { PRIORITY_BADGE } from "@/lib/dashboard/meta";
-import type { Mission, Priority } from "@/lib/dashboard/types";
-import type { Mission as MissionRecord, MissionStatus, MissionStepStatus } from "./types";
+import type { FilterDescriptor } from "@/lib/toolbar/types";
+import type { Mission } from "@/lib/dashboard/types";
+import type { Mission as MissionRecord, MissionStatus } from "./types";
 
 export type BadgeVariant = "neutral" | "primary" | "success" | "warning" | "destructive" | "info";
 
@@ -41,35 +37,8 @@ export const MISSION_STATUS: Record<
   done: { label: "Terminée", variant: "success", icon: CheckCircle2 },
 };
 
-export const STEP_STATUS: Record<
-  MissionStepStatus,
-  { label: string; icon: LucideIcon; className: string }
-> = {
-  pending: { label: "En attente", icon: CircleDashed, className: "text-muted-foreground" },
-  running: { label: "En cours", icon: Play, className: "text-primary" },
-  done: { label: "Terminée", icon: CheckCircle2, className: "text-success" },
-  failed: { label: "Échouée", icon: XCircle, className: "text-destructive" },
-};
-
-export const KANBAN_COLUMNS: { id: string; label: string; statuses: MissionStatus[] }[] = [
-  { id: "draft", label: "Draft", statuses: ["draft"] },
-  { id: "ready", label: "Ready", statuses: ["ready"] },
-  { id: "running", label: "Running", statuses: ["running"] },
-  { id: "waiting", label: "Waiting / Blocked", statuses: ["waiting", "blocked"] },
-  { id: "completed", label: "Completed", statuses: ["completed"] },
-];
-
-export const ARCHIVE_STATUSES: MissionStatus[] = ["failed", "cancelled", "archived"];
-
 /** Statuts depuis lesquels le bouton "Archiver" est proposé — états finaux uniquement. */
 export const ARCHIVABLE_STATUSES: MissionStatus[] = ["completed", "failed", "cancelled"];
-
-export const PRIORITY_WEIGHT: Record<string, number> = {
-  critical: 0,
-  high: 1,
-  medium: 2,
-  low: 3,
-};
 
 const DATE_FMT = new Intl.DateTimeFormat("fr-FR", {
   day: "numeric",
@@ -83,40 +52,6 @@ export function formatDueDate(value: string): string {
   if (Number.isNaN(date.getTime())) return value;
   return DATE_FMT.format(date);
 }
-
-const DATETIME_FMT = new Intl.DateTimeFormat("fr-FR", {
-  day: "numeric",
-  month: "short",
-  hour: "2-digit",
-  minute: "2-digit",
-  timeZone: "UTC",
-});
-
-export function formatDateTime(value: string): string {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return DATETIME_FMT.format(date);
-}
-
-export const MISSION_STATUS_ORDER: MissionStatus[] = [
-  "draft",
-  "ready",
-  "running",
-  "waiting",
-  "blocked",
-  "completed",
-  "failed",
-  "cancelled",
-  "archived",
-];
-
-export const PRIORITY_ORDER: Priority[] = ["critical", "high", "medium", "low"];
-
-export const MISSION_VIEWS: ViewDescriptor[] = [
-  { value: "list", label: "Liste", icon: List },
-  { value: "kanban", label: "Kanban", icon: LayoutGrid },
-  { value: "calendar", label: "Calendrier", icon: Calendar },
-];
 
 /**
  * Statuts que la base peut réellement contenir, dans l'ordre du cycle de vie.

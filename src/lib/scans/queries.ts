@@ -19,15 +19,6 @@ function runResultsKey(scope: Scope, runId: string): readonly unknown[] {
   return [...runResultsRootKey(scope), runId];
 }
 
-/**
- * Sous le préfixe commun, et non à côté : l'invalidation de `usePushToCrm`
- * porte sur `runResultsRootKey`, elle couvre donc la liste cumulative sans
- * avoir à la connaître.
- */
-function recentProspectsKey(scope: Scope): readonly unknown[] {
-  return [...runResultsRootKey(scope), "recent"];
-}
-
 /** Même préfixe : un envoi au CRM retire le prospect du bloc « À valider ». */
 function pendingProspectsKey(scope: Scope): readonly unknown[] {
   return [...runResultsRootKey(scope), "pending"];
@@ -38,20 +29,6 @@ export function useRuns() {
   return useQuery({
     queryKey: runsKey(scope),
     queryFn: () => scansService.listRuns(scope),
-  });
-}
-
-/**
- * Tous les prospects de l'organisation, groupés par analyse.
- *
- * Distinct de `useRunResults` : celui-ci ne dépend d'aucune exécution, et
- * reste donc renseigné quand la dernière analyse n'a rien trouvé.
- */
-export function useRecentProspects() {
-  const { scope } = useSession();
-  return useQuery({
-    queryKey: recentProspectsKey(scope),
-    queryFn: () => scansService.listRecentProspects(scope),
   });
 }
 

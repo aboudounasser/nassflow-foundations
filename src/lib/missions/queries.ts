@@ -37,15 +37,6 @@ export function useMission(missionId: string) {
   });
 }
 
-export function useCancelMission() {
-  const { scope } = useSession();
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (missionId: string) => missionsService.cancelMission(scope, missionId),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: missionsKey(scope) }),
-  });
-}
-
 export function useArchiveMission() {
   const { scope } = useSession();
   const queryClient = useQueryClient();

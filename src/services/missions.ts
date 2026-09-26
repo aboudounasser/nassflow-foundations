@@ -154,17 +154,6 @@ export async function getMission(scope: Scope, missionId: string): Promise<Missi
   return data ? toMission(data) : null;
 }
 
-/** Annule une mission en cours : passe `missions.status` à `cancelled`. */
-export async function cancelMission(scope: Scope, missionId: string): Promise<void> {
-  const { error } = await supabase
-    .from("missions")
-    .update({ status: "cancelled" })
-    .eq("id", missionId)
-    .eq("organization_id", scope.organizationId);
-
-  if (error) throw new Error(error.message);
-}
-
 /**
  * Archive une mission terminée : elle sort de la liste par défaut mais reste
  * consultable via le filtre "Statuts". `fromStatus` est celui déjà détenu par

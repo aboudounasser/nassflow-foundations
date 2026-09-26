@@ -29,13 +29,6 @@ export function SecurityEventItem({
         navigate({ to: "/agents/$agentId", params: { agentId: link.agentId as string } }),
     });
   }
-  if (link?.missionId) {
-    links.push({
-      label: "Voir la mission",
-      onClick: () =>
-        navigate({ to: "/missions/$missionId", params: { missionId: link.missionId as string } }),
-    });
-  }
   if (link?.workflowId) {
     links.push({
       label: "Voir le workflow",

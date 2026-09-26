@@ -32,14 +32,6 @@ const CRM_FALLBACK_ERROR = "L'envoi vers le CRM n'a pas abouti. Réessayez plus 
 const RUNS_LIMIT = 20;
 
 /**
- * Plafond de la liste cumulative des prospects. Il porte sur les lignes
- * `run_results`, donc avant regroupement : le groupe le plus ancien affiché
- * peut être tronqué. Préféré à une limite en nombre de runs, qui obligerait à
- * deux allers-retours.
- */
-const PROSPECTS_LIMIT = 50;
-
-/**
  * Plafond du bloc « À valider » de l'accueil. Il porte sur les seuls prospects
  * en attente, filtrés en base : un stock ancien jamais envoyé reste donc
  * visible, quel que soit le nombre de prospects déjà traités depuis.
@@ -83,17 +75,6 @@ function toCount(value: number | null): number {
 
 function toNumber(value: unknown): number | null {
   return typeof value === "number" && Number.isFinite(value) ? value : null;
-}
-
-/**
- * Date de début de l'analyse jointe. La ligne vient de PostgREST : elle est
- * validée comme le reste plutôt qu'acceptée en confiance, et une jointure
- * inattendue dégrade en chaîne vide — `formatScanDateTime` la rend « — ».
- */
-function toStartedAt(value: unknown): string {
-  if (typeof value !== "object" || value === null) return "";
-  const started = (value as { started_at?: unknown }).started_at;
-  return typeof started === "string" ? started : "";
 }
 
 /** Champ de `extracted` : tout ce qui n'est pas une chaîne non vide vaut absent. */
@@ -204,16 +185,14 @@ export async function listRuns(scope: Scope): Promise<Run[]> {
 
 /**
  * Colonnes d'un prospect extrait. Partagées par la lecture d'une exécution
- * précise et par la liste cumulative, pour que les deux ne puissent pas
- * diverger.
+ * précise et par la liste des prospects en attente, pour que les deux ne
+ * puissent pas diverger.
  */
 const RESULT_COLUMNS =
   "id, run_id, source_message_id, source_subject, source_from, source_date, extracted, confidence, reasoning, created_at, pushed_to_crm_at, crm_contact_id, crm_action";
 
 /**
- * Forme d'une ligne de `run_results` telle qu'elle revient de PostgREST. Décrite
- * structurellement : la requête groupée y ajoute la jointure `runs`, ce qui
- * reste compatible.
+ * Forme d'une ligne de `run_results` telle qu'elle revient de PostgREST.
  */
 interface RunResultRow {
   id: string;
@@ -268,59 +247,6 @@ export async function getRunResults(scope: Scope, runId: string): Promise<RunRes
   return (data ?? []).map(toRunResult);
 }
 
-/** Les prospects d'une même analyse, avec la date de celle-ci. */
-export interface ProspectRunGroup {
-  runId: string;
-  /** Début de l'analyse, pas date d'écriture du résultat. */
-  startedAt: string;
-  results: RunResult[];
-}
-
-/**
- * Tous les prospects de l'organisation, groupés par analyse, la plus récente
- * d'abord.
- *
- * Complète `getRunResults()` plutôt qu'elle ne la remplace : l'écran des
- * analyses montrait les seuls résultats de la dernière exécution, si bien
- * qu'un prospect trouvé la semaine passée devenait invisible dès l'analyse
- * suivante — laquelle ne retrouve rien, `seen_messages` ayant déjà écarté ses
- * messages.
- *
- * La date vient de `runs` par jointure, et non de la liste des exécutions déjà
- * chargée par l'écran : celle-ci est plafonnée à {@link RUNS_LIMIT}, et un
- * prospect plus ancien s'y retrouverait sans date. Le `!inner` n'écarte rien
- * au passage — `runs` et `run_results` partagent la même politique RLS.
- */
-export async function listRecentProspects(scope: Scope): Promise<ProspectRunGroup[]> {
-  const { data, error } = await supabase
-    .from("run_results")
-    .select(`${RESULT_COLUMNS}, runs!inner(started_at)`)
-    .eq("organization_id", scope.organizationId)
-    .order("created_at", { ascending: false })
-    .limit(PROSPECTS_LIMIT);
-
-  if (error) throw new Error(error.message);
-
-  // L'ordre d'insertion de la Map conserve le tri de la requête : les groupes
-  // sortent du plus récent au plus ancien sans second tri.
-  const groups = new Map<string, ProspectRunGroup>();
-
-  for (const row of data ?? []) {
-    const existing = groups.get(row.run_id);
-    if (existing) {
-      existing.results.push(toRunResult(row));
-      continue;
-    }
-    groups.set(row.run_id, {
-      runId: row.run_id,
-      startedAt: toStartedAt(row.runs),
-      results: [toRunResult(row)],
-    });
-  }
-
-  return [...groups.values()];
-}
-
 /** Prospects pas encore envoyés au CRM, et leur nombre total. */
 export interface PendingProspects {
   results: RunResult[];
@@ -330,9 +256,8 @@ export interface PendingProspects {
 
 /**
  * Prospects en attente de décision, les plus récents d'abord, toutes analyses
- * confondues. Le filtre sur `pushed_to_crm_at` est fait en base et non sur la
- * liste cumulative de {@link listRecentProspects} : celle-ci est plafonnée
- * avant filtrage, et masquerait un prospect en attente derrière cinquante
+ * confondues. Le filtre sur `pushed_to_crm_at` est fait en base : filtrer une
+ * liste plafonnée après coup masquerait un prospect en attente derrière des
  * prospects déjà envoyés.
  */
 export async function listPendingProspects(scope: Scope): Promise<PendingProspects> {

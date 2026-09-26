@@ -77,8 +77,6 @@ export interface MissionDetail extends Omit<DashboardMission, "status" | "agents
   history: MissionHistoryEntry[];
 }
 
-export type MissionView = "list" | "kanban" | "calendar";
-
 /* ---------- Missions réelles (table `missions` et son run) ---------- */
 
 /** Le run qui a ouvert la mission — colonnes de `runs`, réservées aux owner et admin. */
