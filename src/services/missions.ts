@@ -93,6 +93,73 @@ export async function getMissions(scope: Scope): Promise<MissionsListData> {
   };
 }
 
+/** Nombre de missions affichées dans le bloc « Dernière activité » de l'accueil. */
+const RECENT_MISSIONS_LIMIT = 5;
+
+/**
+ * Une mission récente et le résultat de l'analyse qui l'a ouverte.
+ *
+ * `prospectsFound` et `errorMessage` viennent de `runs`, que la RLS réserve aux
+ * owner et admin : pour les autres rôles, la jointure revient vide et les deux
+ * champs valent `null` — la mission reste listée, sans son résultat.
+ */
+export interface RecentMission {
+  id: string;
+  title: string;
+  status: MissionStatus;
+  createdAt: string;
+  prospectsFound: number | null;
+  errorMessage: string | null;
+}
+
+/**
+ * Jointure `runs` rétrécie comme le reste : PostgREST la renvoie en objet pour
+ * une clé étrangère portée par `missions`, mais une forme inattendue dégrade
+ * en « résultat inconnu » plutôt qu'en erreur.
+ */
+function toRunOutcome(value: unknown): Pick<RecentMission, "prospectsFound" | "errorMessage"> {
+  const run = (Array.isArray(value) ? value[0] : value) as
+    { prospects_found?: unknown; error_message?: unknown } | null | undefined;
+  if (typeof run !== "object" || run === null) return { prospectsFound: null, errorMessage: null };
+  return {
+    prospectsFound: typeof run.prospects_found === "number" ? run.prospects_found : null,
+    errorMessage:
+      typeof run.error_message === "string" && run.error_message.length > 0
+        ? run.error_message
+        : null,
+  };
+}
+
+/**
+ * Les dernières missions non archivées, les plus récemment ouvertes d'abord.
+ * Tri sur `created_at` et non `updated_at` : annuler une vieille mission ne
+ * doit pas la faire remonter en tête de l'activité.
+ */
+export async function listRecentMissions(scope: Scope): Promise<RecentMission[]> {
+  const { data, error } = await supabase
+    .from("missions")
+    // Deux clés étrangères relient `missions` à `runs` : sans indice, PostgREST
+    // refuse l'embed comme ambigu (PGRST201). La clé composite garantit en plus
+    // que le run appartient à la même organisation que la mission.
+    .select(
+      "id, title, status, created_at, runs!missions_run_org_fkey(prospects_found, error_message)",
+    )
+    .eq("organization_id", scope.organizationId)
+    .neq("status", "archived")
+    .order("created_at", { ascending: false })
+    .limit(RECENT_MISSIONS_LIMIT);
+
+  if (error) throw new Error(error.message);
+
+  return (data ?? []).map((row) => ({
+    id: row.id,
+    title: row.title,
+    status: toMissionStatus(row.status),
+    createdAt: row.created_at,
+    ...toRunOutcome(row.runs),
+  }));
+}
+
 /** Agrégat de la vue détail : inclut toutes les missions (dépendances croisées). */
 export interface MissionDetailData {
   mission: MissionDetail;

@@ -39,6 +39,13 @@ const RUNS_LIMIT = 20;
  */
 const PROSPECTS_LIMIT = 50;
 
+/**
+ * Plafond du bloc « À valider » de l'accueil. Il porte sur les seuls prospects
+ * en attente, filtrés en base : un stock ancien jamais envoyé reste donc
+ * visible, quel que soit le nombre de prospects déjà traités depuis.
+ */
+const PENDING_LIMIT = 20;
+
 function errorFromBody(body: unknown): string | null {
   if (typeof body !== "object" || body === null) return null;
   const message = (body as { error?: unknown }).error;
@@ -312,6 +319,35 @@ export async function listRecentProspects(scope: Scope): Promise<ProspectRunGrou
   }
 
   return [...groups.values()];
+}
+
+/** Prospects pas encore envoyés au CRM, et leur nombre total. */
+export interface PendingProspects {
+  results: RunResult[];
+  /** Total réel en base : peut dépasser `results.length`, plafonné à {@link PENDING_LIMIT}. */
+  total: number;
+}
+
+/**
+ * Prospects en attente de décision, les plus récents d'abord, toutes analyses
+ * confondues. Le filtre sur `pushed_to_crm_at` est fait en base et non sur la
+ * liste cumulative de {@link listRecentProspects} : celle-ci est plafonnée
+ * avant filtrage, et masquerait un prospect en attente derrière cinquante
+ * prospects déjà envoyés.
+ */
+export async function listPendingProspects(scope: Scope): Promise<PendingProspects> {
+  const { data, error, count } = await supabase
+    .from("run_results")
+    .select(RESULT_COLUMNS, { count: "exact" })
+    .eq("organization_id", scope.organizationId)
+    .is("pushed_to_crm_at", null)
+    .order("created_at", { ascending: false })
+    .limit(PENDING_LIMIT);
+
+  if (error) throw new Error(error.message);
+
+  const results = (data ?? []).map(toRunResult);
+  return { results, total: count ?? results.length };
 }
 
 /**

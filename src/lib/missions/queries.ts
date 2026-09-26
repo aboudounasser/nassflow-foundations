@@ -7,7 +7,7 @@ import type { Scope } from "@/lib/tenancy/types";
 import * as missionsService from "@/services/missions";
 
 /** Préfixe commun à la liste et aux fiches : une invalidation couvre les deux. */
-function missionsKey(scope: Scope): readonly unknown[] {
+export function missionsKey(scope: Scope): readonly unknown[] {
   return [...scopeKey(scope), "missions"];
 }
 
@@ -16,6 +16,15 @@ export function useMissions() {
   return useQuery({
     queryKey: [...missionsKey(scope), "list"],
     queryFn: () => missionsService.getMissions(scope),
+  });
+}
+
+/** Les dernières missions non archivées — le bloc « Dernière activité » de l'accueil. */
+export function useRecentMissions() {
+  const { scope } = useSession();
+  return useQuery({
+    queryKey: [...missionsKey(scope), "recent"],
+    queryFn: () => missionsService.listRecentMissions(scope),
   });
 }
 
