@@ -155,7 +155,7 @@ function ConnectionRow({ connection }: { connection: Connection }) {
 }
 
 /**
- * Comptes externes réellement raccordés, par opposition au catalogue mocké.
+ * Comptes externes réellement raccordés à l'organisation.
  * Les actions de connexion ne sont proposées qu'aux rôles que les Edge
  * Functions `gmail-oauth-start` et `hubspot-oauth-start` acceptent : masquer
  * les boutons ailleurs évite un 403 promis d'avance, la vérification faisant
