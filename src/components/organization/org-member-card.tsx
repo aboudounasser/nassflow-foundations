@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { MEMBER_ROLE, MEMBER_STATUS, formatOrgDate, memberInitials } from "@/lib/organization/meta";
+import { MEMBER_ROLE, formatOrgDate, memberInitials } from "@/lib/organization/meta";
 import type { OrgMember } from "@/lib/organization/types";
 import { cn } from "@/lib/utils";
 
@@ -21,8 +21,6 @@ export function OrgMemberCard({
   actions?: ReactNode;
 }) {
   const role = MEMBER_ROLE[member.role];
-  const status = MEMBER_STATUS[member.status];
-  const StatusIcon = status.icon;
 
   return (
     <div className="relative">
@@ -47,12 +45,7 @@ export function OrgMemberCard({
         </div>
 
         <div className="flex flex-wrap items-center gap-1">
-          <Badge variant="info">{member.department}</Badge>
           <Badge variant={role.variant}>{role.label}</Badge>
-          <Badge variant={status.variant}>
-            <StatusIcon aria-hidden="true" />
-            {status.label}
-          </Badge>
         </div>
 
         {compact ? null : (

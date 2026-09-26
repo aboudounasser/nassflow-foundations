@@ -65,12 +65,13 @@ export interface OrganizationProfile {
 
 export type OrgTab = "directory" | "departments";
 export type OrgView = "grid" | "list";
-export type MemberSortKey = "name" | "joinedAt" | "department";
+export type MemberSortKey = "name" | "joinedAt";
 
 export interface MemberFilters {
   search: string;
-  department: string | "all";
   role: MemberRole | "all";
-  status: MemberStatus | "all";
   sort: MemberSortKey;
 }
+
+/** Onglets de la page Paramètres, portés par `?tab=`. */
+export type SettingsTab = "members" | "invitations";

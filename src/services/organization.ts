@@ -3,7 +3,6 @@ import {
   agentsInDepartment,
   companyProfileMock,
   departmentsMock,
-  directReports,
   membersInDepartment,
   orgMemberById,
 } from "@/lib/organization/mocks";
@@ -79,21 +78,56 @@ export async function getDepartmentSummaries(_scope: Scope): Promise<DepartmentS
   );
 }
 
+/** Colonnes lues dans `memberships` pour un membre de l'annuaire. */
+interface MembershipRow {
+  id: string;
+  user_id: string;
+  role: MemberRole;
+  created_at: string;
+}
+
+/** Colonnes lues dans `profiles`. */
+interface ProfileRow {
+  id: string;
+  email: string | null;
+  full_name: string | null;
+  job_title: string | null;
+}
+
 /**
- * Annuaire réel — seule lecture du module branchée sur la base.
- *
- * Champs réels, lus dans `memberships` et `profiles` :
- *   membershipId, userId (memberships.id, memberships.user_id)
- *   role, joinedAt        (memberships.role, memberships.created_at)
- *   email, name, jobTitle (profiles.email, full_name, job_title)
+ * Assemble un membre à partir de son appartenance et de son profil. Partagée
+ * par l'annuaire et par la fiche, pour que les deux ne puissent pas diverger.
  *
  * Champs en attente d'une colonne, valeur neutre explicite plutôt qu'inventée :
  *   department → "Non renseigné"   status → "active"
  *   avatar     → null              managerId → null
+ * L'interface n'affiche ni le département ni le statut.
+ */
+function toOrgMember(membership: MembershipRow, profile: ProfileRow | null | undefined): OrgMember {
+  const email = profile?.email ?? "";
+  return {
+    id: membership.id,
+    membershipId: membership.id,
+    userId: membership.user_id,
+    name: profile?.full_name ?? email,
+    email,
+    jobTitle: profile?.job_title ?? "",
+    department: UNASSIGNED_DEPARTMENT,
+    role: membership.role,
+    status: "active",
+    avatar: null,
+    managerId: null,
+    joinedAt: membership.created_at,
+  };
+}
+
+/**
+ * Annuaire réel, lu dans `memberships` et `profiles`.
  *
- * Conséquence assumée le temps de la transition : l'onglet Départements, le
- * filtre par département et la fiche détaillée continuent de s'appuyer sur les
- * fixtures, via getDepartmentSummaries et getOrgMember restés inchangés.
+ * Champs réels :
+ *   membershipId, userId (memberships.id, memberships.user_id)
+ *   role, joinedAt        (memberships.role, memberships.created_at)
+ *   email, name, jobTitle (profiles.email, full_name, job_title)
  */
 export async function getOrgMembers(scope: Scope): Promise<OrgMember[]> {
   const { data, error } = await supabase
@@ -120,37 +154,40 @@ export async function getOrgMembers(scope: Scope): Promise<OrgMember[]> {
 
   const profiles = new Map((profileRows ?? []).map((profile) => [profile.id, profile]));
 
-  return memberships.map((membership) => {
-    const profile = profiles.get(membership.user_id);
-    const email = profile?.email ?? "";
-    return {
-      id: membership.id,
-      membershipId: membership.id,
-      userId: membership.user_id,
-      name: profile?.full_name ?? email,
-      email,
-      jobTitle: profile?.job_title ?? "",
-      department: UNASSIGNED_DEPARTMENT,
-      role: membership.role,
-      status: "active",
-      avatar: null,
-      managerId: null,
-      joinedAt: membership.created_at,
-    };
-  });
+  return memberships.map((membership) => toOrgMember(membership, profiles.get(membership.user_id)));
 }
 
-export async function getOrgMember(
-  _scope: Scope,
-  memberId: string,
-): Promise<OrgMemberDetail | null> {
-  const member = orgMemberById(memberId);
-  if (!member) return delay(null);
-  return delay({
-    member,
-    directReports: directReports(member.id),
-    departmentAgents: agentsInDepartment(member.department),
-  });
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * Un membre de l'annuaire réel, par identifiant d'appartenance.
+ *
+ * Un identifiant qui n'a pas la forme d'un UUID ne peut désigner aucune ligne :
+ * il vaut « introuvable » sans interroger la base, qui répondrait sinon par une
+ * erreur de syntaxe (22P02) et ferait afficher « Impossible de charger ».
+ */
+export async function getOrgMember(scope: Scope, memberId: string): Promise<OrgMember | null> {
+  if (!UUID_PATTERN.test(memberId)) return null;
+
+  const { data: membership, error } = await supabase
+    .from("memberships")
+    .select("id, user_id, role, created_at")
+    .eq("organization_id", scope.organizationId)
+    .eq("id", memberId)
+    .maybeSingle();
+
+  if (error) throw new Error(error.message);
+  if (!membership) return null;
+
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("id, email, full_name, job_title")
+    .eq("id", membership.user_id)
+    .maybeSingle();
+
+  if (profileError) throw new Error(profileError.message);
+
+  return toOrgMember(membership, profile);
 }
 
 /**

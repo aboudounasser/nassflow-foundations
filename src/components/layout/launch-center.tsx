@@ -28,7 +28,8 @@ const LAUNCH_ACTIONS = [
     label: "Inviter un collaborateur",
     description: "Ajouter un membre à votre organisation",
     icon: UserPlus,
-    to: "/organization",
+    to: "/settings",
+    search: { tab: "invitations" },
   },
 ] as const;
 
@@ -46,7 +47,11 @@ export function LaunchCenter() {
         <DropdownMenuSeparator />
         {LAUNCH_ACTIONS.map((action) => (
           <DropdownMenuItem key={action.label} asChild>
-            <Link to={action.to} className="flex items-start gap-3">
+            <Link
+              to={action.to}
+              search={"search" in action ? action.search : {}}
+              className="flex items-start gap-3"
+            >
               <action.icon className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
               <span className="flex flex-col">
                 <span className="text-[14px] text-foreground">{action.label}</span>

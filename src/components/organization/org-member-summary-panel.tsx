@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import {
   MEMBER_ROLE,
-  MEMBER_STATUS,
   formatOrgDate,
   formatSeniority,
   memberInitials,
@@ -15,19 +14,8 @@ import {
 import type { OrgMember } from "@/lib/organization/types";
 
 /** Résumé compact d'un membre — Context Panel global. */
-export function OrgMemberSummaryPanel({
-  member,
-  manager,
-  reportCount,
-  agentCount,
-}: {
-  member: OrgMember;
-  manager: OrgMember | null;
-  reportCount: number;
-  agentCount: number;
-}) {
+export function OrgMemberSummaryPanel({ member }: { member: OrgMember }) {
   const role = MEMBER_ROLE[member.role];
-  const status = MEMBER_STATUS[member.status];
   const navigate = useNavigate();
 
   return (
@@ -44,9 +32,7 @@ export function OrgMemberSummaryPanel({
         </div>
 
         <div className="flex flex-wrap gap-1">
-          <Badge variant="info">{member.department}</Badge>
           <Badge variant={role.variant}>{role.label}</Badge>
-          <Badge variant={status.variant}>{status.label}</Badge>
         </div>
 
         <Separator />
@@ -64,18 +50,6 @@ export function OrgMemberSummaryPanel({
             <dt className="text-[12px] text-muted-foreground">Ancienneté</dt>
             <dd className="text-foreground">{formatSeniority(member.joinedAt)}</dd>
           </div>
-          <div className="col-span-2 min-w-0">
-            <dt className="text-[12px] text-muted-foreground">Manager</dt>
-            <dd className="truncate text-foreground">{manager ? manager.name : "—"}</dd>
-          </div>
-          <div>
-            <dt className="text-[12px] text-muted-foreground">Membres rattachés</dt>
-            <dd className="text-foreground tabular-nums">{reportCount}</dd>
-          </div>
-          <div>
-            <dt className="text-[12px] text-muted-foreground">Agents IA du département</dt>
-            <dd className="text-foreground tabular-nums">{agentCount}</dd>
-          </div>
         </dl>
       </div>
 
@@ -84,7 +58,7 @@ export function OrgMemberSummaryPanel({
           variant="secondary"
           size="sm"
           onClick={() =>
-            navigate({ to: "/organization/$memberId", params: { memberId: member.id } })
+            navigate({ to: "/settings/members/$memberId", params: { memberId: member.id } })
           }
         >
           <Maximize2 />

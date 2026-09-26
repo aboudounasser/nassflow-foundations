@@ -80,45 +80,29 @@ export function formatSeniority(iso: string, now: Date = new Date()): string {
   return rest === 0 ? y : `${y} et ${rest} mois`;
 }
 
-export function memberFilterDescriptors(departments: string[]): FilterDescriptor[] {
-  return [
-    {
-      kind: "select",
-      key: "department",
-      ariaLabel: "Filtrer par département",
-      placeholder: "Département",
-      allLabel: "Tous les départements",
-      minWidth: "min-w-[180px]",
-      options: departments.map((d) => ({ value: d, label: d })),
-    },
-    {
-      kind: "select",
-      key: "role",
-      ariaLabel: "Filtrer par rôle",
-      placeholder: "Rôle",
-      allLabel: "Tous les rôles",
-      minWidth: "min-w-[170px]",
-      options: MEMBER_ROLE_ORDER.map((r) => ({ value: r, label: MEMBER_ROLE[r].label })),
-    },
-    {
-      kind: "select",
-      key: "status",
-      ariaLabel: "Filtrer par statut",
-      placeholder: "Statut",
-      allLabel: "Tous les statuts",
-      minWidth: "min-w-[170px]",
-      options: MEMBER_STATUS_ORDER.map((s) => ({ value: s, label: MEMBER_STATUS[s].label })),
-    },
-    {
-      kind: "sort",
-      key: "sort",
-      ariaLabel: "Trier les membres",
-      minWidth: "min-w-[190px]",
-      options: [
-        { value: "name", label: "Nom" },
-        { value: "joinedAt", label: "Date d'arrivée" },
-        { value: "department", label: "Département" },
-      ],
-    },
-  ];
-}
+/**
+ * Filtres de l'annuaire réel : rôle et tri. Pas de filtre par département ni
+ * par statut — ces colonnes n'existent pas en base, tous les membres y
+ * auraient la même valeur.
+ */
+export const MEMBER_FILTER_DESCRIPTORS: FilterDescriptor[] = [
+  {
+    kind: "select",
+    key: "role",
+    ariaLabel: "Filtrer par rôle",
+    placeholder: "Rôle",
+    allLabel: "Tous les rôles",
+    minWidth: "min-w-[170px]",
+    options: MEMBER_ROLE_ORDER.map((r) => ({ value: r, label: MEMBER_ROLE[r].label })),
+  },
+  {
+    kind: "sort",
+    key: "sort",
+    ariaLabel: "Trier les membres",
+    minWidth: "min-w-[190px]",
+    options: [
+      { value: "name", label: "Nom" },
+      { value: "joinedAt", label: "Date d'arrivée" },
+    ],
+  },
+];

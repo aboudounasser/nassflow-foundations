@@ -45,7 +45,7 @@ TanStack Start with file-based routing in `src/routes/` (see `src/routes/README.
 
 The Context Panel is filled by the current page, not by the layout: call `useContextPanelContent(() => <SomePanel/>, [deps])` to inject content while mounted, and `useContextPanel().requestOpen()` to open the drawer on tablet/mobile.
 
-`src/lib/navigation.ts` holds `NAV_ITEMS` — the modules shown in the sidebar, in normative order (6 since chantier 3). CRM, Enterprise Brain, Workflow Engine, Insights, Security Center, Billing and Help Center are hidden from navigation, but their routes, services and mocks stay in place (still reachable by URL) until their removal.
+`src/lib/navigation.ts` holds `NAV_ITEMS` — the modules shown in the sidebar, in normative order (5 since chantier 6, where Organization and System Settings were merged into « Paramètres » at `/settings`; their old URLs redirect). CRM, Enterprise Brain, Workflow Engine, Insights, Security Center, Billing and Help Center are hidden from navigation, but their routes, services and mocks stay in place (still reachable by URL) until their removal.
 
 ### Data flow — the module pattern
 

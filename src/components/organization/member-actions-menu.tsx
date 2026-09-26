@@ -53,7 +53,14 @@ import type { MemberRole, OrgMember } from "@/lib/organization/types";
  * un bouton que la base refusera ensuite reviendrait à afficher une erreur
  * incompréhensible à quelqu'un qui n'a rien fait de mal.
  */
-export function MemberActionsMenu({ member }: { member: OrgMember }) {
+export function MemberActionsMenu({
+  member,
+  onRemoved,
+}: {
+  member: OrgMember;
+  /** Appelé après un retrait réussi — la fiche s'en sert pour quitter une page qui n'a plus d'objet. */
+  onRemoved?: (() => void) | undefined;
+}) {
   const { session } = useSession();
   const updateRole = useUpdateMemberRole();
   const removeMember = useRemoveMember();
@@ -102,7 +109,10 @@ export function MemberActionsMenu({ member }: { member: OrgMember }) {
     removeMember.mutate(
       { membershipId, userId: member.userId },
       {
-        onSuccess: () => toast.success(`${member.name} a été retiré`),
+        onSuccess: () => {
+          toast.success(`${member.name} a été retiré`);
+          onRemoved?.();
+        },
         // Message rédigé côté PostgreSQL pour l'utilisateur final : affiché tel quel.
         onError: (e) => toast.error(e instanceof Error ? e.message : "Retrait impossible."),
       },

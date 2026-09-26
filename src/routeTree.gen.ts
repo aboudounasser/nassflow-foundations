@@ -33,8 +33,10 @@ import { Route as MissionsIndexRouteImport } from './routes/missions.index'
 import { Route as MissionsMissionIdRouteImport } from './routes/missions.$missionId'
 import { Route as OrganizationIndexRouteImport } from './routes/organization.index'
 import { Route as OrganizationMemberIdRouteImport } from './routes/organization.$memberId'
+import { Route as SettingsIndexRouteImport } from './routes/settings.index'
 import { Route as WorkflowEngineIndexRouteImport } from './routes/workflow-engine.index'
 import { Route as WorkflowEngineWorkflowIdRouteImport } from './routes/workflow-engine.$workflowId'
+import { Route as SettingsMembersMemberIdRouteImport } from './routes/settings.members.$memberId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -156,6 +158,11 @@ const OrganizationMemberIdRoute = OrganizationMemberIdRouteImport.update({
   path: '/organization/$memberId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsIndexRoute = SettingsIndexRouteImport.update({
+  id: '/settings/',
+  path: '/settings/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WorkflowEngineIndexRoute = WorkflowEngineIndexRouteImport.update({
   id: '/workflow-engine/',
   path: '/workflow-engine/',
@@ -167,6 +174,11 @@ const WorkflowEngineWorkflowIdRoute =
     path: '/workflow-engine/$workflowId',
     getParentRoute: () => rootRouteImport,
   } as any)
+const SettingsMembersMemberIdRoute = SettingsMembersMemberIdRouteImport.update({
+  id: '/settings/members/$memberId',
+  path: '/settings/members/$memberId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -194,7 +206,9 @@ export interface FileRoutesByFullPath {
   '/integrations-hub/': typeof IntegrationsHubIndexRoute
   '/missions/': typeof MissionsIndexRoute
   '/organization/': typeof OrganizationIndexRoute
+  '/settings/': typeof SettingsIndexRoute
   '/workflow-engine/': typeof WorkflowEngineIndexRoute
+  '/settings/members/$memberId': typeof SettingsMembersMemberIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -222,7 +236,9 @@ export interface FileRoutesByTo {
   '/integrations-hub': typeof IntegrationsHubIndexRoute
   '/missions': typeof MissionsIndexRoute
   '/organization': typeof OrganizationIndexRoute
+  '/settings': typeof SettingsIndexRoute
   '/workflow-engine': typeof WorkflowEngineIndexRoute
+  '/settings/members/$memberId': typeof SettingsMembersMemberIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -251,7 +267,9 @@ export interface FileRoutesById {
   '/integrations-hub/': typeof IntegrationsHubIndexRoute
   '/missions/': typeof MissionsIndexRoute
   '/organization/': typeof OrganizationIndexRoute
+  '/settings/': typeof SettingsIndexRoute
   '/workflow-engine/': typeof WorkflowEngineIndexRoute
+  '/settings/members/$memberId': typeof SettingsMembersMemberIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -281,7 +299,9 @@ export interface FileRouteTypes {
     | '/integrations-hub/'
     | '/missions/'
     | '/organization/'
+    | '/settings/'
     | '/workflow-engine/'
+    | '/settings/members/$memberId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -309,7 +329,9 @@ export interface FileRouteTypes {
     | '/integrations-hub'
     | '/missions'
     | '/organization'
+    | '/settings'
     | '/workflow-engine'
+    | '/settings/members/$memberId'
   id:
     | '__root__'
     | '/'
@@ -337,7 +359,9 @@ export interface FileRouteTypes {
     | '/integrations-hub/'
     | '/missions/'
     | '/organization/'
+    | '/settings/'
     | '/workflow-engine/'
+    | '/settings/members/$memberId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -366,7 +390,9 @@ export interface RootRouteChildren {
   IntegrationsHubIndexRoute: typeof IntegrationsHubIndexRoute
   MissionsIndexRoute: typeof MissionsIndexRoute
   OrganizationIndexRoute: typeof OrganizationIndexRoute
+  SettingsIndexRoute: typeof SettingsIndexRoute
   WorkflowEngineIndexRoute: typeof WorkflowEngineIndexRoute
+  SettingsMembersMemberIdRoute: typeof SettingsMembersMemberIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -539,6 +565,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrganizationMemberIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/settings/': {
+      id: '/settings/'
+      path: '/settings'
+      fullPath: '/settings/'
+      preLoaderRoute: typeof SettingsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/workflow-engine/': {
       id: '/workflow-engine/'
       path: '/workflow-engine'
@@ -551,6 +584,13 @@ declare module '@tanstack/react-router' {
       path: '/workflow-engine/$workflowId'
       fullPath: '/workflow-engine/$workflowId'
       preLoaderRoute: typeof WorkflowEngineWorkflowIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings/members/$memberId': {
+      id: '/settings/members/$memberId'
+      path: '/settings/members/$memberId'
+      fullPath: '/settings/members/$memberId'
+      preLoaderRoute: typeof SettingsMembersMemberIdRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -582,7 +622,9 @@ const rootRouteChildren: RootRouteChildren = {
   IntegrationsHubIndexRoute: IntegrationsHubIndexRoute,
   MissionsIndexRoute: MissionsIndexRoute,
   OrganizationIndexRoute: OrganizationIndexRoute,
+  SettingsIndexRoute: SettingsIndexRoute,
   WorkflowEngineIndexRoute: WorkflowEngineIndexRoute,
+  SettingsMembersMemberIdRoute: SettingsMembersMemberIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

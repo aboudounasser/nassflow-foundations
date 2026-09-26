@@ -124,9 +124,6 @@ export function TopBar({
             <DropdownMenuItem asChild>
               <Link to="/account">Profil</Link>
             </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link to="/system-settings">Préférences</Link>
-            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => {
