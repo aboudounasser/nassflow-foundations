@@ -10,7 +10,7 @@ Réponds toujours en français dans cette conversation, y compris les explicatio
 
 NASSFLOW OS — an "AI Operating System" front-end (TanStack Start + React 19 + Tailwind v4 + shadcn/ui, Supabase for auth). The UI language is **French**: all user-facing strings, and most code comments, are written in French. Keep that convention.
 
-`README.md` is the original design brief (design tokens, master layout, module list) — it describes the first generation and is now partly outdated (business modules do exist). The tokens, layout and 13-module list in it are still normative.
+`README.md` is the original design brief (design tokens, master layout, module list) — it describes the first generation and is now partly outdated (business modules do exist). The tokens and layout in it are still normative. Its 13-module list is not: the sidebar now shows the modules in `NAV_ITEMS` (see below).
 
 ## Commands
 
@@ -45,7 +45,7 @@ TanStack Start with file-based routing in `src/routes/` (see `src/routes/README.
 
 The Context Panel is filled by the current page, not by the layout: call `useContextPanelContent(() => <SomePanel/>, [deps])` to inject content while mounted, and `useContextPanel().requestOpen()` to open the drawer on tablet/mobile.
 
-`src/lib/navigation.ts` holds `NAV_ITEMS` — the 13 modules in normative order.
+`src/lib/navigation.ts` holds `NAV_ITEMS` — the modules shown in the sidebar, in normative order (6 since chantier 3). CRM, Enterprise Brain, Workflow Engine, Insights, Security Center, Billing and Help Center are hidden from navigation, but their routes, services and mocks stay in place (still reachable by URL) until their removal.
 
 ### Data flow — the module pattern
 

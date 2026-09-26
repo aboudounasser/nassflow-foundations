@@ -174,6 +174,8 @@ Contient, de gauche à droite :
 
 SIDEBAR (largeur 280px, réductible en mode icônes à 80px, toujours visible sur desktop)
 
+> Depuis le chantier 3 de la refonte, la navigation n'affiche plus que 6 de ces modules ; la référence est `NAV_ITEMS` dans `src/lib/navigation.ts`.
+
 Liste de navigation verticale, dans cet ordre exact (utiliser des icônes Lucide cohérentes) :
 
 1. Mission Control
