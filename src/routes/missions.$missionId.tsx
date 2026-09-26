@@ -3,7 +3,7 @@ import { ArrowLeft, History, ListTree, PlayCircle, Target, TriangleAlert } from 
 import { useMemo, useState } from "react";
 
 import { EmptyState } from "@/components/common/empty-state";
-import { PRIORITY_BADGE } from "@/components/dashboard/decision-item-card";
+import { PRIORITY_BADGE } from "@/lib/dashboard/meta";
 import { WidgetShell } from "@/components/dashboard/widget-shell";
 import { useContextPanelContent } from "@/components/layout/context-panel";
 import { MissionDetailPanel } from "@/components/missions/mission-detail-panel";

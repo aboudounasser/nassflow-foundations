@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { ItemState } from "./item-state";
-import { PRIORITY_BADGE } from "./decision-item-card";
+import { PRIORITY_BADGE } from "@/lib/dashboard/meta";
 import { MISSION_STATUS, formatDueDate } from "@/lib/missions/meta";
 import type { Mission, WidgetState } from "@/lib/dashboard/types";
 import type { MissionDetail } from "@/lib/missions/types";
