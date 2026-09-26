@@ -219,6 +219,14 @@ export function InvitationsSection() {
 
   return (
     <>
+      {/* Le formulaire d'abord : c'est l'action de l'onglet, la liste vient ensuite. */}
+      <Card className="@container mb-4 border-border bg-card p-4">
+        <p className="text-[14px] font-medium text-foreground">Inviter un collaborateur</p>
+        <div className="mt-3">
+          <InviteForm canGrantPrivileged={session.role === "owner"} />
+        </div>
+      </Card>
+
       <WidgetShell
         title="Invitations"
         description="Invitations en attente d'acceptation dans cette organisation."
@@ -227,8 +235,7 @@ export function InvitationsSection() {
         showMenu={false}
         onRetry={() => void invitationsQuery.refetch()}
         emptyIcon={MailPlus}
-        emptyTitle="Aucune invitation en attente"
-        emptyDescription="Invitez un collaborateur avec le formulaire ci-dessous."
+        emptyTitle="Aucune invitation en attente."
         skeleton={<InvitationsSkeleton />}
       >
         <ul className="flex flex-col gap-3">
@@ -241,13 +248,6 @@ export function InvitationsSection() {
           ))}
         </ul>
       </WidgetShell>
-
-      <Card className="@container mt-4 border-border bg-card p-4">
-        <p className="text-[14px] font-medium text-foreground">Inviter un collaborateur</p>
-        <div className="mt-3">
-          <InviteForm canGrantPrivileged={session.role === "owner"} />
-        </div>
-      </Card>
 
       <AlertDialog open={target !== null} onOpenChange={(open) => !open && setTarget(null)}>
         <AlertDialogContent>
