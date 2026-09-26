@@ -15,15 +15,12 @@ import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SignupRouteImport } from './routes/signup'
-import { Route as SystemSettingsRouteImport } from './routes/system-settings'
 import { Route as AgentsIndexRouteImport } from './routes/agents.index'
 import { Route as AgentsAgentIdRouteImport } from './routes/agents.$agentId'
 import { Route as IntegrationsHubIndexRouteImport } from './routes/integrations-hub.index'
 import { Route as InviteTokenRouteImport } from './routes/invite.$token'
 import { Route as MissionsIndexRouteImport } from './routes/missions.index'
 import { Route as MissionsMissionIdRouteImport } from './routes/missions.$missionId'
-import { Route as OrganizationIndexRouteImport } from './routes/organization.index'
-import { Route as OrganizationMemberIdRouteImport } from './routes/organization.$memberId'
 import { Route as SettingsIndexRouteImport } from './routes/settings.index'
 import { Route as SettingsMembersMemberIdRouteImport } from './routes/settings.members.$memberId'
 
@@ -57,11 +54,6 @@ const SignupRoute = SignupRouteImport.update({
   path: '/signup',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SystemSettingsRoute = SystemSettingsRouteImport.update({
-  id: '/system-settings',
-  path: '/system-settings',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AgentsIndexRoute = AgentsIndexRouteImport.update({
   id: '/agents/',
   path: '/agents/',
@@ -92,16 +84,6 @@ const MissionsMissionIdRoute = MissionsMissionIdRouteImport.update({
   path: '/missions/$missionId',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OrganizationIndexRoute = OrganizationIndexRouteImport.update({
-  id: '/organization/',
-  path: '/organization/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const OrganizationMemberIdRoute = OrganizationMemberIdRouteImport.update({
-  id: '/organization/$memberId',
-  path: '/organization/$memberId',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const SettingsIndexRoute = SettingsIndexRouteImport.update({
   id: '/settings/',
   path: '/settings/',
@@ -120,15 +102,12 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
-  '/system-settings': typeof SystemSettingsRoute
   '/agents/$agentId': typeof AgentsAgentIdRoute
   '/invite/$token': typeof InviteTokenRoute
   '/missions/$missionId': typeof MissionsMissionIdRoute
-  '/organization/$memberId': typeof OrganizationMemberIdRoute
   '/agents/': typeof AgentsIndexRoute
   '/integrations-hub/': typeof IntegrationsHubIndexRoute
   '/missions/': typeof MissionsIndexRoute
-  '/organization/': typeof OrganizationIndexRoute
   '/settings/': typeof SettingsIndexRoute
   '/settings/members/$memberId': typeof SettingsMembersMemberIdRoute
 }
@@ -139,15 +118,12 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
-  '/system-settings': typeof SystemSettingsRoute
   '/agents/$agentId': typeof AgentsAgentIdRoute
   '/invite/$token': typeof InviteTokenRoute
   '/missions/$missionId': typeof MissionsMissionIdRoute
-  '/organization/$memberId': typeof OrganizationMemberIdRoute
   '/agents': typeof AgentsIndexRoute
   '/integrations-hub': typeof IntegrationsHubIndexRoute
   '/missions': typeof MissionsIndexRoute
-  '/organization': typeof OrganizationIndexRoute
   '/settings': typeof SettingsIndexRoute
   '/settings/members/$memberId': typeof SettingsMembersMemberIdRoute
 }
@@ -159,15 +135,12 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
-  '/system-settings': typeof SystemSettingsRoute
   '/agents/$agentId': typeof AgentsAgentIdRoute
   '/invite/$token': typeof InviteTokenRoute
   '/missions/$missionId': typeof MissionsMissionIdRoute
-  '/organization/$memberId': typeof OrganizationMemberIdRoute
   '/agents/': typeof AgentsIndexRoute
   '/integrations-hub/': typeof IntegrationsHubIndexRoute
   '/missions/': typeof MissionsIndexRoute
-  '/organization/': typeof OrganizationIndexRoute
   '/settings/': typeof SettingsIndexRoute
   '/settings/members/$memberId': typeof SettingsMembersMemberIdRoute
 }
@@ -180,15 +153,12 @@ export interface FileRouteTypes {
     | '/login'
     | '/reset-password'
     | '/signup'
-    | '/system-settings'
     | '/agents/$agentId'
     | '/invite/$token'
     | '/missions/$missionId'
-    | '/organization/$memberId'
     | '/agents/'
     | '/integrations-hub/'
     | '/missions/'
-    | '/organization/'
     | '/settings/'
     | '/settings/members/$memberId'
   fileRoutesByTo: FileRoutesByTo
@@ -199,15 +169,12 @@ export interface FileRouteTypes {
     | '/login'
     | '/reset-password'
     | '/signup'
-    | '/system-settings'
     | '/agents/$agentId'
     | '/invite/$token'
     | '/missions/$missionId'
-    | '/organization/$memberId'
     | '/agents'
     | '/integrations-hub'
     | '/missions'
-    | '/organization'
     | '/settings'
     | '/settings/members/$memberId'
   id:
@@ -218,15 +185,12 @@ export interface FileRouteTypes {
     | '/login'
     | '/reset-password'
     | '/signup'
-    | '/system-settings'
     | '/agents/$agentId'
     | '/invite/$token'
     | '/missions/$missionId'
-    | '/organization/$memberId'
     | '/agents/'
     | '/integrations-hub/'
     | '/missions/'
-    | '/organization/'
     | '/settings/'
     | '/settings/members/$memberId'
   fileRoutesById: FileRoutesById
@@ -238,15 +202,12 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SignupRoute: typeof SignupRoute
-  SystemSettingsRoute: typeof SystemSettingsRoute
   AgentsAgentIdRoute: typeof AgentsAgentIdRoute
   InviteTokenRoute: typeof InviteTokenRoute
   MissionsMissionIdRoute: typeof MissionsMissionIdRoute
-  OrganizationMemberIdRoute: typeof OrganizationMemberIdRoute
   AgentsIndexRoute: typeof AgentsIndexRoute
   IntegrationsHubIndexRoute: typeof IntegrationsHubIndexRoute
   MissionsIndexRoute: typeof MissionsIndexRoute
-  OrganizationIndexRoute: typeof OrganizationIndexRoute
   SettingsIndexRoute: typeof SettingsIndexRoute
   SettingsMembersMemberIdRoute: typeof SettingsMembersMemberIdRoute
 }
@@ -295,13 +256,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignupRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/system-settings': {
-      id: '/system-settings'
-      path: '/system-settings'
-      fullPath: '/system-settings'
-      preLoaderRoute: typeof SystemSettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/agents/': {
       id: '/agents/'
       path: '/agents'
@@ -344,20 +298,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MissionsMissionIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/organization/': {
-      id: '/organization/'
-      path: '/organization'
-      fullPath: '/organization/'
-      preLoaderRoute: typeof OrganizationIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/organization/$memberId': {
-      id: '/organization/$memberId'
-      path: '/organization/$memberId'
-      fullPath: '/organization/$memberId'
-      preLoaderRoute: typeof OrganizationMemberIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/settings/': {
       id: '/settings/'
       path: '/settings'
@@ -382,15 +322,12 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SignupRoute: SignupRoute,
-  SystemSettingsRoute: SystemSettingsRoute,
   AgentsAgentIdRoute: AgentsAgentIdRoute,
   InviteTokenRoute: InviteTokenRoute,
   MissionsMissionIdRoute: MissionsMissionIdRoute,
-  OrganizationMemberIdRoute: OrganizationMemberIdRoute,
   AgentsIndexRoute: AgentsIndexRoute,
   IntegrationsHubIndexRoute: IntegrationsHubIndexRoute,
   MissionsIndexRoute: MissionsIndexRoute,
-  OrganizationIndexRoute: OrganizationIndexRoute,
   SettingsIndexRoute: SettingsIndexRoute,
   SettingsMembersMemberIdRoute: SettingsMembersMemberIdRoute,
 }

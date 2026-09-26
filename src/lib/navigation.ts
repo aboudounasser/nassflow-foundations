@@ -10,7 +10,7 @@ export type NavItem = { label: string; to: string; icon: LucideIcon };
  * ont été supprimés au chantier 12.
  *
  * « Paramètres » réunit depuis le chantier 6 les anciens modules Organization
- * et System Settings, dont les adresses redirigent vers `/settings`.
+ * et System Settings ; leurs anciennes adresses ont été retirées au chantier 12.
  */
 export const NAV_ITEMS: NavItem[] = [
   { label: "Mission Control", to: "/", icon: LayoutDashboard },
