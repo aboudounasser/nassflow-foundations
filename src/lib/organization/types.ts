@@ -1,4 +1,4 @@
-/** Modèle du module Organization — annuaire humain + départements hybrides humains/IA. */
+/** Modèle des membres de l'organisation (page Paramètres). */
 
 export type MemberRole = "owner" | "admin" | "manager" | "member" | "viewer";
 
@@ -8,8 +8,8 @@ export interface OrgMember {
   id: string;
   /**
    * Identifiant de la ligne `memberships` visée par les actions d'administration.
-   * Absent tant que l'annuaire est alimenté par les fixtures : sans lui, aucune
-   * action ne peut cibler la base, et le menu d'actions reste masqué.
+   * Sans lui, aucune action ne peut cibler la base, et le menu d'actions reste
+   * masqué.
    */
   membershipId?: string | undefined;
   /** Utilisateur Supabase derrière ce membre, pour reconnaître sa propre ligne. */
@@ -27,28 +27,8 @@ export interface OrgMember {
   joinedAt: string;
 }
 
-export interface Department {
-  id: string;
-  name: string;
-  description: string;
-  leadMemberId: string | null;
-}
-
-export interface CompanyProfile {
-  id: string;
-  name: string;
-  industry: string;
-  size: string;
-  foundedYear: number;
-  plan: string;
-  timezone: string;
-  primaryLocale: string;
-}
-
 /**
- * Profil réellement persisté (table `organizations`), par opposition à
- * `CompanyProfile` qui reste un agrégat mocké tant que le reste du module
- * Organization (départements, plan, etc.) n'est pas branché.
+ * Profil réellement persisté (table `organizations`).
  *
  * Seul `name` a une colonne en base. `foundedYear`, `plan`, `timezone` et
  * `primaryLocale` n'ont aucun équivalent : ils restent `null` plutôt qu'une

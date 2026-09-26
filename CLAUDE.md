@@ -45,33 +45,32 @@ TanStack Start with file-based routing in `src/routes/` (see `src/routes/README.
 
 The Context Panel is filled by the current page, not by the layout: call `useContextPanelContent(() => <SomePanel/>, [deps])` to inject content while mounted, and `useContextPanel().requestOpen()` to open the drawer on tablet/mobile.
 
-`src/lib/navigation.ts` holds `NAV_ITEMS` — the modules shown in the sidebar, in normative order (5 since chantier 6, where Organization and System Settings were merged into « Paramètres » at `/settings`; their old URLs redirect). CRM, Enterprise Brain, Workflow Engine, Insights, Security Center, Billing and Help Center are hidden from navigation, but their routes, services and mocks stay in place (still reachable by URL) until their removal.
+`src/lib/navigation.ts` holds `NAV_ITEMS` — the modules shown in the sidebar, in normative order (5 since chantier 6, where Organization and System Settings were merged into « Paramètres » at `/settings`; their old URLs redirect). The seven modules hidden in chantier 3 (CRM, Enterprise Brain, Workflow Engine, Insights, Security Center, Billing, Help Center) were deleted in chantier 12, with every fixture they relied on.
 
 ### Data flow — the module pattern
 
 Every business module follows the same four-layer split. Copy an existing module (`missions` is the fullest example) when adding one.
 
 ```
-src/lib/<module>/types.ts    domain types
-src/lib/<module>/mocks.ts    fixture data
+src/lib/<module>/types.ts    domain types — only what the database actually holds
 src/lib/<module>/meta.ts     status→label/icon/variant maps, filter & view descriptors, formatters
 src/lib/<module>/queries.ts  useQuery hooks (the only thing routes import)
-src/services/<module>.ts     "service layer": async fns, first param is always `_scope: Scope`
+src/services/<module>.ts     "service layer": async fns reading Supabase, first param is always `scope: Scope`
 src/components/<module>/     presentational components
 src/routes/<module>.index.tsx, <module>.$id.tsx
 ```
 
-- **Services are still mocked.** They return `delay(mockData)` from `src/services/latency.ts` (250ms) so loading states are real. Only `src/services/auth.ts` talks to Supabase. When wiring a module to real data, replace the body of the service function — routes, queries and components should not change.
+- **Services read Supabase — there are no fixtures left.** Chantier 12 removed every `mocks.ts` and `src/services/latency.ts`. A value with no column is never invented: the UI shows a neutral state or leaves the field out.
 - **Every query key must start with the scope.** `queryKey: [...scopeKey(scope), "<module>", ...]` (`src/lib/tenancy/keys.ts`). This is a tenancy/security requirement: switching organizations purges `organizationRootKey(orgId)`, and a key without the org id would leak the previous org's data.
 - Routes read `useSession()` indirectly through the module's `use*` hooks; they never import a service directly.
-- Detail views fetch one aggregate per id (mission + related missions + agents) rather than several queries.
+- Detail views fetch one row per id with its joined data (e.g. a mission and its run) rather than several queries.
 
 ### Auth & Supabase
 
 There are **two** Supabase client trees; this matters:
 
 - `src/lib/supabase/` — hand-written, the one application code uses (`@/lib/supabase/client`, `@/lib/supabase/database.types`). Lazy `Proxy` client so SSR can import it safely. `database.types.ts` is the single source of truth for the DB schema; regenerate it after any migration.
-- `src/integrations/supabase/` — Lovable-generated (`client.ts`, `client.server.ts`, `auth-middleware.ts`, `types.ts`). Marked "do not edit", and excluded from eslint and prettier. `client.server.ts` uses the service-role key and must only be imported from server handlers via dynamic `import()` or from other `*.server.ts` modules.
+- `src/integrations/supabase/` — Lovable-generated (`client.ts`, `client.server.ts`, `auth-middleware.ts`, `types.ts`). Marked "do not edit", and excluded from eslint and prettier. `client.server.ts` uses the service-role key and must only be imported from server handlers via dynamic `import()` or from other `*.server.ts` modules. **The app does not use this folder, but it is kept on purpose** (chantier 12): Lovable regenerates it when it syncs the Supabase integration, so deleting it would only cause churn.
 
 `SessionProvider` (`src/components/providers/session-provider.tsx`) is the auth+tenancy gate: it loads the user and memberships, gates on `loading | signedOut | noOrg | ready`, redirects to `/login` when signed out, shows `OnboardingScreen` when the user has no organization, and persists the active org in `localStorage` under `nassflow.activeOrganizationId`. Its `onAuthChange` callback must never call Supabase synchronously (it defers via `setTimeout`) — the Supabase auth lock will deadlock otherwise.
 

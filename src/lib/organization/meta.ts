@@ -1,6 +1,4 @@
-import { CircleCheck, MailCheck, PauseCircle, type LucideIcon } from "lucide-react";
-
-import type { MemberRole, MemberStatus, OrgMember } from "./types";
+import type { MemberRole, OrgMember } from "./types";
 import type { FilterDescriptor } from "@/lib/toolbar/types";
 import { initialsFrom } from "@/lib/tenancy/types";
 
@@ -39,17 +37,6 @@ export function canAdministerMember(currentRole: MemberRole, member: OrgMember):
   if (currentRole !== "admin") return false;
   return !PRIVILEGED_ROLES.includes(member.role);
 }
-
-export const MEMBER_STATUS: Record<
-  MemberStatus,
-  { label: string; variant: BadgeVariant; icon: LucideIcon }
-> = {
-  active: { label: "Actif", variant: "success", icon: CircleCheck },
-  invited: { label: "Invité", variant: "info", icon: MailCheck },
-  suspended: { label: "Suspendu", variant: "warning", icon: PauseCircle },
-};
-
-export const MEMBER_STATUS_ORDER: MemberStatus[] = ["active", "invited", "suspended"];
 
 const DATE_FMT = new Intl.DateTimeFormat("fr-FR", {
   day: "2-digit",

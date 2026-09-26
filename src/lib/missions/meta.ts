@@ -4,7 +4,6 @@ import {
   CheckCircle2,
   CircleDashed,
   CirclePause,
-  CircleSlash,
   Clock,
   Play,
   TriangleAlert,
@@ -13,14 +12,13 @@ import {
 } from "lucide-react";
 
 import type { FilterDescriptor } from "@/lib/toolbar/types";
-import type { Mission } from "@/lib/dashboard/types";
 import type { Mission as MissionRecord, MissionStatus } from "./types";
 
 export type BadgeVariant = "neutral" | "primary" | "success" | "warning" | "destructive" | "info";
 
 /** Statut → libellé, couleur et icône (référence visuelle unique du module). */
 export const MISSION_STATUS: Record<
-  MissionStatus | Mission["status"],
+  MissionStatus,
   { label: string; variant: BadgeVariant; icon: LucideIcon }
 > = {
   draft: { label: "Brouillon", variant: "neutral", icon: CircleDashed },
@@ -32,26 +30,10 @@ export const MISSION_STATUS: Record<
   failed: { label: "Échouée", variant: "destructive", icon: XCircle },
   cancelled: { label: "Annulée", variant: "neutral", icon: Ban },
   archived: { label: "Archivée", variant: "neutral", icon: Archive },
-  // statuts hérités du Dashboard CEO
-  todo: { label: "À faire", variant: "neutral", icon: CircleSlash },
-  done: { label: "Terminée", variant: "success", icon: CheckCircle2 },
 };
 
 /** Statuts depuis lesquels le bouton "Archiver" est proposé — états finaux uniquement. */
 export const ARCHIVABLE_STATUSES: MissionStatus[] = ["completed", "failed", "cancelled"];
-
-const DATE_FMT = new Intl.DateTimeFormat("fr-FR", {
-  day: "numeric",
-  month: "short",
-  timeZone: "UTC",
-});
-
-/** Formate une échéance ISO ; renvoie la valeur telle quelle si déjà lisible. */
-export function formatDueDate(value: string): string {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return DATE_FMT.format(date);
-}
 
 /**
  * Statuts que la base peut réellement contenir, dans l'ordre du cycle de vie.
