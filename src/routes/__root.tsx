@@ -60,7 +60,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
         </h1>
         <p className="mt-1 text-[14px] text-muted-foreground">
           Une erreur inattendue s'est produite. Vous pouvez réessayer ou revenir au Mission Control.
-          Si le problème persiste, contactez le Help Center.
+          Si le problème persiste, réessayez dans quelques minutes.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <Button
