@@ -172,19 +172,22 @@ export function ModuleToolbar<F extends object>({
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
-        <ToggleGroup
-          type="single"
-          value={view}
-          onValueChange={(v) => v && onViewChange(v)}
-          aria-label="Changer de vue"
-        >
-          {views.map((v) => (
-            <ToggleGroupItem key={v.value} value={v.value} aria-label={`Vue ${v.label}`}>
-              <v.icon className="size-4" />
-              <span className="hidden @md:inline">{v.label}</span>
-            </ToggleGroupItem>
-          ))}
-        </ToggleGroup>
+        {/* Sans vue alternative, pas de sélecteur : un seul bouton ne choisirait rien. */}
+        {views.length > 1 ? (
+          <ToggleGroup
+            type="single"
+            value={view}
+            onValueChange={(v) => v && onViewChange(v)}
+            aria-label="Changer de vue"
+          >
+            {views.map((v) => (
+              <ToggleGroupItem key={v.value} value={v.value} aria-label={`Vue ${v.label}`}>
+                <v.icon className="size-4" />
+                <span className="hidden @md:inline">{v.label}</span>
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
+        ) : null}
         <span className="text-[12px] text-muted-foreground">{resultLabel(resultCount)}</span>
         <Button variant="ghost" size="sm" onClick={onReset}>
           <RotateCcw />

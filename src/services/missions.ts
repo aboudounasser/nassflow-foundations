@@ -1,25 +1,35 @@
 /**
  * Service Layer du module Missions.
  *
- * Les missions elles-mêmes viennent de la table `missions` (une ligne par
- * analyse Gmail, ouverte par l'Edge Function `run-gmail-scan` — voir
- * `database.types.ts`). `missionAgents` reste mocké : les agents ne sont pas
- * des entités persistées.
+ * Une mission est ouverte par l'Edge Function `run-gmail-scan` pour chaque
+ * analyse Gmail, puis fermée à la fin de celle-ci. Rien d'autre n'en crée.
+ *
+ * La RLS de `missions` réserve la lecture et la modification aux owner et
+ * admin ; celle de `runs`, jointe ici, aussi. Pour les autres rôles, les
+ * requêtes aboutissent sur des listes vides : c'est à l'interface de le dire.
  */
-import { missionAgents } from "@/lib/missions/mocks";
-import type { MissionAgent, MissionDetail, MissionStatus } from "@/lib/missions/types";
+import type { Mission, MissionRun, MissionStatus } from "@/lib/missions/types";
+import type { RunStatus } from "@/lib/scans/types";
 import { supabase } from "@/lib/supabase/client";
-import type { Tables } from "@/lib/supabase/database.types";
 import type { Scope } from "@/lib/tenancy/types";
 
-const MISSION_COLUMNS =
-  "id, organization_id, run_id, title, objective, status, archived_from_status, progress, created_at, updated_at, completed_at";
+/**
+ * Colonnes d'une mission et du run qui l'a ouverte. Deux clés étrangères
+ * relient `missions` à `runs` : sans indice, PostgREST refuse l'embed comme
+ * ambigu (PGRST201). La clé composite garantit en plus que le run appartient à
+ * la même organisation que la mission.
+ */
+const MISSION_SELECT =
+  "id, run_id, title, objective, status, archived_from_status, created_at, completed_at, runs!missions_run_org_fkey(status, started_at, finished_at, emails_scanned, emails_analyzed, prospects_found, ai_cost_cents, error_message)";
+
+/** Nombre de missions affichées dans le bloc « Dernière activité » de l'accueil. */
+const RECENT_MISSIONS_LIMIT = 5;
 
 /**
- * `status` est contraint côté base à ces six valeurs (voir
- * `database.types.ts`, contrainte `missions_status_check`) — un statut
- * inconnu est traité comme `failed` plutôt que comme un succès silencieux,
- * même règle que `toRunStatus` dans `scans.ts`.
+ * `status` est contraint côté base à ces six valeurs (contrainte
+ * `missions_status_check`) — un statut inconnu est traité comme `failed`
+ * plutôt que comme un succès silencieux, même règle que `toRunStatus` dans
+ * `scans.ts`.
  */
 const KNOWN_STATUSES: MissionStatus[] = [
   "draft",
@@ -34,156 +44,114 @@ function toMissionStatus(value: string): MissionStatus {
   return KNOWN_STATUSES.includes(value as MissionStatus) ? (value as MissionStatus) : "failed";
 }
 
-/**
- * Complète une ligne réelle de `missions` (pilotage Gmail : id, titre,
- * objectif, statut, progression, dates) vers le modèle riche `MissionDetail`
- * attendu par les vues. Tout ce que la table ne porte pas reçoit une valeur
- * par défaut sûre — jamais `undefined` — pour ne pas faire planter les
- * lookups `MISSION_STATUS`/`PRIORITY_BADGE` ni les `.map()` des vues.
- *
- * `dueDate` reçoit `""` plutôt que `null` : `MissionDetail.dueDate` hérite
- * de `Mission.dueDate`, un `string` non nullable. `MissionCalendarView` et
- * `formatDueDate` traitent déjà une date invalide comme une absence de date
- * (`Number.isNaN` sur `new Date("")`), donc une chaîne vide dégrade
- * exactement comme une vraie absence — sans élargir un type partagé avec
- * des composants qu'on ne touche pas dans ce chantier.
- */
-function toMissionDetail(row: Tables<"missions">): MissionDetail {
-  return {
-    id: row.id,
-    title: row.title,
-    objective: row.objective,
-    status: toMissionStatus(row.status),
-    archivedFromStatus: row.archived_from_status ? toMissionStatus(row.archived_from_status) : null,
-    progress: row.progress,
-    createdAt: row.created_at,
-    updatedAt: row.updated_at,
-    priority: "medium",
-    dueDate: "",
-    owner: "Agent Gmail",
-    tags: [],
-    agents: [],
-    steps: [],
-    dependencies: [],
-    estimatedDuration: "—",
-    actualDuration: null,
-    confidenceScore: 0,
-    cost: { aiCalls: 0, estimatedCost: "—" },
-    history: [],
-  };
+const KNOWN_RUN_STATUSES: RunStatus[] = ["running", "succeeded", "failed"];
+
+function toCount(value: unknown): number {
+  return typeof value === "number" && Number.isFinite(value) ? value : 0;
 }
 
-export interface MissionsListData {
-  missions: MissionDetail[];
-  agents: MissionAgent[];
-}
-
-export async function getMissions(scope: Scope): Promise<MissionsListData> {
-  const { data, error } = await supabase
-    .from("missions")
-    .select(MISSION_COLUMNS)
-    .eq("organization_id", scope.organizationId)
-    .order("created_at", { ascending: false });
-
-  if (error) throw new Error(error.message);
-
-  return {
-    missions: (data ?? []).map(toMissionDetail),
-    agents: missionAgents,
-  };
-}
-
-/** Nombre de missions affichées dans le bloc « Dernière activité » de l'accueil. */
-const RECENT_MISSIONS_LIMIT = 5;
-
-/**
- * Une mission récente et le résultat de l'analyse qui l'a ouverte.
- *
- * `prospectsFound` et `errorMessage` viennent de `runs`, que la RLS réserve aux
- * owner et admin : pour les autres rôles, la jointure revient vide et les deux
- * champs valent `null` — la mission reste listée, sans son résultat.
- */
-export interface RecentMission {
-  id: string;
-  title: string;
-  status: MissionStatus;
-  createdAt: string;
-  prospectsFound: number | null;
-  errorMessage: string | null;
+function toText(value: unknown): string | null {
+  return typeof value === "string" && value.length > 0 ? value : null;
 }
 
 /**
  * Jointure `runs` rétrécie comme le reste : PostgREST la renvoie en objet pour
- * une clé étrangère portée par `missions`, mais une forme inattendue dégrade
- * en « résultat inconnu » plutôt qu'en erreur.
+ * une clé étrangère portée par `missions`, mais une forme inattendue — ou une
+ * jointure vide — vaut « pas de run connu » plutôt qu'une erreur.
  */
-function toRunOutcome(value: unknown): Pick<RecentMission, "prospectsFound" | "errorMessage"> {
+function toMissionRun(value: unknown): MissionRun | null {
   const run = (Array.isArray(value) ? value[0] : value) as
-    { prospects_found?: unknown; error_message?: unknown } | null | undefined;
-  if (typeof run !== "object" || run === null) return { prospectsFound: null, errorMessage: null };
+    Record<string, unknown> | null | undefined;
+  if (typeof run !== "object" || run === null) return null;
+  const status = run["status"];
   return {
-    prospectsFound: typeof run.prospects_found === "number" ? run.prospects_found : null,
-    errorMessage:
-      typeof run.error_message === "string" && run.error_message.length > 0
-        ? run.error_message
-        : null,
+    status: KNOWN_RUN_STATUSES.includes(status as RunStatus) ? (status as RunStatus) : "failed",
+    startedAt: toText(run["started_at"]),
+    finishedAt: toText(run["finished_at"]),
+    emailsScanned: toCount(run["emails_scanned"]),
+    emailsAnalyzed: toCount(run["emails_analyzed"]),
+    prospectsFound: toCount(run["prospects_found"]),
+    aiCostCents: toCount(run["ai_cost_cents"]),
+    errorMessage: toText(run["error_message"]),
   };
+}
+
+interface MissionRow {
+  id: string;
+  run_id: string;
+  title: string;
+  objective: string;
+  status: string;
+  archived_from_status: string | null;
+  created_at: string;
+  completed_at: string | null;
+  runs: unknown;
+}
+
+/** Une ligne réelle de `missions` et son run — aucune valeur inventée. */
+function toMission(row: MissionRow): Mission {
+  return {
+    id: row.id,
+    runId: row.run_id,
+    title: row.title,
+    objective: row.objective,
+    status: toMissionStatus(row.status),
+    archivedFromStatus: row.archived_from_status ? toMissionStatus(row.archived_from_status) : null,
+    createdAt: row.created_at,
+    completedAt: row.completed_at,
+    run: toMissionRun(row.runs),
+  };
+}
+
+/** Toutes les missions de l'organisation, les plus récemment ouvertes d'abord. */
+export async function getMissions(scope: Scope): Promise<Mission[]> {
+  const { data, error } = await supabase
+    .from("missions")
+    .select(MISSION_SELECT)
+    .eq("organization_id", scope.organizationId)
+    .order("created_at", { ascending: false });
+
+  if (error) throw new Error(error.message);
+  return (data ?? []).map(toMission);
 }
 
 /**
  * Les dernières missions non archivées, les plus récemment ouvertes d'abord.
- * Tri sur `created_at` et non `updated_at` : annuler une vieille mission ne
- * doit pas la faire remonter en tête de l'activité.
+ * Tri sur `created_at` et non `updated_at` : archiver puis restaurer une
+ * vieille mission ne doit pas la faire remonter en tête de l'activité.
  */
-export async function listRecentMissions(scope: Scope): Promise<RecentMission[]> {
+export async function listRecentMissions(scope: Scope): Promise<Mission[]> {
   const { data, error } = await supabase
     .from("missions")
-    // Deux clés étrangères relient `missions` à `runs` : sans indice, PostgREST
-    // refuse l'embed comme ambigu (PGRST201). La clé composite garantit en plus
-    // que le run appartient à la même organisation que la mission.
-    .select(
-      "id, title, status, created_at, runs!missions_run_org_fkey(prospects_found, error_message)",
-    )
+    .select(MISSION_SELECT)
     .eq("organization_id", scope.organizationId)
     .neq("status", "archived")
     .order("created_at", { ascending: false })
     .limit(RECENT_MISSIONS_LIMIT);
 
   if (error) throw new Error(error.message);
-
-  return (data ?? []).map((row) => ({
-    id: row.id,
-    title: row.title,
-    status: toMissionStatus(row.status),
-    createdAt: row.created_at,
-    ...toRunOutcome(row.runs),
-  }));
+  return (data ?? []).map(toMission);
 }
 
-/** Agrégat de la vue détail : inclut toutes les missions (dépendances croisées). */
-export interface MissionDetailData {
-  mission: MissionDetail;
-  allMissions: MissionDetail[];
-  agents: MissionAgent[];
-}
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-export async function getMission(
-  scope: Scope,
-  missionId: string,
-): Promise<MissionDetailData | null> {
+/**
+ * Une mission par identifiant. Un identifiant qui n'est pas un UUID ne peut
+ * désigner aucune ligne : il vaut « introuvable » sans interroger la base, qui
+ * répondrait sinon par une erreur de syntaxe (22P02).
+ */
+export async function getMission(scope: Scope, missionId: string): Promise<Mission | null> {
+  if (!UUID_PATTERN.test(missionId)) return null;
+
   const { data, error } = await supabase
     .from("missions")
-    .select(MISSION_COLUMNS)
+    .select(MISSION_SELECT)
     .eq("organization_id", scope.organizationId)
-    .order("created_at", { ascending: false });
+    .eq("id", missionId)
+    .maybeSingle();
 
   if (error) throw new Error(error.message);
-
-  const allMissions = (data ?? []).map(toMissionDetail);
-  const mission = allMissions.find((m) => m.id === missionId) ?? null;
-  if (!mission) return null;
-
-  return { mission, allMissions, agents: missionAgents };
+  return data ? toMission(data) : null;
 }
 
 /** Annule une mission en cours : passe `missions.status` à `cancelled`. */

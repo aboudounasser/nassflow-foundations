@@ -18,7 +18,7 @@ import {
 import type { FilterDescriptor, ViewDescriptor } from "@/lib/toolbar/types";
 import { PRIORITY_BADGE } from "@/lib/dashboard/meta";
 import type { Mission, Priority } from "@/lib/dashboard/types";
-import type { MissionStatus, MissionStepStatus } from "./types";
+import type { Mission as MissionRecord, MissionStatus, MissionStepStatus } from "./types";
 
 export type BadgeVariant = "neutral" | "primary" | "success" | "warning" | "destructive" | "info";
 
@@ -119,8 +119,21 @@ export const MISSION_VIEWS: ViewDescriptor[] = [
 ];
 
 /**
- * Filtres de la liste des missions. Pas de filtre par agent : les missions
- * réelles n'en portent aucun (`agents: []`), il viderait toujours la liste.
+ * Statuts que la base peut réellement contenir, dans l'ordre du cycle de vie.
+ * `draft` est admis par la contrainte mais jamais écrit par `run-gmail-scan` ;
+ * `ready`, `waiting` et `blocked` n'existent que dans les fixtures.
+ */
+export const REAL_MISSION_STATUSES: MissionStatus[] = [
+  "running",
+  "completed",
+  "failed",
+  "cancelled",
+  "archived",
+];
+
+/**
+ * Filtres de la liste des missions : statut réel et ordre d'ouverture. Pas de
+ * priorité ni d'échéance (aucune colonne), pas d'agent (aucun n'est porté).
  */
 export const MISSION_FILTER_DESCRIPTORS: FilterDescriptor[] = [
   {
@@ -128,16 +141,7 @@ export const MISSION_FILTER_DESCRIPTORS: FilterDescriptor[] = [
     key: "statuses",
     ariaLabel: "Filtrer par statut",
     buttonLabel: "Statuts",
-    options: MISSION_STATUS_ORDER.map((s) => ({ value: s, label: MISSION_STATUS[s].label })),
-  },
-  {
-    kind: "select",
-    key: "priority",
-    ariaLabel: "Filtrer par priorité",
-    placeholder: "Priorité",
-    allLabel: "Toutes priorités",
-    minWidth: "min-w-[150px]",
-    options: PRIORITY_ORDER.map((p) => ({ value: p, label: PRIORITY_BADGE[p].label })),
+    options: REAL_MISSION_STATUSES.map((s) => ({ value: s, label: MISSION_STATUS[s].label })),
   },
   {
     kind: "sort",
@@ -145,9 +149,51 @@ export const MISSION_FILTER_DESCRIPTORS: FilterDescriptor[] = [
     ariaLabel: "Trier les missions",
     minWidth: "min-w-[170px]",
     options: [
-      { value: "dueDate", label: "Échéance" },
-      { value: "priority", label: "Priorité" },
-      { value: "progress", label: "Progression" },
+      { value: "newest", label: "Plus récentes" },
+      { value: "oldest", label: "Plus anciennes" },
     ],
   },
 ];
+
+/**
+ * Résultat lisible de l'analyse liée à une mission. `null` quand il n'y a rien
+ * d'honnête à dire : run inconnu (jointure vide).
+ */
+export function missionOutcome(
+  mission: MissionRecord,
+): { text: string; tone: "muted" | "destructive" } | null {
+  if (mission.status === "running") return { text: "Analyse en cours", tone: "muted" };
+  const run = mission.run;
+  if (!run) return null;
+  if (run.errorMessage) return { text: run.errorMessage, tone: "destructive" };
+  return {
+    text:
+      run.prospectsFound > 0
+        ? `${run.prospectsFound} ${run.prospectsFound > 1 ? "prospects trouvés" : "prospect trouvé"}`
+        : "Aucune demande commerciale",
+    tone: "muted",
+  };
+}
+
+/** Durée entre deux dates ISO, en minutes et secondes — `null` si l'une manque. */
+export function formatElapsed(fromIso: string | null, toIso: string | null): string | null {
+  if (!fromIso || !toIso) return null;
+  const ms = new Date(toIso).getTime() - new Date(fromIso).getTime();
+  if (!Number.isFinite(ms) || ms < 0) return null;
+  const seconds = Math.round(ms / 1000);
+  if (seconds < 60) return `${seconds} s`;
+  const minutes = Math.floor(seconds / 60);
+  const rest = seconds % 60;
+  return rest === 0 ? `${minutes} min` : `${minutes} min ${rest} s`;
+}
+
+const EURO_FMT = new Intl.NumberFormat("fr-FR", {
+  style: "currency",
+  currency: "EUR",
+  minimumFractionDigits: 2,
+});
+
+/** Coût IA d'un run, stocké en centimes (`runs.ai_cost_cents`). */
+export function formatAiCost(cents: number): string {
+  return EURO_FMT.format(cents / 100);
+}

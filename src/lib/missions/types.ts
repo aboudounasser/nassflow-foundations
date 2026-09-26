@@ -1,4 +1,5 @@
-import type { Mission, Priority } from "@/lib/dashboard/types";
+import type { Mission as DashboardMission, Priority } from "@/lib/dashboard/types";
+import type { RunStatus } from "@/lib/scans/types";
 
 /** Statuts complets du module Missions (le Dashboard n'en expose qu'un sous-ensemble). */
 export type MissionStatus =
@@ -53,7 +54,7 @@ export interface MissionHistoryEntry {
  * Modèle universel d'une Mission — étend le type Mission du Dashboard
  * (statut et agents élargis) sans le dupliquer.
  */
-export interface MissionDetail extends Omit<Mission, "status" | "agents"> {
+export interface MissionDetail extends Omit<DashboardMission, "status" | "agents"> {
   objective: string;
   status: MissionStatus;
   /**
@@ -76,12 +77,44 @@ export interface MissionDetail extends Omit<Mission, "status" | "agents"> {
   history: MissionHistoryEntry[];
 }
 
-export type MissionSortKey = "dueDate" | "priority" | "progress";
 export type MissionView = "list" | "kanban" | "calendar";
+
+/* ---------- Missions réelles (table `missions` et son run) ---------- */
+
+/** Le run qui a ouvert la mission — colonnes de `runs`, réservées aux owner et admin. */
+export interface MissionRun {
+  status: RunStatus;
+  startedAt: string | null;
+  finishedAt: string | null;
+  emailsScanned: number;
+  emailsAnalyzed: number;
+  prospectsFound: number;
+  aiCostCents: number;
+  errorMessage: string | null;
+}
+
+/**
+ * Une mission telle que la base la connaît — sans priorité, échéance, étapes
+ * ni agents, qui n'ont aucune colonne. `MissionDetail` reste pour les fixtures
+ * des modules masqués.
+ */
+export interface Mission {
+  id: string;
+  runId: string;
+  title: string;
+  objective: string;
+  status: MissionStatus;
+  archivedFromStatus: MissionStatus | null;
+  createdAt: string;
+  completedAt: string | null;
+  /** `null` quand la jointure revient vide. */
+  run: MissionRun | null;
+}
+
+export type MissionSortKey = "newest" | "oldest";
 
 export interface MissionFilters {
   search: string;
   statuses: MissionStatus[];
-  priority: Priority | "all";
   sort: MissionSortKey;
 }
