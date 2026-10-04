@@ -109,12 +109,14 @@ begin
   insert into public.organizations (name) values ('Test étape 4 — annulé')
   returning id into org_id;
 
-  insert into public.integrations (organization_id, provider, account_email, status)
-  values (org_id, 'gmail', 'test-etape4@example.invalid', 'active')
+  -- vault_secret_id est NOT NULL en base : un identifiant fictif suffit, aucun
+  -- secret n'est lu, et le trigger de purge ignore un secret introuvable.
+  insert into public.integrations (organization_id, provider, account_email, status, vault_secret_id)
+  values (org_id, 'gmail', 'test-etape4@example.invalid', 'active', gen_random_uuid())
   returning id into gmail_id;
 
-  insert into public.integrations (organization_id, provider, external_account_id, status)
-  values (org_id, 'hubspot', 'test-etape4', 'active')
+  insert into public.integrations (organization_id, provider, external_account_id, status, vault_secret_id)
+  values (org_id, 'hubspot', 'test-etape4', 'active', gen_random_uuid())
   returning id into hubspot_id;
 
   -- B1 : ligne créée pour Gmail, désactivée, sans échéance, budget par défaut.
