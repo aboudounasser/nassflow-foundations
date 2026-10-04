@@ -9,7 +9,7 @@
  * requêtes aboutissent sur des listes vides : c'est à l'interface de le dire.
  */
 import type { Mission, MissionRun, MissionStatus } from "@/lib/missions/types";
-import type { RunStatus, RunTriggerSource } from "@/lib/scans/types";
+import type { RunStatus, RunStopReason, RunTriggerSource } from "@/lib/scans/types";
 import { supabase } from "@/lib/supabase/client";
 import type { Scope } from "@/lib/tenancy/types";
 
@@ -20,7 +20,7 @@ import type { Scope } from "@/lib/tenancy/types";
  * la même organisation que la mission.
  */
 const MISSION_SELECT =
-  "id, run_id, title, objective, status, archived_from_status, created_at, completed_at, runs!missions_run_org_fkey(status, started_at, finished_at, emails_scanned, emails_analyzed, emails_failed, prospects_found, ai_cost_millicents, error_message, trigger_source)";
+  "id, run_id, title, objective, status, archived_from_status, created_at, completed_at, runs!missions_run_org_fkey(status, started_at, finished_at, emails_scanned, emails_analyzed, emails_failed, prospects_found, ai_cost_millicents, stop_reason, backlog_remaining, error_message, trigger_source)";
 
 /** Nombre de missions affichées dans le bloc « Dernière activité » de l'accueil. */
 const RECENT_MISSIONS_LIMIT = 5;
@@ -55,6 +55,11 @@ function toMeasured(value: unknown): number | null {
   return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
 
+/** Même règle que `scans.ts` : sans preuve, pas d'arrêt annoncé. */
+function toRunStopReason(value: unknown): RunStopReason | null {
+  return value === "budget" ? "budget" : null;
+}
+
 /** Même règle que `scans.ts` : sans preuve, un run n'est pas automatique. */
 function toRunTriggerSource(value: unknown): RunTriggerSource {
   return value === "schedule" ? "schedule" : "manual";
@@ -83,6 +88,8 @@ function toMissionRun(value: unknown): MissionRun | null {
     prospectsFound: toCount(run["prospects_found"]),
     aiCostMillicents: toMeasured(run["ai_cost_millicents"]),
     emailsFailed: toMeasured(run["emails_failed"]),
+    stopReason: toRunStopReason(run["stop_reason"]),
+    backlogRemaining: toMeasured(run["backlog_remaining"]),
     errorMessage: toText(run["error_message"]),
     triggerSource: toRunTriggerSource(run["trigger_source"]),
   };

@@ -146,12 +146,15 @@ export type Database = {
        * `trigger_source` (`manual | schedule`) : le service les rétrécit.
        * `ai_cost_millicents` et `emails_failed` sont NULL sur les runs
        * antérieurs à leur création (jamais mesurés) et sur un run interrompu
-       * par le nettoyeur.
+       * par le nettoyeur. `stop_reason` (`budget`) et `backlog_remaining` de
+       * même, et aussi sur un run en échec. `emails_scanned` compte les
+       * messages réellement ouverts (au plus 50 par analyse).
        */
       runs: {
         Row: {
           ai_cost_cents: number | null;
           ai_cost_millicents: number | null;
+          backlog_remaining: number | null;
           emails_analyzed: number | null;
           emails_failed: number | null;
           emails_scanned: number | null;
@@ -163,12 +166,14 @@ export type Database = {
           prospects_found: number | null;
           started_at: string;
           status: string;
+          stop_reason: string | null;
           trigger_source: string;
           triggered_by: string | null;
         };
         Insert: {
           ai_cost_cents?: number | null;
           ai_cost_millicents?: number | null;
+          backlog_remaining?: number | null;
           emails_analyzed?: number | null;
           emails_failed?: number | null;
           emails_scanned?: number | null;
@@ -180,12 +185,14 @@ export type Database = {
           prospects_found?: number | null;
           started_at?: string;
           status?: string;
+          stop_reason?: string | null;
           trigger_source?: string;
           triggered_by?: string | null;
         };
         Update: {
           ai_cost_cents?: number | null;
           ai_cost_millicents?: number | null;
+          backlog_remaining?: number | null;
           emails_analyzed?: number | null;
           emails_failed?: number | null;
           emails_scanned?: number | null;
@@ -197,6 +204,7 @@ export type Database = {
           prospects_found?: number | null;
           started_at?: string;
           status?: string;
+          stop_reason?: string | null;
           trigger_source?: string;
           triggered_by?: string | null;
         };

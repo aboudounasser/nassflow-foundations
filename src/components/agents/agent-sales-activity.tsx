@@ -72,7 +72,7 @@ export function AgentSalesActivity() {
                     Dernière analyse {formatRelativeScanDate(latestRun.startedAt)}
                   </p>
                   <p className="text-[12px] text-muted-foreground">
-                    {pluralize(latestRun.emailsScanned, "e-mail lu", "e-mails lus")} ·{" "}
+                    {pluralize(latestRun.emailsScanned, "e-mail ouvert", "e-mails ouverts")} ·{" "}
                     {pluralize(latestRun.prospectsFound, "prospect trouvé", "prospects trouvés")}
                   </p>
                 </div>

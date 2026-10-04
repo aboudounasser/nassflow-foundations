@@ -1,4 +1,4 @@
-import type { RunStatus, RunTriggerSource } from "@/lib/scans/types";
+import type { RunStatus, RunStopReason, RunTriggerSource } from "@/lib/scans/types";
 
 /**
  * Statuts du module Missions. La base n'en admet que six (contrainte
@@ -29,6 +29,10 @@ export interface MissionRun {
   aiCostMillicents: number | null;
   /** `null` : jamais mesuré. */
   emailsFailed: number | null;
+  /** `null` : l'analyse est allée au bout (ou n'a pas été mesurée). */
+  stopReason: RunStopReason | null;
+  /** `null` : jamais mesuré. */
+  backlogRemaining: number | null;
   errorMessage: string | null;
   triggerSource: RunTriggerSource;
 }

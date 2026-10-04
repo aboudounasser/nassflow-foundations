@@ -19,6 +19,7 @@ import type {
   Run,
   RunResult,
   RunStatus,
+  RunStopReason,
   RunTriggerSource,
   ScanSummary,
 } from "@/lib/scans/types";
@@ -63,6 +64,14 @@ function toRunStatus(value: string): RunStatus {
  */
 function toRunTriggerSource(value: unknown): RunTriggerSource {
   return value === "schedule" ? "schedule" : "manual";
+}
+
+/**
+ * `stop_reason` est contraint côté base (`budget`). Une valeur inconnue vaut
+ * « pas d'arrêt » : on n'annonce jamais un budget atteint sans preuve.
+ */
+function toRunStopReason(value: unknown): RunStopReason | null {
+  return value === "budget" ? "budget" : null;
 }
 
 /** Mesure facultative : `null` reste « jamais mesuré », jamais 0. */
@@ -146,6 +155,8 @@ export async function startGmailScan(scope: Scope, integrationId: string): Promi
     emailsAnalyzed?: unknown;
     prospectsFound?: unknown;
     costCents?: unknown;
+    stopReason?: unknown;
+    backlogRemaining?: unknown;
     error?: unknown;
   } | null;
 
@@ -163,6 +174,8 @@ export async function startGmailScan(scope: Scope, integrationId: string): Promi
     emailsAnalyzed: toNumber(payload?.emailsAnalyzed) ?? 0,
     prospectsFound: toNumber(payload?.prospectsFound) ?? 0,
     costCents: toNumber(payload?.costCents) ?? 0,
+    stopReason: toRunStopReason(payload?.stopReason),
+    backlogRemaining: toNumber(payload?.backlogRemaining) ?? 0,
   };
 }
 
@@ -175,7 +188,7 @@ export async function listRuns(scope: Scope): Promise<Run[]> {
   const { data, error } = await supabase
     .from("runs")
     .select(
-      "id, integration_id, status, started_at, finished_at, emails_scanned, emails_analyzed, emails_failed, prospects_found, ai_cost_millicents, error_message, trigger_source, triggered_by",
+      "id, integration_id, status, started_at, finished_at, emails_scanned, emails_analyzed, emails_failed, prospects_found, ai_cost_millicents, stop_reason, backlog_remaining, error_message, trigger_source, triggered_by",
     )
     .eq("organization_id", scope.organizationId)
     .order("started_at", { ascending: false })
@@ -194,6 +207,8 @@ export async function listRuns(scope: Scope): Promise<Run[]> {
     prospectsFound: toCount(row.prospects_found),
     aiCostMillicents: toMeasured(row.ai_cost_millicents),
     emailsFailed: toMeasured(row.emails_failed),
+    stopReason: toRunStopReason(row.stop_reason),
+    backlogRemaining: toMeasured(row.backlog_remaining),
     errorMessage: row.error_message,
     triggerSource: toRunTriggerSource(row.trigger_source),
     triggeredBy: row.triggered_by,

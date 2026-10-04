@@ -11,6 +11,9 @@ export type RunStatus = "running" | "succeeded" | "failed";
 /** Origine d'un run : bouton « Analyser mes e-mails » ou analyse planifiée. */
 export type RunTriggerSource = "manual" | "schedule";
 
+/** Motif d'un arrêt avant la fin : budget IA quotidien de la boîte atteint. */
+export type RunStopReason = "budget";
+
 /**
  * Une exécution d'analyse. Les compteurs sont nuls tant que l'Edge Function
  * n'a pas terminé : un run `running` n'a encore rien à afficher.
@@ -31,6 +34,10 @@ export interface Run {
   aiCostMillicents: number | null;
   /** Messages abandonnés en cours d'analyse. `null` : jamais mesuré. */
   emailsFailed: number | null;
+  /** `null` : l'analyse est allée au bout (ou n'a pas été mesurée). */
+  stopReason: RunStopReason | null;
+  /** Messages restant à traiter à la fin du run. `null` : jamais mesuré. */
+  backlogRemaining: number | null;
   errorMessage: string | null;
   triggerSource: RunTriggerSource;
   triggeredBy: string | null;
@@ -102,8 +109,11 @@ export interface RunResult {
 /** Résumé renvoyé par `run-gmail-scan` à la fin de l'analyse. */
 export interface ScanSummary {
   runId: string;
+  /** Messages réellement ouverts, au plus 50. */
   emailsScanned: number;
   emailsAnalyzed: number;
   prospectsFound: number;
   costCents: number;
+  stopReason: RunStopReason | null;
+  backlogRemaining: number;
 }

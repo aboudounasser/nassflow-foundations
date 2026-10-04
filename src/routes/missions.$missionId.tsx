@@ -203,7 +203,10 @@ function RunSection({ mission }: { mission: Mission }) {
             <Fact label="Fin" value={formatScanDateTime(run.finishedAt)} />
             <Fact label="Coût IA" value={formatAiCost(run.aiCostMillicents)} />
             <Fact label="Déclenchement" value={RUN_TRIGGER_SOURCE[run.triggerSource].label} />
-            <Fact label="E-mails lus" value={pluralize(run.emailsScanned, "e-mail", "e-mails")} />
+            <Fact
+              label="E-mails ouverts"
+              value={pluralize(run.emailsScanned, "e-mail", "e-mails")}
+            />
             <Fact
               label="E-mails analysés"
               value={pluralize(run.emailsAnalyzed, "e-mail", "e-mails")}
@@ -212,6 +215,12 @@ function RunSection({ mission }: { mission: Mission }) {
               label="Prospects trouvés"
               value={pluralize(run.prospectsFound, "prospect", "prospects")}
             />
+            {run.backlogRemaining !== null && run.backlogRemaining > 0 ? (
+              <Fact
+                label="Messages en attente"
+                value={pluralize(run.backlogRemaining, "message", "messages")}
+              />
+            ) : null}
             {run.emailsFailed !== null && run.emailsFailed > 0 ? (
               <Fact
                 label="E-mails en échec"
@@ -219,6 +228,15 @@ function RunSection({ mission }: { mission: Mission }) {
               />
             ) : null}
           </div>
+          {run.stopReason === "budget" ? (
+            <div className="flex items-start gap-2 rounded-lg border border-warning/30 bg-warning/10 p-3">
+              <TriangleAlert className="size-5 shrink-0 text-warning" aria-hidden="true" />
+              <p className="text-[14px] text-foreground">
+                Arrêtée : budget IA du jour atteint. Les messages en attente seront analysés à
+                partir de demain.
+              </p>
+            </div>
+          ) : null}
           {run.errorMessage ? (
             <div className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/10 p-3">
               <TriangleAlert className="size-5 shrink-0 text-destructive" aria-hidden="true" />

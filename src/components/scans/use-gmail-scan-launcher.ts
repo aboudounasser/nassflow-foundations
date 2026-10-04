@@ -33,12 +33,32 @@ export function useGmailScanLauncher() {
   const launch = () => {
     if (!gmailConnection) return;
     startMutation.mutate(gmailConnection.id, {
-      onSuccess: (summary) =>
-        toast.success(
+      onSuccess: (summary) => {
+        const found =
           summary.prospectsFound > 0
-            ? `Analyse terminée : ${pluralize(summary.prospectsFound, "prospect trouvé", "prospects trouvés")}.`
-            : "Analyse terminée : aucune demande commerciale détectée.",
-        ),
+            ? pluralize(summary.prospectsFound, "prospect trouvé", "prospects trouvés")
+            : "aucune demande commerciale détectée";
+        const pending = pluralize(
+          summary.backlogRemaining,
+          "message reste à analyser",
+          "messages restent à analyser",
+        );
+        if (summary.stopReason === "budget") {
+          // Pas une erreur : l'analyse s'est arrêtée proprement, il n'y a rien à
+          // relancer aujourd'hui.
+          toast.warning(
+            `Budget IA du jour atteint pour cette boîte : ${found}. ${
+              summary.backlogRemaining > 0
+                ? `${pluralize(summary.backlogRemaining, "message sera analysé", "messages seront analysés")} à partir de demain.`
+                : ""
+            }`.trim(),
+          );
+        } else if (summary.backlogRemaining > 0) {
+          toast.success(`Analyse terminée : ${found}. ${pending} : relancez l'analyse.`);
+        } else {
+          toast.success(`Analyse terminée : ${found}.`);
+        }
+      },
       // Les corps 403 / 404 / 409 portent un message rédigé pour l'utilisateur :
       // il est affiché tel quel.
       onError: (e) =>
