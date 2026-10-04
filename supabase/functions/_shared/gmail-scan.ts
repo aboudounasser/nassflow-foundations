@@ -35,8 +35,47 @@ export interface ScanSummary {
   emailsScanned: number;
   emailsSkipped: number;
   emailsAnalyzed: number;
+  /**
+   * Messages abandonnés en cours de route : lecture Gmail ou appel au modèle
+   * en échec (repris au prochain passage), réponse du modèle illisible
+   * (marquée vue, jamais repayée). Renvoyé seulement : la colonne
+   * `runs.emails_failed` n'existe pas encore.
+   */
+  emailsFailed: number;
   prospectsFound: number;
   costCents: number;
+}
+
+/**
+ * Messages destinés à l'utilisateur. Ils sont écrits dans `runs.error_message`
+ * et affichés tels quels sur la fiche mission : jamais de détail technique ici,
+ * il part dans les journaux de la fonction.
+ */
+const GMAIL_ACCESS_EXPIRED = "L'accès Gmail a expiré. Reconnectez le compte.";
+const GOOGLE_UNAVAILABLE = "Google n'a pas pu être joint. Réessayez dans quelques minutes.";
+const UNEXPECTED_ERROR = "L'analyse a échoué à cause d'une erreur inattendue. Réessayez plus tard.";
+
+/**
+ * Une erreur PostgreSQL n'atteint l'utilisateur que si elle a été rédigée pour
+ * lui : un `raise exception` de trigger ou de fonction (SQLSTATE `P0001`) passe
+ * intact, tout le reste (droits, contraintes, réseau) devient un message neutre.
+ */
+function userFacingDbError(error: { code?: string; message: string }): string {
+  return error.code === "P0001" ? error.message : UNEXPECTED_ERROR;
+}
+
+/**
+ * Code d'erreur OAuth renvoyé par Google (`{"error": "invalid_grant", …}`).
+ * Seul `invalid_grant` signifie que le jeton ne servira plus jamais (révoqué,
+ * ou expiré : 7 jours tant que l'application Google est en mode « Test »).
+ */
+function googleOAuthError(body: string): string | null {
+  try {
+    const parsed = JSON.parse(body);
+    return typeof parsed?.error === "string" ? parsed.error : null;
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -85,6 +124,50 @@ function extractBody(payload: any, depth = 0): string {
     if (found) return found;
   }
   return "";
+}
+
+interface Candidate {
+  id: string;
+  subject: string;
+  from: string;
+  date: string;
+  body: string;
+}
+
+/** Requête de classification d'un message, envoyée à `gpt-4o-mini`. */
+function classificationRequest(openaiKey: string, c: Candidate): RequestInit {
+  return {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${openaiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: "gpt-4o-mini",
+      temperature: 0,
+      response_format: { type: "json_object" },
+      messages: [
+        {
+          role: "system",
+          content:
+            "Tu analyses un e-mail professionnel reçu par une entreprise française. " +
+            "Détermine s'il s'agit d'une demande commerciale entrante : quelqu'un " +
+            "qui exprime un besoin, demande un devis, un renseignement, ou manifeste " +
+            "un intérêt pour une offre. Ce n'est PAS le cas d'une facture, d'une " +
+            "candidature, d'un message interne, d'une publicité reçue, ou d'un " +
+            "échange administratif. Réponds en JSON strict : " +
+            '{"isProspect": boolean, "confidence": 0-100, "reasoning": "une phrase ' +
+            'en français expliquant ta décision", "name": string|null, ' +
+            '"company": string|null, "email": string|null, "phone": string|null, ' +
+            '"request": "ce que la personne demande, en une phrase"|null}',
+        },
+        {
+          role: "user",
+          content: `De : ${c.from}\nObjet : ${c.subject}\n\n${c.body}`,
+        },
+      ],
+    }),
+  };
 }
 
 export async function runGmailScan(
@@ -183,29 +266,51 @@ export async function runGmailScan(
     );
     if (vaultError || !refreshToken) return await fail("Jeton Gmail introuvable.");
 
-    const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({
-        client_id: config.googleClientId,
-        client_secret: config.googleClientSecret,
-        refresh_token: String(refreshToken),
-        grant_type: "refresh_token",
-      }),
-    });
+    let tokenRes: Response;
+    try {
+      tokenRes = await fetch("https://oauth2.googleapis.com/token", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          client_id: config.googleClientId,
+          client_secret: config.googleClientSecret,
+          refresh_token: String(refreshToken),
+          grant_type: "refresh_token",
+        }),
+      });
+    } catch (e) {
+      console.error("Google injoignable", e);
+      return await fail(GOOGLE_UNAVAILABLE);
+    }
     if (!tokenRes.ok) {
-      console.error("rafraîchissement refusé", await tokenRes.text());
-      await admin.from("integrations").update({ status: "error" }).eq("id", integrationId);
-      return await fail("L'accès Gmail a expiré. Reconnectez le compte.");
+      const detail = await tokenRes.text();
+      console.error("rafraîchissement refusé", tokenRes.status, detail);
+      // Seul un jeton définitivement perdu désactive l'intégration. Une panne
+      // de Google (5xx) ou un défaut de configuration serveur laisse la
+      // connexion active : l'utilisateur n'a rien à reconnecter.
+      if (googleOAuthError(detail) === "invalid_grant") {
+        await admin.from("integrations").update({ status: "error" }).eq("id", integrationId);
+        return await fail(GMAIL_ACCESS_EXPIRED);
+      }
+      return await fail(GOOGLE_UNAVAILABLE);
     }
     const accessToken = (await tokenRes.json()).access_token as string;
 
     // ─── 4. Lister les messages ──────────────────────────────
-    const listRes = await fetch(
-      "https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=50&q=in:inbox",
-      { headers: { Authorization: `Bearer ${accessToken}` } },
-    );
-    if (!listRes.ok) return await fail("Lecture de la boîte impossible.");
+    let listRes: Response;
+    try {
+      listRes = await fetch(
+        "https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=50&q=in:inbox",
+        { headers: { Authorization: `Bearer ${accessToken}` } },
+      );
+    } catch (e) {
+      console.error("Gmail injoignable", e);
+      return await fail(GOOGLE_UNAVAILABLE);
+    }
+    if (!listRes.ok) {
+      console.error("liste des messages refusée", listRes.status, await listRes.text());
+      return await fail("Lecture de la boîte impossible.");
+    }
     const ids = ((await listRes.json()).messages ?? []) as { id: string }[];
 
     // ─── 4bis. Écarter ce qui a déjà été traité ──────────────
@@ -217,19 +322,17 @@ export async function runGmailScan(
       .eq("integration_id", integrationId)
       .in("message_id", ids.map((m) => m.id));
 
-    if (seenError) return await fail(seenError.message);
+    if (seenError) {
+      console.error("lecture seen_messages refusée", seenError.message);
+      return await fail(userFacingDbError(seenError));
+    }
     const seen = new Set((seenRows ?? []).map((r) => r.message_id));
 
     let scanned = 0;
     let skipped = 0;
     let analyzed = 0;
-    const candidates: {
-      id: string;
-      subject: string;
-      from: string;
-      date: string;
-      body: string;
-    }[] = [];
+    let failed = 0;
+    const candidates: Candidate[] = [];
     // Messages traités lors de CE run, retenus ou non.
     const processed: { id: string; wasProspect: boolean }[] = [];
 
@@ -241,12 +344,25 @@ export async function runGmailScan(
         continue;
       }
 
-      const msgRes = await fetch(
-        `https://gmail.googleapis.com/gmail/v1/users/me/messages/${id}?format=full`,
-        { headers: { Authorization: `Bearer ${accessToken}` } },
-      );
-      if (!msgRes.ok) continue;
-      const msg = await msgRes.json();
+      // Un message illisible (quota, panne passagère) n'interrompt pas le run :
+      // il est compté en échec et, non marqué comme vu, repris au prochain passage.
+      let msg: any;
+      try {
+        const msgRes = await fetch(
+          `https://gmail.googleapis.com/gmail/v1/users/me/messages/${id}?format=full`,
+          { headers: { Authorization: `Bearer ${accessToken}` } },
+        );
+        if (!msgRes.ok) {
+          console.error("message illisible", id, msgRes.status);
+          failed++;
+          continue;
+        }
+        msg = await msgRes.json();
+      } catch (e) {
+        console.error("message illisible", id, e);
+        failed++;
+        continue;
+      }
       const headers = headerMap(msg.payload);
 
       if (looksAutomated(headers)) {
@@ -278,45 +394,25 @@ export async function runGmailScan(
 
     for (const c of candidates) {
       analyzed++;
-      const aiRes = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${config.openaiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "gpt-4o-mini",
-          temperature: 0,
-          response_format: { type: "json_object" },
-          messages: [
-            {
-              role: "system",
-              content:
-                "Tu analyses un e-mail professionnel reçu par une entreprise française. " +
-                "Détermine s'il s'agit d'une demande commerciale entrante : quelqu'un " +
-                "qui exprime un besoin, demande un devis, un renseignement, ou manifeste " +
-                "un intérêt pour une offre. Ce n'est PAS le cas d'une facture, d'une " +
-                "candidature, d'un message interne, d'une publicité reçue, ou d'un " +
-                "échange administratif. Réponds en JSON strict : " +
-                '{"isProspect": boolean, "confidence": 0-100, "reasoning": "une phrase ' +
-                'en français expliquant ta décision", "name": string|null, ' +
-                '"company": string|null, "email": string|null, "phone": string|null, ' +
-                '"request": "ce que la personne demande, en une phrase"|null}',
-            },
-            {
-              role: "user",
-              content: `De : ${c.from}\nObjet : ${c.subject}\n\n${c.body}`,
-            },
-          ],
-        }),
-      });
-
-      if (!aiRes.ok) {
-        console.error("appel modèle refusé", await aiRes.text());
-        // Non marqué comme vu : on retentera au prochain passage.
+      // Panne ou refus du modèle : rien n'a été facturé, le message n'est pas
+      // marqué comme vu et sera repris au prochain passage.
+      let aiData: any;
+      try {
+        const aiRes = await fetch(
+          "https://api.openai.com/v1/chat/completions",
+          classificationRequest(config.openaiKey, c),
+        );
+        if (!aiRes.ok) {
+          console.error("appel modèle refusé", aiRes.status, await aiRes.text());
+          failed++;
+          continue;
+        }
+        aiData = await aiRes.json();
+      } catch (e) {
+        console.error("modèle injoignable", e);
+        failed++;
         continue;
       }
-      const aiData = await aiRes.json();
 
       // gpt-4o-mini : 0,15 $/M en entrée, 0,60 $/M en sortie.
       const usage = aiData.usage ?? {};
@@ -324,10 +420,18 @@ export async function runGmailScan(
         (usage.prompt_tokens ?? 0) * 0.0015 +
         (usage.completion_tokens ?? 0) * 0.006;
 
-      let parsed: any;
+      let parsed: any = null;
       try {
         parsed = JSON.parse(aiData.choices?.[0]?.message?.content ?? "{}");
       } catch {
+        parsed = null;
+      }
+      if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+        // L'appel est déjà payé : le message est marqué comme vu pour ne
+        // jamais le repayer. Le reposer au modèle donnerait la même réponse.
+        console.error("réponse du modèle illisible", c.id);
+        failed++;
+        processed.push({ id: c.id, wasProspect: false });
         continue;
       }
 
@@ -359,7 +463,10 @@ export async function runGmailScan(
 
     if (results.length > 0) {
       const { error: insertError } = await admin.from("run_results").insert(results);
-      if (insertError) return await fail(insertError.message);
+      if (insertError) {
+        console.error("insertion run_results refusée", insertError.message);
+        return await fail(userFacingDbError(insertError));
+      }
     }
 
     // ─── 6. Mémoriser les messages traités ───────────────────
@@ -380,6 +487,7 @@ export async function runGmailScan(
     }
 
     const costCents = Math.round(costMillicents / 1000);
+    if (failed > 0) console.warn("messages en échec", { runId, failed });
 
     await admin
       .from("runs")
@@ -401,12 +509,13 @@ export async function runGmailScan(
         emailsScanned: scanned,
         emailsSkipped: skipped,
         emailsAnalyzed: analyzed,
+        emailsFailed: failed,
         prospectsFound: results.length,
         costCents,
       },
     };
   } catch (e) {
     console.error("échec inattendu", e);
-    return await fail(e instanceof Error ? e.message : "Erreur inattendue.");
+    return await fail(UNEXPECTED_ERROR);
   }
 }
