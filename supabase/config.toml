@@ -1,1 +1,6 @@
 project_id = "pgxaqwzikqgovvucvwsk"
+
+# Appelée par le dispatcher SQL (pg_net), jamais par le navigateur :
+# authentification par jeton à usage unique (claim_scan_dispatch), pas par JWT.
+[functions.scheduled-gmail-scan]
+verify_jwt = false
