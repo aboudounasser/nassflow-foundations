@@ -218,6 +218,95 @@ export type Database = {
         ];
       };
       /**
+       * Réglages d'analyse automatique, une ligne par intégration Gmail, créée
+       * par un trigger sur `integrations` : jamais insérée ni supprimée depuis
+       * le navigateur. Lecture réservée aux owner et admin par RLS ; UPDATE
+       * limité par grants de colonnes à `enabled`, `frequency` et `run_hour` —
+       * le budget, le fuseau, l'échéance et les compteurs sont tenus par la
+       * plateforme. `frequency` est contrainte côté base
+       * (`weekdays | daily | twice_daily`), `run_hour` entre 6 et 16 : le
+       * service les rétrécit. `next_run_at` est recalculée par trigger.
+       */
+      scan_schedules: {
+        Row: {
+          consecutive_failures: number;
+          created_at: string;
+          daily_ai_budget_millicents: number;
+          enabled: boolean;
+          frequency: string;
+          inbox_watermark: string | null;
+          integration_id: string;
+          last_error: string | null;
+          last_error_at: string | null;
+          last_scheduled_run_id: string | null;
+          next_run_at: string | null;
+          organization_id: string;
+          run_hour: number;
+          timezone: string;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          consecutive_failures?: number;
+          created_at?: string;
+          daily_ai_budget_millicents?: number;
+          enabled?: boolean;
+          frequency?: string;
+          inbox_watermark?: string | null;
+          integration_id: string;
+          last_error?: string | null;
+          last_error_at?: string | null;
+          last_scheduled_run_id?: string | null;
+          next_run_at?: string | null;
+          organization_id: string;
+          run_hour?: number;
+          timezone?: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          consecutive_failures?: number;
+          created_at?: string;
+          daily_ai_budget_millicents?: number;
+          enabled?: boolean;
+          frequency?: string;
+          inbox_watermark?: string | null;
+          integration_id?: string;
+          last_error?: string | null;
+          last_error_at?: string | null;
+          last_scheduled_run_id?: string | null;
+          next_run_at?: string | null;
+          organization_id?: string;
+          run_hour?: number;
+          timezone?: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "scan_schedules_integration_id_fkey";
+            columns: ["integration_id"];
+            isOneToOne: true;
+            referencedRelation: "integrations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "scan_schedules_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "scan_schedules_last_scheduled_run_id_fkey";
+            columns: ["last_scheduled_run_id"];
+            isOneToOne: false;
+            referencedRelation: "runs";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      /**
        * Prospects extraits par une exécution, une ligne par message retenu.
        * `extracted` reste typé `Json` ici — c'est ce que la base déclare ; sa
        * forme applicative (`ExtractedProspect`) est arbitrée dans
