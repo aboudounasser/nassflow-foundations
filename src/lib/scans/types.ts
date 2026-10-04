@@ -8,6 +8,9 @@
 
 export type RunStatus = "running" | "succeeded" | "failed";
 
+/** Origine d'un run : bouton « Analyser mes e-mails » ou analyse planifiée. */
+export type RunTriggerSource = "manual" | "schedule";
+
 /**
  * Une exécution d'analyse. Les compteurs sont nuls tant que l'Edge Function
  * n'a pas terminé : un run `running` n'a encore rien à afficher.
@@ -21,8 +24,15 @@ export interface Run {
   emailsScanned: number;
   emailsAnalyzed: number;
   prospectsFound: number;
-  aiCostCents: number;
+  /**
+   * Coût IA réel, en millièmes de centime. `null` : jamais mesuré (run antérieur
+   * à la colonne, ou interrompu par le nettoyeur).
+   */
+  aiCostMillicents: number | null;
+  /** Messages abandonnés en cours d'analyse. `null` : jamais mesuré. */
+  emailsFailed: number | null;
   errorMessage: string | null;
+  triggerSource: RunTriggerSource;
   triggeredBy: string | null;
 }
 

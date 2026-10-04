@@ -9,7 +9,7 @@
  * requêtes aboutissent sur des listes vides : c'est à l'interface de le dire.
  */
 import type { Mission, MissionRun, MissionStatus } from "@/lib/missions/types";
-import type { RunStatus } from "@/lib/scans/types";
+import type { RunStatus, RunTriggerSource } from "@/lib/scans/types";
 import { supabase } from "@/lib/supabase/client";
 import type { Scope } from "@/lib/tenancy/types";
 
@@ -20,7 +20,7 @@ import type { Scope } from "@/lib/tenancy/types";
  * la même organisation que la mission.
  */
 const MISSION_SELECT =
-  "id, run_id, title, objective, status, archived_from_status, created_at, completed_at, runs!missions_run_org_fkey(status, started_at, finished_at, emails_scanned, emails_analyzed, prospects_found, ai_cost_cents, error_message)";
+  "id, run_id, title, objective, status, archived_from_status, created_at, completed_at, runs!missions_run_org_fkey(status, started_at, finished_at, emails_scanned, emails_analyzed, emails_failed, prospects_found, ai_cost_millicents, error_message, trigger_source)";
 
 /** Nombre de missions affichées dans le bloc « Dernière activité » de l'accueil. */
 const RECENT_MISSIONS_LIMIT = 5;
@@ -50,6 +50,16 @@ function toCount(value: unknown): number {
   return typeof value === "number" && Number.isFinite(value) ? value : 0;
 }
 
+/** Mesure facultative : `null` reste « jamais mesuré », jamais 0. */
+function toMeasured(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+/** Même règle que `scans.ts` : sans preuve, un run n'est pas automatique. */
+function toRunTriggerSource(value: unknown): RunTriggerSource {
+  return value === "schedule" ? "schedule" : "manual";
+}
+
 function toText(value: unknown): string | null {
   return typeof value === "string" && value.length > 0 ? value : null;
 }
@@ -71,8 +81,10 @@ function toMissionRun(value: unknown): MissionRun | null {
     emailsScanned: toCount(run["emails_scanned"]),
     emailsAnalyzed: toCount(run["emails_analyzed"]),
     prospectsFound: toCount(run["prospects_found"]),
-    aiCostCents: toCount(run["ai_cost_cents"]),
+    aiCostMillicents: toMeasured(run["ai_cost_millicents"]),
+    emailsFailed: toMeasured(run["emails_failed"]),
     errorMessage: toText(run["error_message"]),
+    triggerSource: toRunTriggerSource(run["trigger_source"]),
   };
 }
 

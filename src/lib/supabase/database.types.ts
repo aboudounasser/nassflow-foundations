@@ -142,13 +142,18 @@ export type Database = {
        * Exécutions d'analyse d'une intégration. Lecture réservée aux owner et
        * admin par RLS ; aucune écriture n'est possible depuis le navigateur —
        * seule l'Edge Function `run-gmail-scan` insère et met à jour.
-       * `status` est contraint côté base (`running | succeeded | failed`) :
-       * le service le rétrécit.
+       * `status` est contraint côté base (`running | succeeded | failed`) et
+       * `trigger_source` (`manual | schedule`) : le service les rétrécit.
+       * `ai_cost_millicents` et `emails_failed` sont NULL sur les runs
+       * antérieurs à leur création (jamais mesurés) et sur un run interrompu
+       * par le nettoyeur.
        */
       runs: {
         Row: {
           ai_cost_cents: number | null;
+          ai_cost_millicents: number | null;
           emails_analyzed: number | null;
+          emails_failed: number | null;
           emails_scanned: number | null;
           error_message: string | null;
           finished_at: string | null;
@@ -158,11 +163,14 @@ export type Database = {
           prospects_found: number | null;
           started_at: string;
           status: string;
+          trigger_source: string;
           triggered_by: string | null;
         };
         Insert: {
           ai_cost_cents?: number | null;
+          ai_cost_millicents?: number | null;
           emails_analyzed?: number | null;
+          emails_failed?: number | null;
           emails_scanned?: number | null;
           error_message?: string | null;
           finished_at?: string | null;
@@ -172,11 +180,14 @@ export type Database = {
           prospects_found?: number | null;
           started_at?: string;
           status?: string;
+          trigger_source?: string;
           triggered_by?: string | null;
         };
         Update: {
           ai_cost_cents?: number | null;
+          ai_cost_millicents?: number | null;
           emails_analyzed?: number | null;
+          emails_failed?: number | null;
           emails_scanned?: number | null;
           error_message?: string | null;
           finished_at?: string | null;
@@ -186,6 +197,7 @@ export type Database = {
           prospects_found?: number | null;
           started_at?: string;
           status?: string;
+          trigger_source?: string;
           triggered_by?: string | null;
         };
         Relationships: [

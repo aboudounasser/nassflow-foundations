@@ -19,6 +19,7 @@ import type {
   Run,
   RunResult,
   RunStatus,
+  RunTriggerSource,
   ScanSummary,
 } from "@/lib/scans/types";
 import { supabase } from "@/lib/supabase/client";
@@ -53,6 +54,20 @@ const KNOWN_STATUSES: RunStatus[] = ["running", "succeeded", "failed"];
 
 function toRunStatus(value: string): RunStatus {
   return KNOWN_STATUSES.includes(value as RunStatus) ? (value as RunStatus) : "failed";
+}
+
+/**
+ * `trigger_source` est contraint côté base (`manual | schedule`). Une valeur
+ * inconnue vaut `manual` : c'est l'origine de tous les runs antérieurs à la
+ * colonne, et ne jamais prétendre qu'un run est automatique sans preuve.
+ */
+function toRunTriggerSource(value: unknown): RunTriggerSource {
+  return value === "schedule" ? "schedule" : "manual";
+}
+
+/** Mesure facultative : `null` reste « jamais mesuré », jamais 0. */
+function toMeasured(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
 
 /**
@@ -160,7 +175,7 @@ export async function listRuns(scope: Scope): Promise<Run[]> {
   const { data, error } = await supabase
     .from("runs")
     .select(
-      "id, integration_id, status, started_at, finished_at, emails_scanned, emails_analyzed, prospects_found, ai_cost_cents, error_message, triggered_by",
+      "id, integration_id, status, started_at, finished_at, emails_scanned, emails_analyzed, emails_failed, prospects_found, ai_cost_millicents, error_message, trigger_source, triggered_by",
     )
     .eq("organization_id", scope.organizationId)
     .order("started_at", { ascending: false })
@@ -177,8 +192,10 @@ export async function listRuns(scope: Scope): Promise<Run[]> {
     emailsScanned: toCount(row.emails_scanned),
     emailsAnalyzed: toCount(row.emails_analyzed),
     prospectsFound: toCount(row.prospects_found),
-    aiCostCents: toCount(row.ai_cost_cents),
+    aiCostMillicents: toMeasured(row.ai_cost_millicents),
+    emailsFailed: toMeasured(row.emails_failed),
     errorMessage: row.error_message,
+    triggerSource: toRunTriggerSource(row.trigger_source),
     triggeredBy: row.triggered_by,
   }));
 }

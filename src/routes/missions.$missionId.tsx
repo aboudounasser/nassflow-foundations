@@ -15,7 +15,7 @@ import { MISSION_STATUS, formatAiCost, formatElapsed } from "@/lib/missions/meta
 import { useMission } from "@/lib/missions/queries";
 import type { Mission } from "@/lib/missions/types";
 import { PRIVILEGED_ROLES } from "@/lib/organization/meta";
-import { RUN_STATUS, formatScanDateTime, pluralize } from "@/lib/scans/meta";
+import { RUN_STATUS, RUN_TRIGGER_SOURCE, formatScanDateTime, pluralize } from "@/lib/scans/meta";
 import { useRunResults } from "@/lib/scans/queries";
 
 const DESCRIPTION =
@@ -201,7 +201,8 @@ function RunSection({ mission }: { mission: Mission }) {
           <div className="grid gap-3 @2xl:grid-cols-3">
             <Fact label="Début" value={formatScanDateTime(run.startedAt)} />
             <Fact label="Fin" value={formatScanDateTime(run.finishedAt)} />
-            <Fact label="Coût IA" value={formatAiCost(run.aiCostCents)} />
+            <Fact label="Coût IA" value={formatAiCost(run.aiCostMillicents)} />
+            <Fact label="Déclenchement" value={RUN_TRIGGER_SOURCE[run.triggerSource].label} />
             <Fact label="E-mails lus" value={pluralize(run.emailsScanned, "e-mail", "e-mails")} />
             <Fact
               label="E-mails analysés"
@@ -211,6 +212,12 @@ function RunSection({ mission }: { mission: Mission }) {
               label="Prospects trouvés"
               value={pluralize(run.prospectsFound, "prospect", "prospects")}
             />
+            {run.emailsFailed !== null && run.emailsFailed > 0 ? (
+              <Fact
+                label="E-mails en échec"
+                value={pluralize(run.emailsFailed, "e-mail", "e-mails")}
+              />
+            ) : null}
           </div>
           {run.errorMessage ? (
             <div className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/10 p-3">

@@ -110,7 +110,23 @@ const EURO_FMT = new Intl.NumberFormat("fr-FR", {
   minimumFractionDigits: 2,
 });
 
-/** Coût IA d'un run, stocké en centimes (`runs.ai_cost_cents`). */
-export function formatAiCost(cents: number): string {
-  return EURO_FMT.format(cents / 100);
+/**
+ * Sous le centime, deux chiffres significatifs : une analyse coûte de l'ordre
+ * de 0,00004 €, que le format standard réduirait à « 0,00 € ».
+ */
+const SMALL_EURO_FMT = new Intl.NumberFormat("fr-FR", {
+  style: "currency",
+  currency: "EUR",
+  maximumSignificantDigits: 2,
+});
+
+/**
+ * Coût IA d'un run, stocké en millièmes de centime (`runs.ai_cost_millicents`).
+ * `null` : le coût n'a jamais été mesuré — à ne pas confondre avec un coût nul.
+ */
+export function formatAiCost(millicents: number | null): string {
+  if (millicents === null) return "Non mesuré";
+  const euros = millicents / 100_000;
+  if (euros === 0 || euros >= 0.01) return EURO_FMT.format(euros);
+  return SMALL_EURO_FMT.format(euros);
 }

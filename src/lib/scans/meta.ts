@@ -1,6 +1,6 @@
 import { CircleCheck, Loader, TriangleAlert, type LucideIcon } from "lucide-react";
 
-import type { RunStatus } from "./types";
+import type { RunStatus, RunTriggerSource } from "./types";
 
 type BadgeVariant = "neutral" | "primary" | "success" | "warning" | "destructive" | "info";
 
@@ -11,6 +11,11 @@ export const RUN_STATUS: Record<
   running: { label: "En cours", variant: "info", icon: Loader },
   succeeded: { label: "Terminée", variant: "success", icon: CircleCheck },
   failed: { label: "Échouée", variant: "destructive", icon: TriangleAlert },
+};
+
+export const RUN_TRIGGER_SOURCE: Record<RunTriggerSource, { label: string }> = {
+  manual: { label: "Manuelle" },
+  schedule: { label: "Automatique" },
 };
 
 /**
