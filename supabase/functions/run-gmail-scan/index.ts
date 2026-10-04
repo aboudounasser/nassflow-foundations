@@ -69,6 +69,7 @@ Deno.serve(async (req) => {
     organizationId,
     integrationId,
     triggeredBy: userData.user.id,
+    triggerSource: "manual",
   });
 
   switch (outcome.kind) {

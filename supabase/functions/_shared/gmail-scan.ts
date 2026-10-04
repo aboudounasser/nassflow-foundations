@@ -26,8 +26,10 @@ export function loadScanConfig(): ScanConfig {
 export interface ScanRequest {
   organizationId: string;
   integrationId: string;
-  /** Utilisateur à l'origine du run. */
+  /** Utilisateur à l'origine du run ; `null` pour une analyse planifiée. */
   triggeredBy: string | null;
+  /** Écrit dans `runs.trigger_source`, contraint côté base. */
+  triggerSource: "manual" | "schedule";
 }
 
 export interface ScanSummary {
@@ -38,12 +40,14 @@ export interface ScanSummary {
   /**
    * Messages abandonnés en cours de route : lecture Gmail ou appel au modèle
    * en échec (repris au prochain passage), réponse du modèle illisible
-   * (marquée vue, jamais repayée). Renvoyé seulement : la colonne
-   * `runs.emails_failed` n'existe pas encore.
+   * (marquée vue, jamais repayée). Écrit dans `runs.emails_failed`.
    */
   emailsFailed: number;
   prospectsFound: number;
+  /** Arrondi au centime : conservé pour la compatibilité de la réponse. */
   costCents: number;
+  /** Coût réel, en millièmes de centime (`runs.ai_cost_millicents`). */
+  costMillicents: number;
 }
 
 /**
@@ -62,6 +66,7 @@ const GOOGLE_REFUSED =
   "Google a refusé de renouveler l'accès à la boîte Gmail. Réessayez plus tard ; si le " +
   "problème persiste, contactez le support.";
 const UNEXPECTED_ERROR = "L'analyse a échoué à cause d'une erreur inattendue. Réessayez plus tard.";
+const SCAN_ALREADY_RUNNING = "Une analyse est déjà en cours pour cette boîte.";
 
 /**
  * Une erreur PostgreSQL n'atteint l'utilisateur que si elle a été rédigée pour
@@ -228,7 +233,7 @@ export async function runGmailScan(
   config: ScanConfig,
   request: ScanRequest,
 ): Promise<ScanOutcome> {
-  const { organizationId, integrationId, triggeredBy } = request;
+  const { organizationId, integrationId, triggeredBy, triggerSource } = request;
 
   // ─── 1. L'intégration DOIT appartenir à cette organisation ─
   //    vault_read_secret ne vérifie aucune appartenance : c'est ici
@@ -255,11 +260,18 @@ export async function runGmailScan(
       integration_id: integrationId,
       status: "running",
       triggered_by: triggeredBy,
+      trigger_source: triggerSource,
     })
     .select("id")
     .single();
 
+  // 23505 : l'index unique `runs_one_running_per_integration` refuse un second
+  // run 'running' sur la même boîte, qu'il soit manuel ou planifié.
+  if (runError?.code === "23505") {
+    return { kind: "rejected", status: 409, error: SCAN_ALREADY_RUNNING };
+  }
   if (runError || !run) {
+    if (runError) console.error("ouverture du run refusée", runError.message);
     return { kind: "rejected", status: 500, error: "Impossible de démarrer l'analyse." };
   }
   const runId: string = run.id;
@@ -298,6 +310,13 @@ export async function runGmailScan(
       .eq("id", missionId);
   };
 
+  // Déclarés avant toute étape qui peut échouer : un run en échec garde la
+  // trace de ce qu'il a déjà dépensé et des messages déjà abandonnés.
+  // Coût accumulé en MILLIÈMES de centime : un appel coûte ~0,0025 centime.
+  // Arrondir à chaque message multipliait le total par 400.
+  let costMillicents = 0;
+  let failed = 0;
+
   const fail = async (message: string): Promise<ScanOutcome> => {
     await admin
       .from("runs")
@@ -305,6 +324,8 @@ export async function runGmailScan(
         status: "failed",
         finished_at: new Date().toISOString(),
         error_message: message,
+        ai_cost_millicents: Math.round(costMillicents),
+        emails_failed: failed,
       })
       .eq("id", runId);
     await closeMission("failed");
@@ -406,7 +427,6 @@ export async function runGmailScan(
     let scanned = 0;
     let skipped = 0;
     let analyzed = 0;
-    let failed = 0;
     const candidates: Candidate[] = [];
     // Messages traités lors de CE run, retenus ou non.
     const processed: { id: string; wasProspect: boolean }[] = [];
@@ -462,9 +482,6 @@ export async function runGmailScan(
     }
 
     // ─── 5. Analyse ──────────────────────────────────────────
-    // Accumulé en MILLIÈMES de centime : un appel coûte ~0,0025
-    // centime. Arrondir à chaque message multipliait le total par 400.
-    let costMillicents = 0;
     const results: any[] = [];
 
     for (const c of candidates) {
@@ -573,6 +590,8 @@ export async function runGmailScan(
         emails_analyzed: analyzed,
         prospects_found: results.length,
         ai_cost_cents: costCents,
+        ai_cost_millicents: Math.round(costMillicents),
+        emails_failed: failed,
       })
       .eq("id", runId);
     await closeMission("completed");
@@ -587,6 +606,7 @@ export async function runGmailScan(
         emailsFailed: failed,
         prospectsFound: results.length,
         costCents,
+        costMillicents: Math.round(costMillicents),
       },
     };
   } catch (e) {
