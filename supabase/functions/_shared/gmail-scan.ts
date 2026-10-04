@@ -53,6 +53,14 @@ export interface ScanSummary {
  */
 const GMAIL_ACCESS_EXPIRED = "L'accès Gmail a expiré. Reconnectez le compte.";
 const GOOGLE_UNAVAILABLE = "Google n'a pas pu être joint. Réessayez dans quelques minutes.";
+const GOOGLE_ACCOUNT_RESTRICTED =
+  "Votre compte Google est restreint ou l'accès à NASSFLOW est bloqué par l'administrateur " +
+  "Google Workspace. Vérifiez votre abonnement Workspace et les autorisations des " +
+  "applications tierces.";
+const SERVER_OAUTH_MISCONFIGURED = "Problème de configuration NASSFLOW, contactez le support.";
+const GOOGLE_REFUSED =
+  "Google a refusé de renouveler l'accès à la boîte Gmail. Réessayez plus tard ; si le " +
+  "problème persiste, contactez le support.";
 const UNEXPECTED_ERROR = "L'analyse a échoué à cause d'une erreur inattendue. Réessayez plus tard.";
 
 /**
@@ -65,17 +73,62 @@ function userFacingDbError(error: { code?: string; message: string }): string {
 }
 
 /**
- * Code d'erreur OAuth renvoyé par Google (`{"error": "invalid_grant", …}`).
- * Seul `invalid_grant` signifie que le jeton ne servira plus jamais (révoqué,
- * ou expiré : 7 jours tant que l'application Google est en mode « Test »).
+ * Issue d'un rafraîchissement de jeton refusé par Google.
+ *
+ * - `expired` : `invalid_grant`, le jeton ne servira plus jamais (révoqué, ou
+ *   expiré au bout de 7 jours tant que l'application Google est en mode
+ *   « Test »). Seul cas qui désactive l'intégration.
+ * - `restricted` : compte Google restreint ou application bloquée par
+ *   l'administrateur Workspace (abonnement suspendu, règle d'accès). Le jeton
+ *   reste valide et le blocage peut se lever seul : l'intégration reste active.
+ * - `server_config` : identifiants OAuth de NASSFLOW refusés. Rien que
+ *   l'utilisateur puisse corriger.
+ * - `unavailable` : panne de Google (5xx, limitation de débit).
+ * - `refused` : tout autre refus, sans cause identifiable.
  */
-function googleOAuthError(body: string): string | null {
+export type TokenFailure = "expired" | "restricted" | "server_config" | "unavailable" | "refused";
+
+export interface GoogleOAuthErrorBody {
+  error: string | null;
+  description: string | null;
+  uri: string | null;
+}
+
+/** Codes OAuth qui désignent une restriction du compte ou de l'administrateur Workspace. */
+const RESTRICTION_ERRORS = new Set(["access_not_configured", "admin_policy_enforced", "org_internal"]);
+
+/**
+ * Indices de restriction dans `error_description` ou `error_uri`, pour les codes
+ * moins explicites (`unauthorized_client` avec « Account Restricted », lien
+ * `access.workspace.google.com/ServiceNotAllowed`…).
+ */
+const RESTRICTION_HINT =
+  /restrict|suspend|disabled|admin|workspace|policy|not ?allowed|servicenotallowed|access\.workspace\.google\.com/i;
+
+export function parseGoogleOAuthError(body: string): GoogleOAuthErrorBody {
   try {
     const parsed = JSON.parse(body);
-    return typeof parsed?.error === "string" ? parsed.error : null;
+    const field = (key: string) => (typeof parsed?.[key] === "string" ? parsed[key] : null);
+    return { error: field("error"), description: field("error_description"), uri: field("error_uri") };
   } catch {
-    return null;
+    return { error: null, description: null, uri: null };
   }
+}
+
+export function classifyTokenFailure(status: number, body: GoogleOAuthErrorBody): TokenFailure {
+  if (status >= 500 || status === 429) return "unavailable";
+  if (body.error === "invalid_grant") return "expired";
+  if (body.error && RESTRICTION_ERRORS.has(body.error)) return "restricted";
+  // Avant les indices : la description d'un client OAuth désactivé
+  // (« The OAuth client was disabled ») ne doit pas passer pour une
+  // restriction du compte de l'utilisateur.
+  if (body.error === "invalid_client" || body.error === "deleted_client") return "server_config";
+  const hint = `${body.description ?? ""} ${body.uri ?? ""}`;
+  // Tout 4xx (les 5xx et 429 sont écartés plus haut) : Google répond 400, 401
+  // ou 403 selon le code, sans que le statut seul dise s'il s'agit d'une restriction.
+  if (RESTRICTION_HINT.test(hint)) return "restricted";
+  if (body.error === "unauthorized_client") return "server_config";
+  return "refused";
 }
 
 /**
@@ -283,16 +336,38 @@ export async function runGmailScan(
       return await fail(GOOGLE_UNAVAILABLE);
     }
     if (!tokenRes.ok) {
-      const detail = await tokenRes.text();
-      console.error("rafraîchissement refusé", tokenRes.status, detail);
-      // Seul un jeton définitivement perdu désactive l'intégration. Une panne
-      // de Google (5xx) ou un défaut de configuration serveur laisse la
-      // connexion active : l'utilisateur n'a rien à reconnecter.
-      if (googleOAuthError(detail) === "invalid_grant") {
-        await admin.from("integrations").update({ status: "error" }).eq("id", integrationId);
-        return await fail(GMAIL_ACCESS_EXPIRED);
+      const raw = await tokenRes.text();
+      const googleError = parseGoogleOAuthError(raw);
+      const failure = classifyTokenFailure(tokenRes.status, googleError);
+      console.error("rafraîchissement refusé", {
+        failure,
+        status: tokenRes.status,
+        ...googleError,
+        // Corps brut seulement s'il n'est pas un JSON OAuth (page HTML d'un 502…).
+        ...(googleError.error ? {} : { raw: raw.slice(0, 500) }),
+      });
+      // Seul un jeton définitivement perdu désactive l'intégration : une
+      // restriction de compte, un défaut de configuration serveur ou une panne
+      // de Google laissent la connexion active, il n'y a rien à reconnecter.
+      switch (failure) {
+        case "expired":
+          await admin.from("integrations").update({ status: "error" }).eq("id", integrationId);
+          return await fail(GMAIL_ACCESS_EXPIRED);
+        case "restricted":
+          console.error("compte Google restreint ou bloqué par l'administrateur Workspace", {
+            integrationId,
+          });
+          return await fail(GOOGLE_ACCOUNT_RESTRICTED);
+        case "server_config":
+          console.error("configuration OAuth serveur : identifiants Google refusés", {
+            error: googleError.error,
+          });
+          return await fail(SERVER_OAUTH_MISCONFIGURED);
+        case "unavailable":
+          return await fail(GOOGLE_UNAVAILABLE);
+        case "refused":
+          return await fail(GOOGLE_REFUSED);
       }
-      return await fail(GOOGLE_UNAVAILABLE);
     }
     const accessToken = (await tokenRes.json()).access_token as string;
 
