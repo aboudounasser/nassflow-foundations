@@ -48,7 +48,34 @@ export interface ScanSummary {
   costCents: number;
   /** Coût réel, en millièmes de centime (`runs.ai_cost_millicents`). */
   costMillicents: number;
+  /** `budget` : arrêt avant la fin, budget IA quotidien de la boîte atteint. */
+  stopReason: "budget" | null;
+  /**
+   * Messages de la fenêtre restant à traiter (`runs.backlog_remaining`) :
+   * au-delà des 50 de ce passage, non analysés faute de budget, ou en échec
+   * réessayable. Borne basse si la liste a été tronquée à 10 pages.
+   */
+  backlogRemaining: number;
 }
+
+/** Plafond de messages ouverts par analyse, inchangé depuis la première version. */
+export const MAX_MESSAGES_PER_RUN = 50;
+/** Gmail rend au plus 500 identifiants par page : 5 000 au total. */
+const LIST_PAGE_SIZE = 500;
+export const MAX_LIST_PAGES = 10;
+/** Sans repère (première analyse), la fenêtre remonte à sept jours. */
+export const FIRST_PASS_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
+/**
+ * Marge sous le repère : couvre les messages horodatés juste avant le début de
+ * l'analyse précédente mais arrivés après. Les doublons sont écartés par
+ * `seen_messages`.
+ */
+export const WATERMARK_OVERLAP_MS = 60 * 60 * 1000;
+/** Identifiants par requête `in(...)` sur seen_messages : l'URL reste courte. */
+const SEEN_LOOKUP_CHUNK = 200;
+/** Miroirs des valeurs par défaut de `scan_schedules` (migration 20261004140000). */
+export const DEFAULT_DAILY_BUDGET_MILLICENTS = 10000;
+const DEFAULT_TIMEZONE = "Europe/Paris";
 
 /**
  * Messages destinés à l'utilisateur. Ils sont écrits dans `runs.error_message`
@@ -67,6 +94,50 @@ const GOOGLE_REFUSED =
   "problème persiste, contactez le support.";
 const UNEXPECTED_ERROR = "L'analyse a échoué à cause d'une erreur inattendue. Réessayez plus tard.";
 const SCAN_ALREADY_RUNNING = "Une analyse est déjà en cours pour cette boîte.";
+
+/**
+ * Décalage d'un fuseau à un instant donné, en millisecondes (Paris : +2 h en
+ * été, +1 h en hiver).
+ */
+function timezoneOffsetMs(at: Date, timeZone: string): number {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    hourCycle: "h23",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  }).formatToParts(at);
+  const get = (type: string) => Number(parts.find((p) => p.type === type)?.value);
+  const asUtc = Date.UTC(get("year"), get("month") - 1, get("day"), get("hour"), get("minute"), get("second"));
+  return asUtc - Math.floor(at.getTime() / 1000) * 1000;
+}
+
+/**
+ * Minuit local du jour de `now` dans `timeZone`, en instant absolu. Le budget
+ * quotidien se remet à zéro à ce moment-là.
+ *
+ * Deux passes : le décalage à minuit peut différer de celui de `now` le jour
+ * d'un changement d'heure (le 25 octobre 2026 à midi, Paris est à +1 h, mais
+ * minuit était encore à +2 h).
+ */
+export function startOfLocalDay(now: Date, timeZone: string): Date {
+  const local = new Date(now.getTime() + timezoneOffsetMs(now, timeZone));
+  const midnightAsUtc = Date.UTC(local.getUTCFullYear(), local.getUTCMonth(), local.getUTCDate());
+  const first = midnightAsUtc - timezoneOffsetMs(now, timeZone);
+  return new Date(midnightAsUtc - timezoneOffsetMs(new Date(first), timeZone));
+}
+
+/** Début de la fenêtre lue : repère moins la marge, ou sept jours sans repère. */
+export function listWindowStart(watermark: string | null, now: Date): Date {
+  if (watermark) {
+    const at = new Date(watermark).getTime();
+    if (Number.isFinite(at)) return new Date(at - WATERMARK_OVERLAP_MS);
+  }
+  return new Date(now.getTime() - FIRST_PASS_WINDOW_MS);
+}
 
 /**
  * Une erreur PostgreSQL n'atteint l'utilisateur que si elle a été rédigée pour
@@ -392,52 +463,107 @@ export async function runGmailScan(
     }
     const accessToken = (await tokenRes.json()).access_token as string;
 
-    // ─── 4. Lister les messages ──────────────────────────────
-    let listRes: Response;
-    try {
-      listRes = await fetch(
-        "https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=50&q=in:inbox",
-        { headers: { Authorization: `Bearer ${accessToken}` } },
-      );
-    } catch (e) {
-      console.error("Gmail injoignable", e);
-      return await fail(GOOGLE_UNAVAILABLE);
+    // ─── 4. Réglages de la boîte et budget du jour ──────────
+    // La ligne scan_schedules existe pour toute boîte Gmail (trigger et
+    // rattrapage de l'étape 4) ; son absence reste tolérée : fenêtre de sept
+    // jours, budget par défaut, et aucun repère enregistré.
+    const scanStartedAt = new Date();
+    const { data: schedule, error: scheduleError } = await admin
+      .from("scan_schedules")
+      .select("inbox_watermark, timezone, daily_ai_budget_millicents")
+      .eq("integration_id", integrationId)
+      .maybeSingle();
+    if (scheduleError) {
+      console.error("lecture scan_schedules refusée", scheduleError.message);
+      return await fail(userFacingDbError(scheduleError));
     }
-    if (!listRes.ok) {
-      console.error("liste des messages refusée", listRes.status, await listRes.text());
-      return await fail("Lecture de la boîte impossible.");
-    }
-    const ids = ((await listRes.json()).messages ?? []) as { id: string }[];
+    const timeZone: string = schedule?.timezone ?? DEFAULT_TIMEZONE;
+    const dailyBudget: number = schedule?.daily_ai_budget_millicents ?? DEFAULT_DAILY_BUDGET_MILLICENTS;
 
-    // ─── 4bis. Écarter ce qui a déjà été traité ──────────────
+    // Dépense du jour sur CETTE boîte, analyses manuelles et planifiées
+    // confondues. Un coût jamais mesuré (NULL) ne compte pas.
+    const { data: todayRuns, error: spentError } = await admin
+      .from("runs")
+      .select("ai_cost_millicents")
+      .eq("integration_id", integrationId)
+      .gte("started_at", startOfLocalDay(scanStartedAt, timeZone).toISOString());
+    if (spentError) {
+      // Sans connaître la dépense, on ne dépense pas.
+      console.error("lecture de la dépense du jour refusée", spentError.message);
+      return await fail(userFacingDbError(spentError));
+    }
+    const spentBefore = (todayRuns ?? []).reduce(
+      (sum: number, r: { ai_cost_millicents: number | null }) => sum + (r.ai_cost_millicents ?? 0),
+      0,
+    );
+
+    // ─── 5. Lister la fenêtre, page par page ─────────────────
+    // Gmail rend les messages du plus récent au plus ancien.
+    const windowStart = listWindowStart(schedule?.inbox_watermark ?? null, scanStartedAt);
+    const query = `in:inbox after:${Math.floor(windowStart.getTime() / 1000)}`;
+    const ids: string[] = [];
+    let pageToken: string | null = null;
+    let pages = 0;
+    do {
+      const url = new URL("https://gmail.googleapis.com/gmail/v1/users/me/messages");
+      url.searchParams.set("q", query);
+      url.searchParams.set("maxResults", String(LIST_PAGE_SIZE));
+      if (pageToken) url.searchParams.set("pageToken", pageToken);
+
+      let listRes: Response;
+      try {
+        listRes = await fetch(url, { headers: { Authorization: `Bearer ${accessToken}` } });
+      } catch (e) {
+        console.error("Gmail injoignable", e);
+        return await fail(GOOGLE_UNAVAILABLE);
+      }
+      if (!listRes.ok) {
+        console.error("liste des messages refusée", listRes.status, await listRes.text());
+        return await fail("Lecture de la boîte impossible.");
+      }
+      const page = await listRes.json();
+      for (const m of (page.messages ?? []) as { id: string }[]) ids.push(m.id);
+      pageToken = typeof page.nextPageToken === "string" ? page.nextPageToken : null;
+      pages++;
+    } while (pageToken && pages < MAX_LIST_PAGES);
+    // Liste tronquée : des messages plus anciens n'ont pas été vus, le repère
+    // ne doit pas les dépasser.
+    const truncated = pageToken !== null;
+
+    // ─── 5bis. Écarter ce qui a déjà été traité ──────────────
     // Sans cela, chaque exécution réanalyse les mêmes messages :
     // le même prospect réapparaît indéfiniment et on paie deux fois.
-    const { data: seenRows, error: seenError } = await admin
-      .from("seen_messages")
-      .select("message_id")
-      .eq("integration_id", integrationId)
-      .in("message_id", ids.map((m) => m.id));
-
-    if (seenError) {
-      console.error("lecture seen_messages refusée", seenError.message);
-      return await fail(userFacingDbError(seenError));
+    const seen = new Set<string>();
+    for (let i = 0; i < ids.length; i += SEEN_LOOKUP_CHUNK) {
+      const { data: seenRows, error: seenError } = await admin
+        .from("seen_messages")
+        .select("message_id")
+        .eq("integration_id", integrationId)
+        .in("message_id", ids.slice(i, i + SEEN_LOOKUP_CHUNK));
+      if (seenError) {
+        console.error("lecture seen_messages refusée", seenError.message);
+        return await fail(userFacingDbError(seenError));
+      }
+      for (const r of seenRows ?? []) seen.add(r.message_id);
     }
-    const seen = new Set((seenRows ?? []).map((r) => r.message_id));
+
+    const unseen = ids.filter((id) => !seen.has(id));
+    const skipped = ids.length - unseen.length;
+    // Les plus récents d'abord ; le reste attend le passage suivant.
+    const toOpen = unseen.slice(0, MAX_MESSAGES_PER_RUN);
+    const beyondLimit = unseen.length - toOpen.length;
 
     let scanned = 0;
-    let skipped = 0;
     let analyzed = 0;
+    // Échecs repris au prochain passage (non marqués vus), à la différence
+    // d'une réponse illisible du modèle, marquée vue.
+    let retryable = 0;
     const candidates: Candidate[] = [];
     // Messages traités lors de CE run, retenus ou non.
     const processed: { id: string; wasProspect: boolean }[] = [];
 
-    for (const { id } of ids) {
+    for (const id of toOpen) {
       scanned++;
-
-      if (seen.has(id)) {
-        skipped++;
-        continue;
-      }
 
       // Un message illisible (quota, panne passagère) n'interrompt pas le run :
       // il est compté en échec et, non marqué comme vu, repris au prochain passage.
@@ -450,12 +576,14 @@ export async function runGmailScan(
         if (!msgRes.ok) {
           console.error("message illisible", id, msgRes.status);
           failed++;
+          retryable++;
           continue;
         }
         msg = await msgRes.json();
       } catch (e) {
         console.error("message illisible", id, e);
         failed++;
+        retryable++;
         continue;
       }
       const headers = headerMap(msg.payload);
@@ -481,10 +609,21 @@ export async function runGmailScan(
       });
     }
 
-    // ─── 5. Analyse ──────────────────────────────────────────
+    // ─── 6. Analyse, sous budget ─────────────────────────────
     const results: any[] = [];
+    let stopReason: "budget" | null = null;
+    let notAnalyzed = 0;
 
-    for (const c of candidates) {
+    for (const [index, c] of candidates.entries()) {
+      // Vérifié AVANT chaque appel : le dépassement possible se limite au
+      // dernier appel autorisé, de l'ordre de 2 millicentimes.
+      if (spentBefore + costMillicents >= dailyBudget) {
+        stopReason = "budget";
+        // Non marqués vus : ils seront analysés quand le budget le permettra.
+        notAnalyzed = candidates.length - index;
+        break;
+      }
+
       analyzed++;
       // Panne ou refus du modèle : rien n'a été facturé, le message n'est pas
       // marqué comme vu et sera repris au prochain passage.
@@ -497,12 +636,14 @@ export async function runGmailScan(
         if (!aiRes.ok) {
           console.error("appel modèle refusé", aiRes.status, await aiRes.text());
           failed++;
+          retryable++;
           continue;
         }
         aiData = await aiRes.json();
       } catch (e) {
         console.error("modèle injoignable", e);
         failed++;
+        retryable++;
         continue;
       }
 
@@ -561,7 +702,7 @@ export async function runGmailScan(
       }
     }
 
-    // ─── 6. Mémoriser les messages traités ───────────────────
+    // ─── 7. Mémoriser les messages traités ───────────────────
     // Écrit APRÈS les résultats : si l'insertion précédente échoue,
     // le message reste à traiter plutôt que d'être perdu.
     if (processed.length > 0) {
@@ -578,8 +719,43 @@ export async function runGmailScan(
       if (seenInsertError) console.error("mémorisation partielle", seenInsertError.message);
     }
 
+    // ─── 8. Repère ───────────────────────────────────────────
+    // N'avance que si TOUT ce que la fenêtre contenait a été traité : rien
+    // au-delà des 50, rien bloqué par le budget, aucun échec à reprendre,
+    // liste complète. Sinon, un message laissé derrière sortirait de la
+    // fenêtre et ne serait jamais lu.
+    const backlogRemaining = beyondLimit + notAnalyzed + retryable;
+    let watermarkAdvanced = false;
+    if (schedule && backlogRemaining === 0 && !truncated) {
+      const { error: watermarkError } = await admin
+        .from("scan_schedules")
+        .update({ inbox_watermark: scanStartedAt.toISOString() })
+        .eq("integration_id", integrationId);
+      if (watermarkError) {
+        // Sans gravité : la fenêtre suivante sera simplement plus large.
+        console.error("repère non enregistré", watermarkError.message);
+      } else {
+        watermarkAdvanced = true;
+      }
+    }
+
     const costCents = Math.round(costMillicents / 1000);
-    if (failed > 0) console.warn("messages en échec", { runId, failed });
+    console.log("analyse terminée", {
+      runId,
+      windowStart: windowStart.toISOString(),
+      listed: ids.length,
+      pages,
+      truncated,
+      skipped,
+      opened: scanned,
+      analyzed,
+      failed,
+      backlogRemaining,
+      stopReason,
+      spentBefore,
+      dailyBudget,
+      watermarkAdvanced,
+    });
 
     await admin
       .from("runs")
@@ -592,6 +768,8 @@ export async function runGmailScan(
         ai_cost_cents: costCents,
         ai_cost_millicents: Math.round(costMillicents),
         emails_failed: failed,
+        stop_reason: stopReason,
+        backlog_remaining: backlogRemaining,
       })
       .eq("id", runId);
     await closeMission("completed");
@@ -607,6 +785,8 @@ export async function runGmailScan(
         prospectsFound: results.length,
         costCents,
         costMillicents: Math.round(costMillicents),
+        stopReason,
+        backlogRemaining,
       },
     };
   } catch (e) {
