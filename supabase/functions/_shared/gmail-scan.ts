@@ -7,7 +7,7 @@
  * client `service_role` et rend un verdict que le point d'entrée traduit en
  * réponse.
  */
-import type { SupabaseClient } from "jsr:@supabase/supabase-js@2";
+import type { SupabaseClient } from "jsr:@supabase/supabase-js@2.117.2";
 
 export interface ScanConfig {
   googleClientId: string;
