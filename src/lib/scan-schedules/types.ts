@@ -6,6 +6,8 @@
  * `ScanScheduleSettings` ; tout le reste est tenu par la plateforme.
  */
 
+import type { Run } from "@/lib/scans/types";
+
 /**
  * - `weekdays` : du lundi au vendredi, une fois ;
  * - `daily` : tous les jours, une fois ;
@@ -29,7 +31,25 @@ export interface ScanSchedule {
   /** Dernière modification des réglages (pas de l'état tenu par le système). */
   updatedAt: string;
   updatedBy: string | null;
+  /**
+   * Dernière analyse automatique, lue par `last_scheduled_run_id` plutôt que
+   * dans la liste des runs récents : vingt analyses manuelles ne la masquent pas.
+   */
+  lastScheduledRun: ScheduledRunSummary | null;
 }
+
+/** Ce que la carte affiche de la dernière analyse automatique. */
+export type ScheduledRunSummary = Pick<
+  Run,
+  | "id"
+  | "status"
+  | "startedAt"
+  | "emailsScanned"
+  | "prospectsFound"
+  | "stopReason"
+  | "backlogRemaining"
+  | "errorMessage"
+>;
 
 /** Les seuls champs que la base laisse modifier à un owner ou un admin. */
 export interface ScanScheduleSettings {

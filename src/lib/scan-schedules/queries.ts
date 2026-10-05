@@ -35,3 +35,15 @@ export function useUpdateScanSchedule(integrationId: string) {
     },
   });
 }
+
+/** Reprise après suspension : même effet sur le cache qu'une modification. */
+export function useResumeScanSchedule(integrationId: string) {
+  const { scope } = useSession();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => scanSchedulesService.resumeScanSchedule(scope, integrationId),
+    onSuccess: (schedule) => {
+      queryClient.setQueryData(scanScheduleKey(scope, integrationId), schedule);
+    },
+  });
+}

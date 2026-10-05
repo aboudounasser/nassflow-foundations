@@ -1,6 +1,7 @@
 import type { ConnectionStatus } from "@/lib/integrations-oauth/types";
+import { pluralize } from "@/lib/scans/meta";
 
-import type { ScanFrequency, ScanSchedule } from "./types";
+import type { ScanFrequency, ScanSchedule, ScheduledRunSummary } from "./types";
 
 /** Écart entre la première et la seconde analyse de `twice_daily` (migration 20261004140000). */
 export const SECOND_RUN_OFFSET_HOURS = 6;
@@ -108,5 +109,50 @@ export function scheduleAlert(
       };
     }
   }
+  // Échec isolé (dont un déclenchement resté sans réponse, qui ne laisse aucun
+  // run) : la boîte n'est pas encore suspendue, la prochaine échéance réessaie.
+  if (schedule.consecutiveFailures > 0 && schedule.lastError) {
+    return {
+      tone: "warning",
+      message: `La dernière analyse automatique a échoué : ${schedule.lastError} Nouvel essai à la prochaine échéance.`,
+    };
+  }
   return null;
+}
+
+/** La boîte a atteint le seuil : le dispatcher ne la lance plus jusqu'à une reprise. */
+export function isSuspended(schedule: ScanSchedule): boolean {
+  return schedule.enabled && schedule.consecutiveFailures >= MAX_CONSECUTIVE_FAILURES;
+}
+
+/**
+ * Résultat d'une analyse automatique, en une phrase : « 2 e-mails ouverts,
+ * aucun prospect », « Échouée : … ». Les compteurs d'un run en échec ne sont
+ * pas affichés — seule sa cause compte.
+ */
+export function describeScheduledRun(run: ScheduledRunSummary): string {
+  if (run.status === "running") return "En cours";
+  if (run.status === "failed") {
+    return run.errorMessage ? `Échouée : ${run.errorMessage}` : "Échouée";
+  }
+  const opened = pluralize(run.emailsScanned, "e-mail ouvert", "e-mails ouverts");
+  const prospects =
+    run.prospectsFound > 0
+      ? pluralize(run.prospectsFound, "prospect trouvé", "prospects trouvés")
+      : "aucun prospect";
+  const parts = [`${opened}, ${prospects}`];
+  if (run.stopReason === "budget") parts.push("arrêt sur le budget du jour");
+  if (run.backlogRemaining) {
+    parts.push(pluralize(run.backlogRemaining, "message en attente", "messages en attente"));
+  }
+  return parts.join(" · ");
+}
+
+/** Résumé d'une ligne, pour la ligne Gmail de l'Integrations Hub. */
+export function describeScheduleStatus(schedule: ScanSchedule): string {
+  if (!schedule.enabled) return "Analyse automatique en pause";
+  if (isSuspended(schedule)) return "Analyse automatique suspendue après plusieurs échecs";
+  return schedule.nextRunAt
+    ? `Analyse automatique : prochaine le ${formatNextRun(schedule.nextRunAt, schedule.timezone)}`
+    : "Analyse automatique active";
 }

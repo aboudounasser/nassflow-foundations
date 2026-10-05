@@ -53,7 +53,7 @@ function errorFromBody(body: unknown): string | null {
  */
 const KNOWN_STATUSES: RunStatus[] = ["running", "succeeded", "failed"];
 
-function toRunStatus(value: string): RunStatus {
+export function toRunStatus(value: string): RunStatus {
   return KNOWN_STATUSES.includes(value as RunStatus) ? (value as RunStatus) : "failed";
 }
 
@@ -70,12 +70,12 @@ function toRunTriggerSource(value: unknown): RunTriggerSource {
  * `stop_reason` est contraint côté base (`budget`). Une valeur inconnue vaut
  * « pas d'arrêt » : on n'annonce jamais un budget atteint sans preuve.
  */
-function toRunStopReason(value: unknown): RunStopReason | null {
+export function toRunStopReason(value: unknown): RunStopReason | null {
   return value === "budget" ? "budget" : null;
 }
 
 /** Mesure facultative : `null` reste « jamais mesuré », jamais 0. */
-function toMeasured(value: unknown): number | null {
+export function toMeasured(value: unknown): number | null {
   return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
 
@@ -93,7 +93,7 @@ function toCrmAction(value: unknown): CrmAction | null {
 }
 
 /** Les compteurs sont nuls tant que l'Edge Function n'a pas conclu. */
-function toCount(value: number | null): number {
+export function toCount(value: number | null): number {
   return typeof value === "number" && Number.isFinite(value) ? value : 0;
 }
 

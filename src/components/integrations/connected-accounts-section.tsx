@@ -3,6 +3,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { EmptyState } from "@/components/common/empty-state";
+import { ScanScheduleSummary } from "@/components/scan-schedules/scan-schedule-summary";
 import { WidgetShell } from "@/components/dashboard/widget-shell";
 import { useSession } from "@/components/providers/session-provider";
 import {
@@ -80,7 +81,9 @@ function ConnectionRow({ connection }: { connection: Connection }) {
   const ProviderIcon = provider.icon;
 
   const revoked = connection.status === "revoked";
-  const canDisconnect = CONNECT_ROLES.includes(session.role) && !revoked;
+  const canManage = CONNECT_ROLES.includes(session.role);
+  const canDisconnect = canManage && !revoked;
+  const showSchedule = canManage && !revoked && connection.provider === "gmail";
   const accountLabel = connectionAccountLabel(connection);
   const label = accountLabel ?? provider.label;
 
@@ -150,6 +153,7 @@ function ConnectionRow({ connection }: { connection: Connection }) {
           </>
         ) : null}
       </div>
+      {showSchedule ? <ScanScheduleSummary connection={connection} /> : null}
     </li>
   );
 }

@@ -3,6 +3,7 @@ import { ArrowLeft, Bot } from "lucide-react";
 
 import { AgentConnections } from "@/components/agents/agent-connections";
 import { AgentPulseSection } from "@/components/agents/agent-pulse-section";
+import { AgentScanSchedules } from "@/components/agents/agent-scan-schedules";
 import { AgentSalesActivity } from "@/components/agents/agent-sales-activity";
 import { useAgentState } from "@/components/agents/use-agent-state";
 import { EmptyState } from "@/components/common/empty-state";
@@ -28,9 +29,10 @@ export const Route = createFileRoute("/agents/$agentId")({
 });
 
 /**
- * Fiche agent — trois sections au plus, toutes sur données réelles :
+ * Fiche agent — toutes les sections sur données réelles :
  * CEO Agent : Présentation, Résumé du jour.
- * Sales Agent : Présentation, Activité, Connexions.
+ * Sales Agent : Présentation, Activité, Connexions, puis l'analyse
+ * automatique de chaque boîte Gmail (owner et admin seulement).
  * Un agent masqué ou inconnu vaut « introuvable ».
  */
 function Page() {
@@ -79,6 +81,7 @@ function Page() {
           <section className="col-span-12 min-w-0">
             <AgentConnections />
           </section>
+          <AgentScanSchedules />
         </>
       ) : null}
     </>

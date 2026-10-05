@@ -6,13 +6,26 @@
  * reste (échéance, traçabilité) est recalculé par trigger : la ligne relue
  * après modification fait foi.
  */
-import type { ScanFrequency, ScanSchedule, ScanScheduleSettings } from "@/lib/scan-schedules/types";
+import type {
+  ScanFrequency,
+  ScanSchedule,
+  ScanScheduleSettings,
+  ScheduledRunSummary,
+} from "@/lib/scan-schedules/types";
 import { supabase } from "@/lib/supabase/client";
 import type { Database } from "@/lib/supabase/database.types";
 import type { Scope } from "@/lib/tenancy/types";
 
+import { toCount, toMeasured, toRunStatus, toRunStopReason } from "./scans";
+
+/**
+ * La dernière analyse automatique est jointe par sa clé étrangère : la RLS de
+ * `runs` (owner et admin) s'applique à la jointure comme à une lecture directe.
+ */
 const SCHEDULE_COLUMNS =
-  "integration_id, enabled, frequency, run_hour, timezone, next_run_at, consecutive_failures, last_error, last_error_at, updated_at, updated_by";
+  "integration_id, enabled, frequency, run_hour, timezone, next_run_at, consecutive_failures, last_error, last_error_at, updated_at, updated_by, last_scheduled_run:runs!scan_schedules_last_scheduled_run_id_fkey(id, status, started_at, emails_scanned, prospects_found, stop_reason, backlog_remaining, error_message)";
+
+type RunRow = Database["public"]["Tables"]["runs"]["Row"];
 
 type ScheduleRow = Pick<
   Database["public"]["Tables"]["scan_schedules"]["Row"],
@@ -27,7 +40,19 @@ type ScheduleRow = Pick<
   | "last_error_at"
   | "updated_at"
   | "updated_by"
->;
+> & {
+  last_scheduled_run: Pick<
+    RunRow,
+    | "id"
+    | "status"
+    | "started_at"
+    | "emails_scanned"
+    | "prospects_found"
+    | "stop_reason"
+    | "backlog_remaining"
+    | "error_message"
+  > | null;
+};
 
 /**
  * `frequency` est contrainte côté base. Une valeur inconnue vaut `weekdays`,
@@ -35,6 +60,20 @@ type ScheduleRow = Pick<
  */
 function toFrequency(value: string): ScanFrequency {
   return value === "daily" || value === "twice_daily" ? value : "weekdays";
+}
+
+function toRunSummary(row: ScheduleRow["last_scheduled_run"]): ScheduledRunSummary | null {
+  if (!row) return null;
+  return {
+    id: row.id,
+    status: toRunStatus(row.status),
+    startedAt: row.started_at,
+    emailsScanned: toCount(row.emails_scanned),
+    prospectsFound: toCount(row.prospects_found),
+    stopReason: toRunStopReason(row.stop_reason),
+    backlogRemaining: toMeasured(row.backlog_remaining),
+    errorMessage: row.error_message,
+  };
 }
 
 function toSchedule(row: ScheduleRow): ScanSchedule {
@@ -50,6 +89,7 @@ function toSchedule(row: ScheduleRow): ScanSchedule {
     lastErrorAt: row.last_error_at,
     updatedAt: row.updated_at,
     updatedBy: row.updated_by,
+    lastScheduledRun: toRunSummary(row.last_scheduled_run),
   };
 }
 
@@ -102,4 +142,20 @@ export async function updateScanSchedule(
   // Zéro ligne : la RLS a filtré la mise à jour (rôle insuffisant).
   if (!data) throw new Error("Vous n'avez pas le droit de modifier ces réglages.");
   return toSchedule(data);
+}
+
+/**
+ * Reprend une boîte suspendue après trois échecs consécutifs.
+ *
+ * Le trigger de la base ne remet le compteur à zéro qu'au passage de
+ * « en pause » à « active » : la reprise est donc une pause suivie d'une
+ * activation. Si la seconde étape échoue, la boîte reste en pause — un état
+ * sûr, affiché tel quel, que le bouton « Activer » permet de quitter.
+ */
+export async function resumeScanSchedule(
+  scope: Scope,
+  integrationId: string,
+): Promise<ScanSchedule> {
+  await updateScanSchedule(scope, integrationId, { enabled: false });
+  return updateScanSchedule(scope, integrationId, { enabled: true });
 }

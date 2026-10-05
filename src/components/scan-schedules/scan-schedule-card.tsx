@@ -22,12 +22,18 @@ import {
   SCAN_FREQUENCIES,
   SCAN_FREQUENCY,
   describeSchedule,
+  describeScheduledRun,
   describeTimezone,
   formatNextRun,
   formatRunHour,
+  isSuspended,
   scheduleAlert,
 } from "@/lib/scan-schedules/meta";
-import { useScanSchedule, useUpdateScanSchedule } from "@/lib/scan-schedules/queries";
+import {
+  useResumeScanSchedule,
+  useScanSchedule,
+  useUpdateScanSchedule,
+} from "@/lib/scan-schedules/queries";
 import type { ScanFrequency, ScanScheduleSettings } from "@/lib/scan-schedules/types";
 import { formatRelativeScanDate } from "@/lib/scans/meta";
 import { useRuns } from "@/lib/scans/queries";
@@ -63,26 +69,26 @@ function latestRun(runs: Run[], integrationId: string, source: Run["triggerSourc
 
 /**
  * Réglages d'analyse automatique d'une boîte Gmail : activation, fréquence,
- * heure, prochaine échéance et état.
+ * heure, prochaine échéance, dernière analyse automatique et son résultat.
  *
- * NON MONTÉE À CE JOUR. Règle produit : un réglage qui ne fait rien n'est pas
- * affiché. Cette carte n'entre dans l'interface (hub d'intégrations, sous la
- * ligne Gmail) qu'une fois le dispatcher de l'étape 6 actif — jamais avec une
- * mention « Bientôt ».
+ * Montée sur la fiche Sales Agent, seul endroit où se règle l'analyse
+ * automatique ; l'Integrations Hub n'en montre qu'un résumé.
  *
- * Réservée aux owner et admin, comme la RLS de `scan_schedules`. L'échéance
- * affichée est celle que la base a recalculée, jamais une estimation locale.
+ * Réservée aux owner et admin, comme la RLS de `scan_schedules` : rien n'est
+ * rendu pour un autre rôle. L'échéance affichée est celle que la base a
+ * recalculée, jamais une estimation locale.
  */
 export function ScanScheduleCard({ connection }: { connection: Connection }) {
   const { session } = useSession();
   const scheduleQuery = useScanSchedule(connection.id);
   const runsQuery = useRuns();
   const updateMutation = useUpdateScanSchedule(connection.id);
+  const resumeMutation = useResumeScanSchedule(connection.id);
 
   const canEdit = PRIVILEGED_ROLES.includes(session.role);
   const schedule = scheduleQuery.data ?? null;
   const runs = runsQuery.data ?? [];
-  const busy = updateMutation.isPending;
+  const busy = updateMutation.isPending || resumeMutation.isPending;
 
   const state: WidgetState = scheduleQuery.isError
     ? "error"
@@ -100,10 +106,20 @@ export function ScanScheduleCard({ connection }: { connection: Connection }) {
     });
   };
 
+  const resume = () => {
+    resumeMutation.mutate(undefined, {
+      onSuccess: () => toast.success("Analyse automatique reprise"),
+      onError: (e) => toast.error(e instanceof Error ? e.message : UPDATE_FALLBACK_ERROR),
+    });
+  };
+
+  if (!canEdit) return null;
+
   const alert = schedule ? scheduleAlert(schedule, connection.status) : null;
-  const lastAuto = latestRun(runs, connection.id, "schedule");
+  const lastAuto = schedule?.lastScheduledRun ?? null;
   const lastManual = latestRun(runs, connection.id, "manual");
   const canEnable = connection.status === "active";
+  const suspended = schedule ? isSuspended(schedule) : false;
 
   return (
     <WidgetShell
@@ -171,12 +187,23 @@ export function ScanScheduleCard({ connection }: { connection: Connection }) {
             />
           </div>
 
+          {lastAuto ? (
+            <p
+              className={cn(
+                "text-[14px]",
+                lastAuto.status === "failed" ? "text-destructive" : "text-muted-foreground",
+              )}
+            >
+              Résultat de la dernière analyse automatique : {describeScheduledRun(lastAuto)}
+            </p>
+          ) : null}
+
           <div className="flex flex-col gap-3 @2xl:flex-row @2xl:items-end">
             <div className="min-w-0 flex-1 space-y-1.5">
               <Label htmlFor={`scan-frequency-${connection.id}`}>Fréquence</Label>
               <Select
                 value={schedule.frequency}
-                disabled={!canEdit || busy}
+                disabled={busy}
                 onValueChange={(value) =>
                   save({ frequency: value as ScanFrequency }, "Fréquence enregistrée")
                 }
@@ -198,7 +225,7 @@ export function ScanScheduleCard({ connection }: { connection: Connection }) {
               <Label htmlFor={`scan-hour-${connection.id}`}>Heure</Label>
               <Select
                 value={String(schedule.runHour)}
-                disabled={!canEdit || busy}
+                disabled={busy}
                 onValueChange={(value) => save({ runHour: Number(value) }, "Heure enregistrée")}
               >
                 <SelectTrigger id={`scan-hour-${connection.id}`} className="w-full @2xl:w-[120px]">
@@ -214,28 +241,36 @@ export function ScanScheduleCard({ connection }: { connection: Connection }) {
               </Select>
             </div>
 
-            {canEdit ? (
-              schedule.enabled ? (
-                <Button
-                  type="button"
-                  variant="secondary"
-                  loading={busy}
-                  disabled={busy}
-                  onClick={() => save({ enabled: false }, "Analyse automatique mise en pause")}
-                >
-                  Mettre en pause
-                </Button>
-              ) : (
-                <Button
-                  type="button"
-                  loading={busy}
-                  disabled={busy || !canEnable}
-                  onClick={() => save({ enabled: true }, "Analyse automatique activée")}
-                >
-                  Activer
-                </Button>
-              )
+            {suspended ? (
+              <Button
+                type="button"
+                loading={resumeMutation.isPending}
+                disabled={busy || !canEnable}
+                onClick={resume}
+              >
+                Reprendre
+              </Button>
             ) : null}
+            {schedule.enabled ? (
+              <Button
+                type="button"
+                variant="secondary"
+                loading={updateMutation.isPending}
+                disabled={busy}
+                onClick={() => save({ enabled: false }, "Analyse automatique mise en pause")}
+              >
+                Mettre en pause
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                loading={updateMutation.isPending}
+                disabled={busy || !canEnable}
+                onClick={() => save({ enabled: true }, "Analyse automatique activée")}
+              >
+                Activer
+              </Button>
+            )}
           </div>
 
           <p className="text-[12px] text-muted-foreground">
