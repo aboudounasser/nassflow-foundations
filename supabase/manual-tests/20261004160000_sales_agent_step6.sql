@@ -89,6 +89,30 @@ begin
   insert into pg_temp.step6_results (cas, ok, detail) values (
     'A3 second passage immédiat → aucun nouveau déclenchement', n = 1, n::text);
 
+  -- A4 : déclenchement expiré sans réclamation → un échec, compté une fois.
+  insert into private.scan_dispatches (integration_id, organization_id, token_hash, expires_at)
+  values (i_paused, org_id, extensions.digest('jeton-jamais-reclame', 'sha256'), now() - interval '1 second');
+
+  perform private.dispatch_due_gmail_scans();
+  select * into s from public.scan_schedules where integration_id = i_paused;
+  select * into d from private.scan_dispatches
+   where token_hash = extensions.digest('jeton-jamais-reclame', 'sha256');
+  insert into pg_temp.step6_results (cas, ok, detail) values (
+    'A4 déclenchement expiré non réclamé → un échec, last_error renseigné, marqué missed_at',
+    s.consecutive_failures = 1 and d.missed_at is not null
+      and s.last_error like 'L''analyse automatique n''a pas pu démarrer%',
+    format('failures=%s missed=%s', s.consecutive_failures, d.missed_at));
+
+  perform private.dispatch_due_gmail_scans();
+  select * into s from public.scan_schedules where integration_id = i_paused;
+  insert into pg_temp.step6_results (cas, ok, detail) values (
+    'A5 passage suivant → le même déclenchement n''est pas recompté', s.consecutive_failures = 1,
+    format('failures=%s', s.consecutive_failures));
+
+  select count(*) into n from public.claim_scan_dispatch('jeton-jamais-reclame');
+  insert into pg_temp.step6_results (cas, ok, detail) values (
+    'A6 déclenchement compté manqué → ne peut plus être réclamé', n = 0, n::text);
+
   -- ─── B. Jeton à usage unique ───
   insert into private.scan_dispatches (integration_id, organization_id, token_hash, expires_at)
   values (i_future, org_id, extensions.digest('jeton-de-test-valide', 'sha256'), now() + interval '10 minutes'),

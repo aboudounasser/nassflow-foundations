@@ -59,9 +59,13 @@ create table private.scan_dispatches (
   created_at timestamptz not null default now(),
   expires_at timestamptz not null,
   claimed_at timestamptz,
+  -- Expiré sans avoir été réclamé (fonction injoignable, requête perdue) :
+  -- compté UNE fois comme échec de la boîte, puis marqué ici.
+  missed_at timestamptz,
   -- Identifiant de la requête dans net._http_response (conservée 6 h).
   net_request_id bigint,
-  run_id uuid references public.runs (id) on delete set null
+  run_id uuid references public.runs (id) on delete set null,
+  constraint scan_dispatches_claimed_or_missed check (claimed_at is null or missed_at is null)
 );
 
 create index scan_dispatches_created_at_idx on private.scan_dispatches (created_at);
@@ -146,6 +150,30 @@ begin
 
   -- Purge du journal : 30 jours d'historique suffisent à l'audit.
   delete from private.scan_dispatches where created_at < now() - interval '30 days';
+
+  -- Déclenchements expirés sans avoir été réclamés : la requête n'a jamais
+  -- atteint la fonction (panne, délai, 5xx de la passerelle). L'échéance a
+  -- déjà été avancée, l'analyse n'a pas eu lieu : c'est un échec de la boîte,
+  -- compté UNE seule fois grâce à missed_at. Fait AVANT les envois : une boîte
+  -- qui atteint ici 3 échecs n'est pas relancée dans le même passage.
+  -- Expiration et réclamation s'excluent (expires_at > now() pour réclamer,
+  -- <= now() pour compter) et le verrou de ligne les sérialise.
+  with missed as (
+    update private.scan_dispatches d
+       set missed_at = now()
+     where d.claimed_at is null
+       and d.missed_at is null
+       and d.expires_at <= now()
+    returning d.integration_id
+  ), per_box as (
+    select integration_id, count(*)::smallint as n from missed group by integration_id
+  )
+  update public.scan_schedules s
+     set consecutive_failures = s.consecutive_failures + per_box.n,
+         last_error = 'L''analyse automatique n''a pas pu démarrer : le service d''analyse n''a pas répondu.',
+         last_error_at = now()
+    from per_box
+   where s.integration_id = per_box.integration_id;
 
   for due in
     update public.scan_schedules s
