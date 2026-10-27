@@ -15,7 +15,8 @@ export interface AgentState {
  * État d'un agent, dérivé des tables réelles — jamais un statut déclaré.
  *
  * - CEO Agent : un résumé existe-t-il pour aujourd'hui (`pulses`) ?
- * - Sales Agent : une boîte Gmail est-elle active (`integrations`) ? La RLS
+ * - Sales Agent et Email Agent : une boîte Gmail est-elle active
+ *   (`integrations`) ? Les deux lisent la même analyse. La RLS
  *   réserve cette table aux owner et admin : pour les autres rôles, l'état est
  *   inconnu et rien n'est affiché plutôt qu'un « non connecté » erroné.
  *
@@ -34,7 +35,7 @@ export function useAgentState(agentId: ProductAgentId): AgentState | null {
       : { label: "Aucun résumé aujourd'hui", variant: "neutral" };
   }
 
-  if (agentId === "a-sales") {
+  if (agentId === "a-sales" || agentId === "a-email") {
     if (!PRIVILEGED_ROLES.includes(session.role)) return null;
     if (connectionsQuery.isPending || connectionsQuery.isError) return null;
     const gmailActive = connectionsQuery.data.some(

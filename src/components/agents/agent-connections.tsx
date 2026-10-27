@@ -17,7 +17,8 @@ import type { Connection } from "@/lib/integrations-oauth/types";
 import { PRIVILEGED_ROLES } from "@/lib/organization/meta";
 
 /** Les deux comptes dont le Sales Agent a besoin, dans l'ordre du pipeline. */
-const PROVIDERS = ["gmail", "hubspot"] as const;
+const SALES_PROVIDERS = ["gmail", "hubspot"];
+const SALES_DESCRIPTION = "Comptes utilisés par l'agent : Gmail pour lire, HubSpot pour envoyer.";
 
 /** Le compte actif du fournisseur, sinon le plus récent — la liste est déjà triée. */
 function connectionFor(connections: Connection[], provider: string): Connection | null {
@@ -26,11 +27,18 @@ function connectionFor(connections: Connection[], provider: string): Connection 
 }
 
 /**
- * « Connexions » de la fiche Sales Agent : Gmail et HubSpot avec leur statut
- * réel (`integrations`), à la place de l'ancienne liste d'outils fictifs.
- * La gestion reste sur l'Integrations Hub.
+ * « Connexions » d'une fiche agent : les comptes dont l'agent a besoin, avec
+ * leur statut réel (`integrations`). Par défaut, ceux du Sales Agent (Gmail et
+ * HubSpot) ; l'Email Agent n'utilise que Gmail. La gestion reste sur
+ * l'Integrations Hub.
  */
-export function AgentConnections() {
+export function AgentConnections({
+  providers = SALES_PROVIDERS,
+  description = SALES_DESCRIPTION,
+}: {
+  providers?: string[] | undefined;
+  description?: string | undefined;
+} = {}) {
   const { session } = useSession();
   const canRead = PRIVILEGED_ROLES.includes(session.role);
   const connectionsQuery = useConnections();
@@ -47,7 +55,7 @@ export function AgentConnections() {
   return (
     <WidgetShell
       title="Connexions"
-      description="Comptes utilisés par l'agent : Gmail pour lire, HubSpot pour envoyer."
+      description={description}
       icon={Link2}
       state={state}
       onRetry={() => void connectionsQuery.refetch()}
@@ -69,7 +77,7 @@ export function AgentConnections() {
         />
       ) : (
         <ul className="flex flex-col gap-3">
-          {PROVIDERS.map((provider) => {
+          {providers.map((provider) => {
             const meta = providerMeta(provider);
             const ProviderIcon = meta.icon;
             const connection = connectionFor(connections, provider);

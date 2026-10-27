@@ -8,7 +8,8 @@
  *
  * Les données vivantes ne sont jamais ici : elles viennent des tables réelles
  * (`pulses` pour le CEO Agent ; `runs`, `run_results`, `missions` et
- * `integrations` pour le Sales Agent), lues par les sections de la fiche.
+ * `integrations` pour le Sales Agent ; `inbox_messages` et
+ * `email_reply_drafts` pour l'Email Agent), lues par les sections de la fiche.
  */
 
 export type ProductAgentId = "a-ceo" | "a-sales" | "a-email" | "a-marketing" | "a-support";
@@ -47,9 +48,10 @@ export const PRODUCT_AGENTS: ProductAgent[] = [
     id: "a-email",
     name: "Email Agent",
     avatar: "EM",
-    role: "E-mail",
-    description: null,
-    available: false,
+    role: "Tri de la boîte e-mail",
+    description:
+      "Trie les e-mails reçus par catégorie et priorité, résume chacun en une phrase et propose une réponse à la demande, que vous relisez et envoyez vous-même.",
+    available: true,
   },
   {
     id: "a-marketing",

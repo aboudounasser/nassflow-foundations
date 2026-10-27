@@ -7,6 +7,7 @@ import { AgentScanSchedules } from "@/components/agents/agent-scan-schedules";
 import { AgentSalesActivity } from "@/components/agents/agent-sales-activity";
 import { useAgentState } from "@/components/agents/use-agent-state";
 import { EmptyState } from "@/components/common/empty-state";
+import { InboxTriageWidget } from "@/components/inbox/inbox-triage-widget";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -33,6 +34,7 @@ export const Route = createFileRoute("/agents/$agentId")({
  * CEO Agent : Présentation, Résumé du jour.
  * Sales Agent : Présentation, Activité, Connexions, puis l'analyse
  * automatique de chaque boîte Gmail (owner et admin seulement).
+ * Email Agent : Présentation, Boîte triée, Connexions.
  * Un agent masqué ou inconnu vaut « introuvable ».
  */
 function Page() {
@@ -82,6 +84,20 @@ function Page() {
             <AgentConnections />
           </section>
           <AgentScanSchedules />
+        </>
+      ) : null}
+
+      {agent.id === "a-email" ? (
+        <>
+          <section className="col-span-12 min-w-0">
+            <InboxTriageWidget />
+          </section>
+          <section className="col-span-12 min-w-0">
+            <AgentConnections
+              providers={["gmail"]}
+              description="Compte utilisé par l'agent : Gmail, en lecture seule. Les réponses proposées sont copiées et envoyées par vous."
+            />
+          </section>
         </>
       ) : null}
     </>

@@ -387,6 +387,159 @@ export type Database = {
         ];
       };
       /**
+       * Tri de l'Email Agent (migration 20261028120000) : une ligne par
+       * message analysé, écrite par l'analyse (`service_role`). Le navigateur
+       * lit (owner/admin) et ne modifie que `status` (grant de colonne).
+       * `category`, `priority` et `status` sont contraints côté base : le
+       * service les rétrécit. Purgé à 90 jours.
+       */
+      inbox_messages: {
+        Row: {
+          category: string;
+          created_at: string;
+          from_header: string | null;
+          id: string;
+          integration_id: string;
+          message_id: string;
+          organization_id: string;
+          priority: string;
+          received_at: string | null;
+          run_id: string | null;
+          status: string;
+          status_changed_at: string | null;
+          status_changed_by: string | null;
+          subject: string | null;
+          summary: string | null;
+          thread_id: string | null;
+        };
+        Insert: {
+          category: string;
+          created_at?: string;
+          from_header?: string | null;
+          id?: string;
+          integration_id: string;
+          message_id: string;
+          organization_id: string;
+          priority?: string;
+          received_at?: string | null;
+          run_id?: string | null;
+          status?: string;
+          status_changed_at?: string | null;
+          status_changed_by?: string | null;
+          subject?: string | null;
+          summary?: string | null;
+          thread_id?: string | null;
+        };
+        Update: {
+          category?: string;
+          created_at?: string;
+          from_header?: string | null;
+          id?: string;
+          integration_id?: string;
+          message_id?: string;
+          organization_id?: string;
+          priority?: string;
+          received_at?: string | null;
+          run_id?: string | null;
+          status?: string;
+          status_changed_at?: string | null;
+          status_changed_by?: string | null;
+          subject?: string | null;
+          summary?: string | null;
+          thread_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "inbox_messages_integration_id_fkey";
+            columns: ["integration_id"];
+            isOneToOne: false;
+            referencedRelation: "integrations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "inbox_messages_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "inbox_messages_run_id_fkey";
+            columns: ["run_id"];
+            isOneToOne: false;
+            referencedRelation: "runs";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      /**
+       * Propositions de réponse (migration 20261028120000) : une ligne par
+       * génération, écrite par l'Edge Function `draft-email-reply`. Lecture
+       * seule depuis le navigateur. `body` vaut NULL quand la réponse du
+       * modèle était illisible (le coût reste compté). Purgé à 30 jours.
+       */
+      email_reply_drafts: {
+        Row: {
+          body: string | null;
+          cost_millicents: number;
+          created_at: string;
+          created_by: string | null;
+          id: string;
+          inbox_message_id: string;
+          integration_id: string;
+          missing_info: Json;
+          model: string;
+          organization_id: string;
+        };
+        Insert: {
+          body?: string | null;
+          cost_millicents: number;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          inbox_message_id: string;
+          integration_id: string;
+          missing_info?: Json;
+          model: string;
+          organization_id: string;
+        };
+        Update: {
+          body?: string | null;
+          cost_millicents?: number;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          inbox_message_id?: string;
+          integration_id?: string;
+          missing_info?: Json;
+          model?: string;
+          organization_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "email_reply_drafts_inbox_message_id_fkey";
+            columns: ["inbox_message_id"];
+            isOneToOne: false;
+            referencedRelation: "inbox_messages";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "email_reply_drafts_integration_id_fkey";
+            columns: ["integration_id"];
+            isOneToOne: false;
+            referencedRelation: "integrations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "email_reply_drafts_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      /**
        * Une mission par analyse Gmail (`run_id` la relie au run
        * correspondant), ouverte par l'Edge Function `run-gmail-scan` au
        * lancement du run et close (`completed`/`failed`) à la fin. Aucune

@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { useSession } from "@/components/providers/session-provider";
+import { inboxRootKey } from "@/lib/inbox/queries";
 import { missionsKey } from "@/lib/missions/queries";
 import { scopeKey } from "@/lib/tenancy/keys";
 import type { Scope } from "@/lib/tenancy/types";
@@ -60,8 +61,9 @@ export function useRunResults(runId: string | null) {
  * La liste des exécutions est invalidée au succès : le nouveau run y apparaît
  * avec ses compteurs. Les résultats le sont aussi, sans quoi les prospects que
  * l'analyse vient de trouver n'apparaîtraient qu'au prochain chargement. Les
- * missions enfin : chaque analyse en ouvre une, que la liste et l'accueil
- * doivent afficher sans attendre.
+ * missions : chaque analyse en ouvre une, que la liste et l'accueil doivent
+ * afficher sans attendre. Le tri de l'Email Agent enfin, écrit par la même
+ * analyse.
  */
 export function useStartGmailScan() {
   const { scope } = useSession();
@@ -72,6 +74,7 @@ export function useStartGmailScan() {
       void queryClient.invalidateQueries({ queryKey: runsKey(scope) });
       void queryClient.invalidateQueries({ queryKey: runResultsRootKey(scope) });
       void queryClient.invalidateQueries({ queryKey: missionsKey(scope) });
+      void queryClient.invalidateQueries({ queryKey: inboxRootKey(scope) });
     },
   });
 }
